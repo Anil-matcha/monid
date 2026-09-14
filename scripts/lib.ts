@@ -5,8 +5,14 @@ import {
     contractConfig,
     loadCategoryRegistry,
     loadConnectorDefs,
+    manifestKeyFor,
+    objectKeyFor,
+    type PublishDocEntry,
+    type PublishFnEntry,
     sha256Hex,
     stableStringify,
+    zLatestPointer,
+    zPublishManifest,
 } from "@shared/core";
 import type { Json } from "@shared/core";
 import { compileBundle } from "@shared/compiler";
@@ -181,9 +187,11 @@ export async function findEndpointDir(
 // ── publish emit (.output/publish/) ─────────────────────────────────────
 //
 // The split, content-addressed layout the hosted catalog service ingests
-// from S3 (the manifest schema is mirrored as zPublishManifest in
-// monid-services' shared/models/catalog/publish.ts — the publish job's
-// download-verify step validates against it, so drift fails loudly there):
+// from S3. The CONTRACT (schemas + layout constants) lives in
+// shared/core/schema/bundle/publish.ts — the one definition both sides
+// share: this emitter validates its output against zPublishManifest, and
+// monid-services' download-verify + ingest parse with the same schema via
+// its vendored connector-core snapshot. Drift is structurally impossible.
 //
 //   .output/publish/
 //   ├── latest.json                          ← pointer; uploaded LAST by CI
@@ -196,9 +204,6 @@ export async function findEndpointDir(
 // everything it has already embedded.
 
 export const PUBLISH_DIR = join(OUTPUT_DIR, "publish");
-
-const objectRelKey = (hash: string) =>
-    `publishes/objects/sha256/${hash.replace(/^sha256:/, "")}.json`;
 
 export interface PublishEmit {
     publishDir: string;
@@ -228,12 +233,12 @@ export async function emitPublish(
 
     const writeObject = async (hash: string, value: Json) => {
         await Deno.writeTextFile(
-            join(publishDir, objectRelKey(hash)),
+            join(publishDir, objectKeyFor(hash)),
             stableStringify(value),
         );
     };
 
-    const docs: Array<Record<string, Json>> = [];
+    const docs: PublishDocEntry[] = [];
     for (const doc of Object.values(bundle.providers)) {
         await writeObject(doc.hash, doc as unknown as Json);
         docs.push({
@@ -241,7 +246,7 @@ export async function emitPublish(
             kind: "provider",
             provider: doc.name,
             hash: doc.hash,
-            key: objectRelKey(doc.hash),
+            key: objectKeyFor(doc.hash),
         });
     }
     for (const doc of Object.values(bundle.endpoints)) {
@@ -251,7 +256,7 @@ export async function emitPublish(
             kind: "endpoint",
             provider: doc.provider,
             hash: doc.hash,
-            key: objectRelKey(doc.hash),
+            key: objectKeyFor(doc.hash),
         });
     }
     // The fnTable key hashes only the normalized `src`, but the stored
@@ -259,32 +264,36 @@ export async function emitPublish(
     // change while src stays identical. Pooled objects must be addressed by
     // the bytes they contain, so the STORAGE key is the hash of the whole
     // entry; the fnTable key stays the logical id in the manifest.
-    const fns: Array<Record<string, Json>> = [];
+    const fns: PublishFnEntry[] = [];
     for (const [key, entry] of Object.entries(bundle.fnTable)) {
         const value = entry as unknown as Json;
         const objectHash = `sha256:${await sha256Hex(stableStringify(value))}`;
         await writeObject(objectHash, value);
-        fns.push({ key, objectKey: objectRelKey(objectHash) });
+        fns.push({ key, objectKey: objectKeyFor(objectHash) });
     }
 
-    const manifestKey = `publishes/${tag}/manifest.json`;
-    const manifest: Json = {
+    // Validate the emitted contract before anything touches disk state the
+    // pipeline would ship — a schema violation here fails the publish, not
+    // the consumer's ingest.
+    const manifestKey = manifestKeyFor(tag);
+    const manifest = zPublishManifest.parse({
         catalogVersion: tag,
         specVersion: contractConfig.schema.specVersion,
         minEngineVersion: bundle.minEngineVersion,
         generatedAt: bundle.generatedAt,
-        toolchain: bundle.toolchain as unknown as Json,
-        docs: docs as unknown as Json,
-        fns: fns as unknown as Json,
-        taxonomy: bundle.taxonomy as unknown as Json,
-    };
+        toolchain: bundle.toolchain,
+        docs,
+        fns,
+        taxonomy: bundle.taxonomy,
+    });
+    const latest = zLatestPointer.parse({ catalogVersion: tag, manifestKey });
     await Deno.writeTextFile(
         join(manifestDir, "manifest.json"),
-        stableStringify(manifest),
+        stableStringify(manifest as unknown as Json),
     );
     await Deno.writeTextFile(
         join(publishDir, "latest.json"),
-        stableStringify({ catalogVersion: tag, manifestKey }),
+        stableStringify(latest as unknown as Json),
     );
     return {
         publishDir,
