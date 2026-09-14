@@ -46,8 +46,14 @@ jobs:
       # setting pipeline variables (403), and declares catalog_publish_tag
       # as a pipeline input instead. --fail-with-body so a GitLab 4xx prints
       # its error body in the log.
-      - run: |
-          curl -sS --fail-with-body -X POST "https://gitlab.com/api/v4/projects/${{ secrets.CATALOG_PUBLISHER_PROJECT_ID }}/trigger/pipeline" \
-            -F "token=${{ secrets.CATALOG_PUBLISHER_TRIGGER_TOKEN }}" \
-            -F "ref=main" \
-            -F "inputs[catalog_publish_tag]=$TAG"
+      #
+      # TODO(monid-services MR 258): re-enable once the catalog-publish job +
+      # catalog_publish_tag pipeline input land. Until then a publish stops at
+      # the GitHub Release (the durable artifact); nothing reaches
+      # S3/EventBridge. After re-enabling, re-run an already-published tag's
+      # workflow to fire the trigger for it — every step is idempotent.
+      # - run: |
+      #     curl -sS --fail-with-body -X POST "https://gitlab.com/api/v4/projects/${{ secrets.CATALOG_PUBLISHER_PROJECT_ID }}/trigger/pipeline" \
+      #       -F "token=${{ secrets.CATALOG_PUBLISHER_TRIGGER_TOKEN }}" \
+      #       -F "ref=main" \
+      #       -F "inputs[catalog_publish_tag]=$TAG"

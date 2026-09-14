@@ -186,7 +186,10 @@ The tag push runs `.github/workflows/publish-catalog.yml`, which:
 3. creates GitHub Release `catalog-v0.1.0` with `catalog-v0.1.0.tar.gz`
    attached,
 4. triggers the monid-services GitLab `catalog-publish` job — the only thing
-   that touches S3/EventBridge.
+   that touches S3/EventBridge. **Currently commented out** until monid-services
+   MR 258 merges; a publish stops at the GitHub Release, and already-published
+   tags can be ingested later by re-running their workflow after the step is
+   re-enabled (every step is idempotent).
 
 Prerequisites (once): repo secrets `CATALOG_PUBLISHER_PROJECT_ID` and
 `CATALOG_PUBLISHER_TRIGGER_TOKEN`, and the monid-services side deployed
@@ -200,6 +203,22 @@ Operational notes:
   tree and repoints `latest.json`), or push a new tag on an older commit.
 - **Wrong tag name** (`catalog-vfoo`, tag containing `/`): the compile step
   exits 1 before anything is released.
+
+Why tag-triggered, why a GitHub Release:
+
+- Tag push = publish button: the release is created by CI only **after** check +
+  test + compile pass, so a release can never exist without a tested artifact.
+  Release-triggered publishing inverts that (a published release precedes
+  validation).
+- The release asset is the handoff artifact the GitLab job downloads — the URL
+  is anonymous and derivable from the tag alone
+  (`releases/download/<tag>/<tag>.tar.gz`) — plus the public audit trail and
+  rollback source.
+- Deliberately NOT Actions artifacts (90-day expiry, token required, no public
+  URL) and NOT direct-to-S3 from GitHub (no AWS credentials in this public
+  repo's workflows — that invariant is why the GitLab trigger exists). S3's
+  `publishes/` tree is the serving copy; the release is the transport + audit
+  copy.
 
 ## CLI reference
 
