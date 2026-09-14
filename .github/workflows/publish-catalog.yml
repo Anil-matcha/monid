@@ -1,0 +1,53 @@
+# Publishing is a TAG: pushing `catalog-v*` IS the publish button —
+# versioned, deliberate, auditable; rollback = re-publish a previous tag.
+#
+# This workflow never touches AWS. It tests, compiles the split publish
+# tree (.output/publish/), attaches it to a GitHub Release, and triggers
+# the monid-services GitLab `catalog-publish` job DIRECTLY — the only
+# thing that touches S3/EventBridge. Both GitLab coordinates are secrets
+# (CATALOG_PUBLISHER_PROJECT_ID + CATALOG_PUBLISHER_TRIGGER_TOKEN), so
+# this public file leaks nothing.
+name: publish-catalog
+on:
+  push:
+    tags: ["catalog-v*"]
+permissions:
+  contents: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    env:
+      # The tag rides through env everywhere — never expanded inside a run
+      # script, where a hostile-but-valid tag name like `catalog-v$(id)`
+      # would be parsed as shell (template injection). Env values are data.
+      TAG: ${{ github.ref_name }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      # Never release a red build.
+      - run: deno task check
+      - run: deno task test
+      # Emit the split publish tree stamped with THIS tag (also hard-rejects
+      # any tag that is not catalog-v<semver>).
+      - run: deno task compiler:compile --force --publish "$TAG"
+      - run: tar -czf "$TAG.tar.gz" -C .output/publish .
+      # Idempotent so a failed downstream step is recoverable by a plain
+      # re-run: create only when missing, upload with --clobber.
+      - run: |
+          gh release view "$TAG" >/dev/null 2>&1 \
+            || gh release create "$TAG" --notes "catalog publish"
+          gh release upload "$TAG" "$TAG.tar.gz" --clobber
+        env:
+          GH_TOKEN: ${{ github.token }}
+      # DIRECT GitLab trigger — both values are secrets, no coordinates here.
+      # inputs[], not variables[]: monid-services blocks trigger tokens from
+      # setting pipeline variables (403), and declares catalog_publish_tag
+      # as a pipeline input instead. --fail-with-body so a GitLab 4xx prints
+      # its error body in the log.
+      - run: |
+          curl -sS --fail-with-body -X POST "https://gitlab.com/api/v4/projects/${{ secrets.CATALOG_PUBLISHER_PROJECT_ID }}/trigger/pipeline" \
+            -F "token=${{ secrets.CATALOG_PUBLISHER_TRIGGER_TOKEN }}" \
+            -F "ref=main" \
+            -F "inputs[catalog_publish_tag]=$TAG"

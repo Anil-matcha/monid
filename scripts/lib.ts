@@ -2,10 +2,13 @@ import { join } from "@std/path";
 import { ensureDir, walk } from "@std/fs";
 import {
     type Bundle,
+    contractConfig,
     loadCategoryRegistry,
     loadConnectorDefs,
     sha256Hex,
+    stableStringify,
 } from "@shared/core";
+import type { Json } from "@shared/core";
 import { compileBundle } from "@shared/compiler";
 
 export const REPO_ROOT = new URL("../", import.meta.url).pathname;
@@ -173,4 +176,120 @@ export async function findEndpointDir(
         if (dir.endsWith(`/${endpoint}`)) leafMatch = dir;
     }
     return leafMatch;
+}
+
+// ── publish emit (.output/publish/) ─────────────────────────────────────
+//
+// The split, content-addressed layout the hosted catalog service ingests
+// from S3 (the manifest schema is mirrored as zPublishManifest in
+// monid-services' shared/models/catalog/publish.ts — the publish job's
+// download-verify step validates against it, so drift fails loudly there):
+//
+//   .output/publish/
+//   ├── latest.json                          ← pointer; uploaded LAST by CI
+//   └── publishes/
+//       ├── <tag>/manifest.json
+//       └── objects/sha256/<hex>.json        ← doc + fn payloads, pooled
+//
+// Objects are content-addressed and pooled across tags, so `aws s3 sync`
+// moves only genuinely new content and the catalog's diff ingest skips
+// everything it has already embedded.
+
+export const PUBLISH_DIR = join(OUTPUT_DIR, "publish");
+
+const objectRelKey = (hash: string) =>
+    `publishes/objects/sha256/${hash.replace(/^sha256:/, "")}.json`;
+
+export interface PublishEmit {
+    publishDir: string;
+    manifestKey: string;
+    docCount: number;
+    fnCount: number;
+}
+
+/**
+ * Write the publish tree for `tag` from a compiled bundle. The tag IS the
+ * catalogVersion (pushing `catalog-v*` is the publish button); the bundle's
+ * own git-sha catalogVersion stamp is compile metadata and does not ride
+ * into the manifest.
+ *
+ * `publishDir` overrides the output root (tests emit into a temp dir).
+ */
+export async function emitPublish(
+    bundle: Bundle,
+    tag: string,
+    publishDir: string = PUBLISH_DIR,
+): Promise<PublishEmit> {
+    await Deno.remove(publishDir, { recursive: true }).catch(() => {});
+    const objectsDir = join(publishDir, "publishes", "objects", "sha256");
+    const manifestDir = join(publishDir, "publishes", tag);
+    await ensureDir(objectsDir);
+    await ensureDir(manifestDir);
+
+    const writeObject = async (hash: string, value: Json) => {
+        await Deno.writeTextFile(
+            join(publishDir, objectRelKey(hash)),
+            stableStringify(value),
+        );
+    };
+
+    const docs: Array<Record<string, Json>> = [];
+    for (const doc of Object.values(bundle.providers)) {
+        await writeObject(doc.hash, doc as unknown as Json);
+        docs.push({
+            id: doc.name,
+            kind: "provider",
+            provider: doc.name,
+            hash: doc.hash,
+            key: objectRelKey(doc.hash),
+        });
+    }
+    for (const doc of Object.values(bundle.endpoints)) {
+        await writeObject(doc.hash, doc as unknown as Json);
+        docs.push({
+            id: doc.id,
+            kind: "endpoint",
+            provider: doc.provider,
+            hash: doc.hash,
+            key: objectRelKey(doc.hash),
+        });
+    }
+    // The fnTable key hashes only the normalized `src`, but the stored
+    // object is the FULL entry (api/kind/src/provenance) — provenance can
+    // change while src stays identical. Pooled objects must be addressed by
+    // the bytes they contain, so the STORAGE key is the hash of the whole
+    // entry; the fnTable key stays the logical id in the manifest.
+    const fns: Array<Record<string, Json>> = [];
+    for (const [key, entry] of Object.entries(bundle.fnTable)) {
+        const value = entry as unknown as Json;
+        const objectHash = `sha256:${await sha256Hex(stableStringify(value))}`;
+        await writeObject(objectHash, value);
+        fns.push({ key, objectKey: objectRelKey(objectHash) });
+    }
+
+    const manifestKey = `publishes/${tag}/manifest.json`;
+    const manifest: Json = {
+        catalogVersion: tag,
+        specVersion: contractConfig.schema.specVersion,
+        minEngineVersion: bundle.minEngineVersion,
+        generatedAt: bundle.generatedAt,
+        toolchain: bundle.toolchain as unknown as Json,
+        docs: docs as unknown as Json,
+        fns: fns as unknown as Json,
+        taxonomy: bundle.taxonomy as unknown as Json,
+    };
+    await Deno.writeTextFile(
+        join(manifestDir, "manifest.json"),
+        stableStringify(manifest),
+    );
+    await Deno.writeTextFile(
+        join(publishDir, "latest.json"),
+        stableStringify({ catalogVersion: tag, manifestKey }),
+    );
+    return {
+        publishDir,
+        manifestKey,
+        docCount: docs.length,
+        fnCount: fns.length,
+    };
 }

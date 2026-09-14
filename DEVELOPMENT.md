@@ -167,16 +167,50 @@ Connector-only changes are catalog releases and never bump the engine; changing
 the hook ABI or doc format requires a minor bump (guarded by
 `deno task version:check`).
 
+## Publishing the catalog
+
+Pushing a `catalog-v<semver>` tag IS the publish button — there is no manual
+workflow dispatch:
+
+```bash
+git checkout main && git pull
+git tag catalog-v0.1.0          # must match catalog-v<major>.<minor>.<patch>[-pre]
+git push origin catalog-v0.1.0
+```
+
+The tag push runs `.github/workflows/publish-catalog.yml`, which:
+
+1. gates on `deno task check` + `deno task test` (red build = no release),
+2. compiles and emits the split publish tree (`.output/publish/`) stamped with
+   the tag,
+3. creates GitHub Release `catalog-v0.1.0` with `catalog-v0.1.0.tar.gz`
+   attached,
+4. triggers the monid-services GitLab `catalog-publish` job — the only thing
+   that touches S3/EventBridge.
+
+Prerequisites (once): repo secrets `CATALOG_PUBLISHER_PROJECT_ID` and
+`CATALOG_PUBLISHER_TRIGGER_TOKEN`, and the monid-services side deployed
+(declares the `catalog_publish_tag` pipeline input + ingest job).
+
+Operational notes:
+
+- **Retry**: every step is idempotent — if anything fails (e.g. GitLab outage),
+  "Re-run all jobs" on the workflow run.
+- **Rollback**: re-run the workflow of a previous good tag (re-publishes that
+  tree and repoints `latest.json`), or push a new tag on an older commit.
+- **Wrong tag name** (`catalog-vfoo`, tag containing `/`): the compile step
+  exits 1 before anything is released.
+
 ## CLI reference
 
-| Task                                                                         | What                                                                                    |
-| ---------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
-| `deno task compiler:compile [--force] [--frozen-meta]`                       | compile EVERYTHING to `.output/catalog.json` (cached; lookups read the bundle)          |
-| `deno task catalog providers \| endpoints \| categories \| inspect <id>`     | browse compiled bundles (`--provider`/`--category` filters)                             |
-| `deno task engine:run <id> [--body] [--query-params] [--path-params]`        | JIT compile + execute with env credentials (flags = `RunInput` fields, kebab-case)      |
-| `deno task record <id> <scenario> [--body] [--query-params] [--path-params]` | fixture recorder: live call, {req,res} captured (headers dropped), written to fixtures/ |
-| `deno task test` / `test:live`                                               | replay tests (zero network) / live tests, auto-skipped without `<NAME>_API_KEY`         |
-| `deno task check` / `lint` / `version:check`                                 | hygiene + contract guard                                                                |
+| Task                                                                         | What                                                                                                 |
+| ---------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `deno task compiler:compile [--force] [--frozen-meta] [--publish <tag>]`     | compile EVERYTHING to `.output/catalog.json` (cached); `--publish` also emits the split publish tree |
+| `deno task catalog providers \| endpoints \| categories \| inspect <id>`     | browse compiled bundles (`--provider`/`--category` filters)                                          |
+| `deno task engine:run <id> [--body] [--query-params] [--path-params]`        | JIT compile + execute with env credentials (flags = `RunInput` fields, kebab-case)                   |
+| `deno task record <id> <scenario> [--body] [--query-params] [--path-params]` | fixture recorder: live call, {req,res} captured (headers dropped), written to fixtures/              |
+| `deno task test` / `test:live`                                               | replay tests (zero network) / live tests, auto-skipped without `<NAME>_API_KEY`                      |
+| `deno task check` / `lint` / `version:check`                                 | hygiene + contract guard                                                                             |
 
 ## Authoring guide
 
@@ -207,6 +241,6 @@ the hook ABI or doc format requires a minor bump (guarded by
   `load/` (IO — owns the folder==name assertion), and `catalog.ts` (pure bundle
   readers).
 - `shared/{compiler,logging,testing,app-config}` — internal libs (`@shared/*`).
-- `.output/` — gitignored compile cache; `catalog.json` is the release artifact.
-  Only compat goldens (`shared/testing/goldens/`) are checked-in compiled
-  artifacts.
+- `.output/` — gitignored compile cache (`catalog.json`) + the split publish
+  tree (`publish/`) that catalog releases tar onto the GitHub Release. Only
+  compat goldens (`shared/testing/goldens/`) are checked-in compiled artifacts.
