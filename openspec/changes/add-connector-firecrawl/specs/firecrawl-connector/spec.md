@@ -36,9 +36,10 @@ provider SHALL NOT declare a lifecycle.
 ### Requirement: Inputs mirror the published v2 OpenAPI without translation
 Every `schema/inputs.ts` SHALL mirror its OpenAPI request schema with
 optionality only — no `.default()`, no invented fields, no `.strict()` — and
-no endpoint SHALL declare `input.toRequest`. The `formats` mirror SHALL accept
-both the bare-string and `{type}` object spellings the API accepts, and usage
-fns SHALL read the native shapes directly.
+no endpoint SHALL declare `input.toRequest`. Where the API accepts both a
+bare-string and a `{type}` object spelling for an option-less union member —
+`formats`, `sources` and `categories` — the mirror SHALL accept both, and
+usage fns SHALL read the native shapes directly.
 
 #### Scenario: No invented scalars
 - **WHEN** the compiled `firecrawl#scrape` body schema is inspected
@@ -48,6 +49,12 @@ fns SHALL read the native shapes directly.
 #### Scenario: The validated input is the wire body
 - **WHEN** any firecrawl doc is inspected
 - **THEN** `input.toRequest` is undefined
+
+#### Scenario: Both vendor spellings validate
+- **WHEN** `firecrawl#search` runs with `sources: ["web"]` or
+  `sources: [{type: "web"}]`, or with `categories: ["research"]` or
+  `categories: [{type: "research"}]`
+- **THEN** each is accepted and priced identically
 
 ### Requirement: Primary limiting knobs are required at the binding
 `firecrawl#search` SHALL require `limit`, `firecrawl#crawl` SHALL require
@@ -84,6 +91,14 @@ stack per scraped result.
 - **WHEN** `firecrawl#search` is estimated with `limit: 10` and `limit: 11`
 - **THEN** the estimates are 2 and 4 credits
 
+#### Scenario: `limit` is per source, so sources multiply the estimate
+- **WHEN** `firecrawl#search` is estimated with `limit: 10` and three distinct
+  `sources`
+- **THEN** the estimate is 30 results and 6 credits, matching the vendor
+- **AND** a repeated source entry does not multiply, because the response is
+  keyed by source name and cannot carry a second array for it
+- **AND** `categories` never multiply, because they filter the same result set
+
 #### Scenario: PDF pages offset the base fee
 - **WHEN** a scrape returns `metadata.numPages: 3`
 - **THEN** evidence is `{pdf_page: 2, page: 1}` and the fold is 3 credits
@@ -92,6 +107,14 @@ stack per scraped result.
 - **WHEN** `firecrawl#batch/scrape` is estimated with one `x.com` URL and one
   ordinary URL
 - **THEN** the estimate is 31 credits, not 2 or 60
+
+#### Scenario: X routing settles on delivered rows, not the request
+- **WHEN** a batch is given an `x.com` URL and an ordinary URL but delivers
+  only the ordinary one
+- **THEN** evidence carries no `x_routing` line, because the Grok charge
+  applies to pages Firecrawl actually fetched
+- **AND** the estimate still counts it, because the request list is all a
+  pre-run promise can read
 
 #### Scenario: Output-determined lines are not guessed
 - **WHEN** any endpoint is estimated
@@ -106,8 +129,18 @@ compiled request and park RUNNING on the returned `id`, returning a non-2xx as
 COMPLETED data and throwing only when a 2xx carries no id. `poll` SHALL treat
 `scraping`, `processing` and an absent status as RUNNING, `completed` as
 COMPLETED 200, and any other status as COMPLETED with a synthesized
-`httpStatus` 500 and `providerHttpStatus` 200. `stop` SHALL DELETE the status
-URL best-effort.
+`httpStatus` 500 and `providerHttpStatus` 200. A status LOOKUP answering 408,
+429, 500, 502, 503 or 504 — the set Firecrawl documents as retryable — SHALL
+be treated as RUNNING with a backed-off `pollAfterMs` rather than as a
+terminal run, because the job is still executing and still accruing charges
+and a settled run cannot be resumed. `stop` SHALL DELETE the status URL
+best-effort.
+
+#### Scenario: A transient status lookup does not settle the run
+- **WHEN** two consecutive status lookups answer 429 and 503 before the job
+  reports `completed`
+- **THEN** the run settles 200 on the completed body with the vendor's usage,
+  and is never classified as a provider error
 
 #### Scenario: One interned fn per phase
 - **WHEN** the compiled bundle is inspected

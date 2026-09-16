@@ -34,6 +34,15 @@ import { defineProvider, presets } from "@shared/core";
  *     query returns is the search's answer, not its question.
  *   - `threatProtection` on `/map`: the endpoint is flat-rated and the scan
  *     basis for a call that fetches no pages is unpublished.
+ *   - `threat_protection_scan` on `/search` counts DELIVERED results, which is
+ *     an approximation the vendor does not confirm: Firecrawl publishes
+ *     "+2 credits per URL scanned" without saying whether it scans before or
+ *     after trimming to `limit`, nor whether it de-duplicates repeated URLs.
+ *     No per-line scan figure is reported either (the response carries one
+ *     aggregate `creditsUsed`), so there is nothing truer to read. Documented
+ *     rather than guessed at: inventing a de-duplication rule the vendor has
+ *     not specified would be the same mistake in the other direction, and the
+ *     vendor's aggregate claim settles the run regardless.
  * Firecrawl exposes no machine-readable pricing surface, so there is no drift
  * suite for it — these pinned rates are guarded by `deno task test:live` plus
  * the per-run `usage.mismatch.derived` signal, which cross-checks every

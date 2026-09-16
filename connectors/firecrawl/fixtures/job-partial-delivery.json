@@ -1,0 +1,51 @@
+{
+    "name": "job-partial-delivery",
+    "description": "A batch that was handed two URLs - one of them x.com - but delivered only the ordinary one (the other was dropped as invalid). Pins that x_routing is counted from the DELIVERED rows' metadata.sourceURL, not from the request list: charging the 29-credit Grok line for a page Firecrawl never fetched would make the derived fold wrong.",
+    "calls": [
+        {
+            "req": {
+                "method": "POST",
+                "url": "{{request.url}}"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "success": true,
+                    "id": "JOB1",
+                    "url": "{{request.url}}/JOB1",
+                    "invalidURLs": []
+                }
+            }
+        },
+        {
+            "req": {
+                "method": "GET",
+                "url": "{{request.url}}/JOB1"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "success": true,
+                    "status": "completed",
+                    "completed": 1,
+                    "total": 1,
+                    "creditsUsed": 1,
+                    "data": [
+                        {
+                            "markdown": "# Example Domain\n\nThis domain is for use in documentation examples without needing permission.",
+                            "metadata": {
+                                "title": "Example Domain",
+                                "language": "en",
+                                "sourceURL": "https://example.com/",
+                                "url": "https://example.com/",
+                                "statusCode": 200,
+                                "contentType": "text/html",
+                                "proxyUsed": "basic"
+                            }
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}

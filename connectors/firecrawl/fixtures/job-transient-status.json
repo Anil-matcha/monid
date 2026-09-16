@@ -1,0 +1,88 @@
+{
+    "name": "job-transient-status",
+    "description": "The status LOOKUP fails twice before the job reports in: a 429 (rate/concurrency limit) then a 503. Firecrawl documents both as retryable and the job keeps running - and keeps charging - meanwhile, so the poll must stay RUNNING rather than declare the RUN terminal and abandon a live job. The third tick completes normally and the run settles on the vendor's 2-credit claim.",
+    "calls": [
+        {
+            "req": {
+                "method": "POST",
+                "url": "{{request.url}}"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "success": true,
+                    "id": "JOB1",
+                    "url": "{{request.url}}/JOB1"
+                }
+            }
+        },
+        {
+            "req": {
+                "method": "GET",
+                "url": "{{request.url}}/JOB1"
+            },
+            "res": {
+                "status": 429,
+                "body": {
+                    "success": false,
+                    "error": "Rate limit exceeded"
+                }
+            }
+        },
+        {
+            "req": {
+                "method": "GET",
+                "url": "{{request.url}}/JOB1"
+            },
+            "res": {
+                "status": 503,
+                "body": {
+                    "success": false,
+                    "error": "Service Unavailable"
+                }
+            }
+        },
+        {
+            "req": {
+                "method": "GET",
+                "url": "{{request.url}}/JOB1"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "success": true,
+                    "status": "completed",
+                    "completed": 2,
+                    "total": 2,
+                    "creditsUsed": 2,
+                    "data": [
+                        {
+                            "markdown": "# Example Domain\n\nThis domain is for use in documentation examples without needing permission.",
+                            "metadata": {
+                                "title": "Example Domain",
+                                "language": "en",
+                                "sourceURL": "https://example.com/",
+                                "url": "https://example.com/",
+                                "statusCode": 200,
+                                "contentType": "text/html",
+                                "proxyUsed": "basic"
+                            }
+                        },
+                        {
+                            "markdown": "# Example Domain\n\nThis domain is for use in documentation examples without needing permission.",
+                            "metadata": {
+                                "title": "Example Domain",
+                                "language": "en",
+                                "sourceURL": "https://example.com/pricing",
+                                "url": "https://example.com/pricing",
+                                "statusCode": 200,
+                                "contentType": "text/html",
+                                "proxyUsed": "basic"
+                            }
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}

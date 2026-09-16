@@ -67,6 +67,25 @@ export default defineEndpoint({
             const statusUrl = data.request.url + "/" +
                 encodeURIComponent(jobId);
             const res = await utils.http({ method: "GET", url: statusUrl });
+            if (
+                res.status === 408 || res.status === 429 ||
+                res.status === 500 || res.status === 502 ||
+                res.status === 503 || res.status === 504
+            ) {
+                // The status LOOKUP failed, not the job. Firecrawl documents
+                // exactly these six as retryable, and the job keeps running —
+                // and keeps charging, since crawl and batch pages bill as they
+                // complete — so declaring the RUN terminal here would abandon
+                // a live job whose cost we would then absorb. RUNNING is also
+                // the honest answer: we could not determine the job state.
+                // `utils.http` exposes no headers, so `Retry-After` cannot be
+                // honored; back the cadence off instead. Bounded by runMs.
+                logger.warn("firecrawl status lookup transient", {
+                    jobId,
+                    status: res.status,
+                });
+                return { kind: "RUNNING", pollAfterMs: 30_000 };
+            }
             if (res.status < 200 || res.status >= 300) {
                 return {
                     kind: "COMPLETED",
@@ -359,17 +378,29 @@ export default defineEndpoint({
                     extraPdfPages += Math.max(0, parsed - 1);
                 }
             }
+            // X routing is counted from the DELIVERED rows, not the request
+            // list: `ignoreInvalidURLs` drops entries and a batch can settle
+            // partially, so an x.com URL that was never fetched must not carry
+            // its 29-credit line. `metadata.sourceURL` is the URL as
+            // requested (a redirect must not move the charge).
             let xUrls = 0;
-            for (const url of body.urls) {
-                const host = url.toLowerCase()
-                    .replace(/^[a-z][a-z0-9+.-]*:\/\//, "")
-                    .split("/")[0].split("?")[0].split("#")[0]
-                    .split("@").reverse()[0]
-                    .split(":")[0].replace(/^www\./, "");
-                if (
-                    host === "x.com" || host === "twitter.com" ||
-                    host === "mobile.twitter.com"
-                ) xUrls += 1;
+            if (Array.isArray(rows)) {
+                for (const row of rows) {
+                    const source = utils.json.optionalGet(
+                        row,
+                        "$.metadata.sourceURL",
+                    );
+                    if (typeof source !== "string") continue;
+                    const host = source.toLowerCase()
+                        .replace(/^[a-z][a-z0-9+.-]*:\/\//, "")
+                        .split("/")[0].split("?")[0].split("#")[0]
+                        .split("@").reverse()[0]
+                        .split(":")[0].replace(/^www\./, "");
+                    if (
+                        host === "x.com" || host === "twitter.com" ||
+                        host === "mobile.twitter.com"
+                    ) xUrls += 1;
+                }
             }
             return {
                 counts: {
@@ -390,7 +421,7 @@ export default defineEndpoint({
                     ...(body.threatProtection?.mode === "normal"
                         ? { threat_protection_scan: pages }
                         : {}),
-                    ...(pages > 0 && xUrls > 0 ? { x_routing: xUrls } : {}),
+                    ...(xUrls > 0 ? { x_routing: xUrls } : {}),
                     ...(extraPdfPages > 0 ? { pdf_page: extraPdfPages } : {}),
                 },
             };

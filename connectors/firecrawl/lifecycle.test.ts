@@ -2,6 +2,7 @@ import { assert, assertEquals } from "@std/assert";
 import { fromFileUrl } from "@std/path";
 import type { RunInput } from "@shared/core";
 import {
+    estimateEndpoint,
     liveSkip,
     loadFixture,
     runEndpoint,
@@ -109,6 +110,29 @@ for (const id of PAGE_JOBS) {
         assertEquals(result.usage.evidence, { page: 3 });
     });
 
+    Deno.test(`${id} transient status lookups keep the run alive`, async () => {
+        const result = await runEndpoint({
+            unit: await testSealedUnit(id),
+            input: INPUTS[id],
+            mode: "replay",
+            fixture: await loadFixture(`${chains}job-transient-status.json`),
+        });
+
+        // a 429 then a 503 on the STATUS LOOKUP must not settle the RUN: the
+        // job is still running and still charging, and the caller holds no
+        // way to resume a run the engine has already torn down
+        assertEquals(result.httpStatus, 200);
+        assertEquals(result.isProviderError, false);
+        assertEquals(result.usage, {
+            credits: { default: 2 },
+            evidence: { page: 2 },
+        });
+        assertEquals(
+            (result.output as Record<string, unknown[]>).data.length,
+            2,
+        );
+    });
+
     Deno.test(`${id} job-failed: an in-body failure is zero-billed error data`, async () => {
         const result = await runEndpoint({
             unit: await testSealedUnit(id),
@@ -137,6 +161,39 @@ for (const id of PAGE_JOBS) {
         assertEquals(result.usage, { credits: {}, evidence: {} });
     });
 }
+
+Deno.test("firecrawl#batch/scrape: x_routing counts DELIVERED rows, not the request list", async () => {
+    const result = await runEndpoint({
+        unit: await testSealedUnit("firecrawl#batch/scrape"),
+        input: {
+            body: {
+                // an x.com URL was asked for; the chain delivers only the
+                // ordinary one, so the 29-credit Grok line must not bill
+                urls: ["https://x.com/someone/status/1", "https://example.com"],
+                formats: ["markdown"],
+            },
+        },
+        mode: "replay",
+        fixture: await loadFixture(`${chains}job-partial-delivery.json`),
+    });
+
+    assertEquals(result.usage.evidence, { page: 1 });
+    assertEquals(result.usage.credits, { default: 1 });
+    // derived fold (1) matches the vendor claim (1) — no mismatch noise
+    assertEquals(result.usage.mismatch, undefined);
+
+    // the ESTIMATE still reads the request list, because that is all it has
+    const promised = await estimateEndpoint(
+        await testSealedUnit("firecrawl#batch/scrape"),
+        {
+            body: {
+                urls: ["https://x.com/someone/status/1", "https://example.com"],
+            },
+        },
+    );
+    assertEquals(promised.evidence, { page: 2, x_routing: 1 });
+    assertEquals(promised.credits, { default: 31 });
+});
 
 Deno.test("firecrawl#agent: an object `data` short-circuits the pagination walk", async () => {
     const result = await runEndpoint({

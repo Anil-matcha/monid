@@ -1,6 +1,8 @@
 import { assert, assertEquals } from "@std/assert";
 import { fromFileUrl } from "@std/path";
+import type { RunInput } from "@shared/core";
 import {
+    estimateEndpoint,
     liveSkip,
     loadFixture,
     runEndpoint,
@@ -44,17 +46,87 @@ Deno.test("firecrawl#search: `limit` is required — the caller states the cap",
     assert(required.includes("query"));
 });
 
-Deno.test("firecrawl#search block rate rounds up: 11 results cost 4 credits", async () => {
+Deno.test("firecrawl#search estimate: the block rate rounds up — 11 results cost 4", async () => {
     const unit = await testSealedUnit("firecrawl#search");
-    const estimate = await runEndpoint({
+    assertEquals(
+        (await estimateEndpoint(unit, { body: { query: "x", limit: 10 } }))
+            .credits,
+        { default: 2 },
+    );
+    assertEquals(
+        (await estimateEndpoint(unit, { body: { query: "x", limit: 11 } }))
+            .credits,
+        { default: 4 },
+    );
+});
+
+Deno.test("firecrawl#search estimate: `limit` is PER SOURCE, so sources multiply the promise", async () => {
+    const unit = await testSealedUnit("firecrawl#search");
+    // verified live 2026-09-16: limit 10 over [web] returned 10 results for 2
+    // credits; the same limit over [web, news, images] returned 30 for 6
+    const three = await estimateEndpoint(unit, {
+        body: { query: "x", limit: 10, sources: ["web", "news", "images"] },
+    });
+    assertEquals(three.credits, { default: 6 });
+    assertEquals(three.evidence, { search_block: 30 });
+
+    // the object spelling must price identically to the string one
+    const objects = await estimateEndpoint(unit, {
+        body: {
+            query: "x",
+            limit: 10,
+            sources: [{ type: "web" }, { type: "news" }, { type: "images" }],
+        },
+    });
+    assertEquals(objects.credits, three.credits);
+
+    // DISTINCT sources: the response is keyed by source name, so a repeated
+    // entry cannot yield a second result array and must not inflate the hold
+    const duplicated = await estimateEndpoint(unit, {
+        body: { query: "x", limit: 10, sources: ["web", "web"] },
+    });
+    assertEquals(duplicated.credits, { default: 2 });
+
+    // categories FILTER the same result set — they never multiply it
+    const filtered = await estimateEndpoint(unit, {
+        body: { query: "x", limit: 10, categories: ["research"] },
+    });
+    assertEquals(filtered.credits, { default: 2 });
+});
+
+Deno.test("firecrawl#search: both vendor spellings of sources/categories validate", async () => {
+    const unit = await testSealedUnit("firecrawl#search");
+    // Firecrawl accepts bare strings AND objects (live probe 2026-09-16); a
+    // mirror that rejected the string form would fail the request locally,
+    // before it ever reached a vendor that would have answered it
+    const bodies: RunInput["body"][] = [
+        { query: "x", limit: 3, sources: ["web"] },
+        { query: "x", limit: 3, sources: [{ type: "web", tbs: "qdr:d" }] },
+        { query: "x", limit: 3, categories: ["research"] },
+        { query: "x", limit: 3, categories: [{ type: "research" }] },
+    ];
+    for (const body of bodies) {
+        const result = await runEndpoint({
+            unit,
+            input: { body },
+            mode: "replay",
+            fixture: await loadFixture(`${chains}search-ok.json`),
+        });
+        assertEquals(result.isProviderError, false, JSON.stringify(body));
+    }
+});
+
+Deno.test("firecrawl#search settle: evidence counts DELIVERED results, not the cap", async () => {
+    const unit = await testSealedUnit("firecrawl#search");
+    const result = await runEndpoint({
         unit,
         input: { body: { query: "anything", limit: 11 } },
         mode: "replay",
         fixture: await loadFixture(`${chains}search-ok.json`),
     });
-    // the settle counts DELIVERED results (3 in the chain), not the request's
-    // cap — the estimate is the promise, the evidence is what happened
-    assertEquals(estimate.usage.evidence, { search_block: 3 });
+    // the chain delivers 3 — the estimate promised 11, and the two are
+    // allowed to differ: a promise is not a receipt
+    assertEquals(result.usage.evidence, { search_block: 3 });
 });
 
 Deno.test("firecrawl#search provider error: 402 is data, zero usage", async () => {

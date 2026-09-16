@@ -4,8 +4,20 @@ import {
     zThreatProtectionOverride,
 } from "../../../schema/common.ts";
 
-/** `POST /v2/search` `sources` item. */
+/**
+ * `POST /v2/search` `sources` item — BOTH spellings the API accepts: the bare
+ * string (`"web"`) and the object (`{type: "web", …}`), whose extra fields
+ * only the web source carries.
+ *
+ * The OpenAPI declares object variants only, but its own `sources.default` is
+ * `["web"]` — a bare string — and a live probe (2026-09-16) confirms
+ * `sources: ["web"]` answers 200. Same situation as `formats`: the mirror
+ * carries the honest superset, because a schema that rejects what the vendor
+ * accepts is a false gate (D25), rejecting the request locally before it ever
+ * reaches Firecrawl.
+ */
 const zSearchSource = z.union([
+    z.enum(["web", "images", "news"]),
     z.object({
         type: z.literal("web"),
         tbs: z.string().optional().describe(
@@ -19,8 +31,13 @@ const zSearchSource = z.union([
     z.object({ type: z.literal("news") }),
 ]);
 
-/** `POST /v2/search` `categories` item. */
+/**
+ * `POST /v2/search` `categories` item — bare string or object, same as
+ * `sources` (live probe 2026-09-16: `categories: ["research"]` answers 200).
+ * The vocabulary is exactly `developer`, `research`, `pdf`.
+ */
 const zSearchCategory = z.union([
+    z.enum(["developer", "research", "pdf"]),
     z.object({ type: z.literal("developer") }),
     z.object({ type: z.literal("research") }),
     z.object({ type: z.literal("pdf") }),

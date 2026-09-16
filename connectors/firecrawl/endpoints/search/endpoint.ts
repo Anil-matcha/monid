@@ -157,14 +157,34 @@ export default defineEndpoint({
                 },
             },
         },
-        /** `limit` bounds every line: the search block counts the results
-         *  asked for, and — when `scrapeOptions` is attached — each page
-         *  modifier applies to every one of them. `x_routing` cannot be
-         *  deduced (the hosts are the search's answer, not its question), so
-         *  it promises 0 and settles from the delivered results. */
+        /** `limit` is PER SOURCE TYPE, and the vendor bills the SUMMED result
+         *  count across sources — verified live 2026-09-16: `limit: 10` over
+         *  `[web, news, images]` returned 30 results and charged 6 credits,
+         *  where the same limit over `[web]` alone returned 10 and charged 2.
+         *  So the promise is `limit × distinct sources`, which is what the
+         *  settle side already counts (it sums the three arrays).
+         *
+         *  DISTINCT, not `sources.length`: the response is an object keyed by
+         *  source name (`data.web`, `data.news`), so a duplicated entry cannot
+         *  produce a second result array — counting it would inflate the hold
+         *  on a caller's typo. (`indexOf` rather than `Set`, which is not a
+         *  whitelisted closed-term global.)
+         *
+         *  `categories` does NOT multiply — the vendor documents it as a
+         *  filter, so it narrows the same result set.
+         *
+         *  `x_routing` cannot be deduced at all (the hosts are the search's
+         *  answer, not its question), so it promises 0 and settles from the
+         *  delivered results. */
         estimate: ({ data }) => {
             const body = data.input.body;
-            const limit = body.limit;
+            const types = (body.sources ?? []).map((source) =>
+                typeof source === "string" ? source : source.type
+            );
+            const distinct = types.filter((type, at) =>
+                types.indexOf(type) === at
+            ).length;
+            const limit = body.limit * Math.max(1, distinct);
             const scrape = body.scrapeOptions;
             const formats = scrape?.formats ?? [];
             const names = formats.map((format) =>

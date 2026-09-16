@@ -82,6 +82,25 @@ export default defineEndpoint({
             const statusUrl = data.request.url + "/" +
                 encodeURIComponent(jobId);
             const res = await utils.http({ method: "GET", url: statusUrl });
+            if (
+                res.status === 408 || res.status === 429 ||
+                res.status === 500 || res.status === 502 ||
+                res.status === 503 || res.status === 504
+            ) {
+                // The status LOOKUP failed, not the job. Firecrawl documents
+                // exactly these six as retryable, and the job keeps running —
+                // and keeps charging, since crawl and batch pages bill as they
+                // complete — so declaring the RUN terminal here would abandon
+                // a live job whose cost we would then absorb. RUNNING is also
+                // the honest answer: we could not determine the job state.
+                // `utils.http` exposes no headers, so `Retry-After` cannot be
+                // honored; back the cadence off instead. Bounded by runMs.
+                logger.warn("firecrawl status lookup transient", {
+                    jobId,
+                    status: res.status,
+                });
+                return { kind: "RUNNING", pollAfterMs: 30_000 };
+            }
             if (res.status < 200 || res.status >= 300) {
                 return {
                     kind: "COMPLETED",

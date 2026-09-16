@@ -13,6 +13,7 @@ export {
     zFixture,
 } from "./fixtures.ts";
 export {
+    estimateEndpoint,
     liveSkip,
     runEndpoint,
     type RunEndpointOptions,
