@@ -1,0 +1,41 @@
+{
+    "name": "synthetic-h3-failed",
+    "description": "An H3 task that submits cleanly and then fails. The poll synthesizes httpStatus 500 with providerHttpStatus 200, so the engine zero-bills — no seconds are ever counted, even though the task ran long enough to report some. Synthetic.",
+    "calls": [
+        {
+            "req": {
+                "method": "POST",
+                "url": "{{request.url}}"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "task_id": "H3TASK2"
+                }
+            }
+        },
+        {
+            "req": {
+                "method": "GET",
+                "url": "{{request.origin}}/v2/query/video_generation/H3TASK2"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "task": {
+                        "id": "H3TASK2",
+                        "status": "failed",
+                        "error": {
+                            "code": "content_moderation",
+                            "message": "the prompt was rejected by content moderation"
+                        },
+                        "usage": {
+                            "total_seconds": 0,
+                            "input_image_count": 0
+                        }
+                    }
+                }
+            }
+        }
+    ]
+}

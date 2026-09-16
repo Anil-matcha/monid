@@ -1,0 +1,39 @@
+{
+    "name": "synthetic-hailuo-failed",
+    "description": "A Hailuo-2.3 task that submits cleanly and then fails. The poll synthesizes httpStatus 500 with providerHttpStatus 200 (their exchange succeeded; the TASK did not), so the engine zero-bills the run — no cell is ever counted. Synthetic.",
+    "calls": [
+        {
+            "req": {
+                "method": "POST",
+                "url": "{{request.url}}"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "task_id": "TASK2",
+                    "base_resp": {
+                        "status_code": 0,
+                        "status_msg": "success"
+                    }
+                }
+            }
+        },
+        {
+            "req": {
+                "method": "GET",
+                "url": "{{request.origin}}/v1/query/video_generation?task_id=TASK2"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "task_id": "TASK2",
+                    "status": "Fail",
+                    "base_resp": {
+                        "status_code": 0,
+                        "status_msg": "success"
+                    }
+                }
+            }
+        }
+    ]
+}
