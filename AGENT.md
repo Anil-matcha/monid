@@ -161,9 +161,10 @@ deno task apify:scaffold <actorId>   # authoring-time actor input-schema scaffol
   were unchecked strings); presets survive only at provider seams
   (`presets.auth.*`, `presets.usage.perCall`). Ctx facts live at
   provenance-named paths: `data.usage.model`, `data.lifecycle.state`.
-- **Billing before presentation**: `usage.consolidate` is REQUIRED and runs on
-  the RAW response envelope BEFORE `fromResponse` — presentation changes can
-  never change a bill. Vendor non-2xx is DATA (zero usage), not an exception;
+- **Billing before presentation**: `usage.consolidate` is OPTIONAL (D27 — not
+  every vendor reports a meter; clay, pdl and tinyfish ship without one) and,
+  when present, runs on the RAW response envelope BEFORE `fromResponse` —
+  presentation changes can never change a bill. Vendor non-2xx is DATA (zero usage), not an exception;
   lifecycle fns synthesize error statuses for in-body failures and the engine
   zero-bills every non-2xx envelope (a fn cannot bill an error).
 - **Versioning**: every doc carries compiler-derived `minEngineVersion`.

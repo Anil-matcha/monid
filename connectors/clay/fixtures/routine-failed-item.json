@@ -1,0 +1,38 @@
+{
+    "name": "routine-failed-item",
+    "description": "The run completes but its single item FAILED (status 'failed', an error object instead of a result). Clay charges nothing for a failed item, so every line settles 0 — including mobile-phone's miss lines: a failure is not an exhausted waterfall. NOT recorded live (no way to provoke a failure through the public surface at port time); the envelope is the shape v1's provider tests pinned, on the chain the live recordings prove.",
+    "calls": [
+        {
+            "req": { "method": "POST", "url": "{{request.url}}" },
+            "res": {
+                "status": 202,
+                "body": {
+                    "routine_run_id": "RUN1",
+                    "status": "in_progress"
+                }
+            }
+        },
+        {
+            "req": {
+                "method": "GET",
+                "url": "{{request.origin}}/public/v0/routines/run/RUN1/results?limit=100"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "routine_run_id": "RUN1",
+                    "status": "complete",
+                    "total": 1,
+                    "finished": 1,
+                    "data": [
+                        {
+                            "id": "item-1",
+                            "status": "failed",
+                            "error": { "message": "no result" }
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}

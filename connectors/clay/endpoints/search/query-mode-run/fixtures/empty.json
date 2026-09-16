@@ -1,0 +1,30 @@
+{
+    "name": "empty",
+    "description": "An exhausted iterator: 200 with no rows, `has_more` false and an `exhaustion_reason`. Zero rows draw zero quota — the fold prunes to no credits while evidence still says 0 rows. Recorded live 2026-09-16 (search created for a domain that matches nothing); the quota watermark is replaced with a structural stand-in.",
+    "calls": [
+        {
+            "req": {
+                "method": "POST",
+                "url": "https://api.clay.com/public/v0/search/query-mode/SEARCH1/run",
+                "body": {
+                    "limit": 2
+                }
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "data": [],
+                    "has_more": false,
+                    "source_type": "companies",
+                    "exhaustion_reason": "no_more_results",
+                    "period_quota": {
+                        "limit": 1000000,
+                        "used": 3,
+                        "remaining": 999997,
+                        "resets_at": "2027-01-01T00:00:00.000Z"
+                    }
+                }
+            }
+        }
+    ]
+}

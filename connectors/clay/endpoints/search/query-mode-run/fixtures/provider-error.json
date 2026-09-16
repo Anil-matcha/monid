@@ -1,0 +1,19 @@
+{
+    "name": "provider-error",
+    "description": "An expired or unknown search_id: Clay answers 404 'Search not found or expired'. Vendor non-2xx is DATA — the run completes as a 404 provider error with zero usage forced, and the body relays verbatim (Clay's own answer reaches the caller). Recorded live 2026-09-16.",
+    "calls": [
+        {
+            "req": {
+                "method": "POST",
+                "url": "https://api.clay.com/public/v0/search/query-mode/search_0tExPiReDnOtReAl/run",
+                "body": {
+                    "limit": 2
+                }
+            },
+            "res": {
+                "status": 404,
+                "body": { "message": "Search not found or expired" }
+            }
+        }
+    ]
+}

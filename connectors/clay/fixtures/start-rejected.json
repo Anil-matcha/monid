@@ -1,0 +1,13 @@
+{
+    "name": "start-rejected",
+    "description": "Clay rejects the START call (401, a bad key). Vendor non-2xx is DATA: the run completes as a 401 provider error with zero usage forced by the engine, and nothing is polled. Recorded live 2026-09-16 against clay#enrichment/company-domain with a deliberately invalid key. Minimal shared chain (fixture strategy v2).",
+    "calls": [
+        {
+            "req": { "method": "POST", "url": "{{request.url}}" },
+            "res": {
+                "status": 401,
+                "body": { "message": "Authentication required" }
+            }
+        }
+    ]
+}

@@ -1,0 +1,29 @@
+{
+    "enrichment/company-domain": {
+        "Company Name": "Anthropic"
+    },
+    "enrichment/company-employee-count": {
+        "Company Domain": "clay.com",
+        "Company Name": "Clay"
+    },
+    "enrichment/company-industry": {
+        "Company Domain": "clay.com",
+        "Company Name": "Clay"
+    },
+    "enrichment/company-job-openings": {
+        "Company Domain": "clay.com"
+    },
+    "enrichment/work-email": {
+        "Full Name": "Kareem Amin",
+        "Company Domain": "clay.com",
+        "Company Name": "Clay"
+    },
+    "enrichment/person": {
+        "Professional Profile URL": "https://www.linkedin.com/in/kareemamin"
+    },
+    "enrichment/mobile-phone": {
+        "Social Profile URL": "https://www.linkedin.com/in/kareemamin",
+        "Full Name": "Kareem Amin",
+        "Company Name": "Clay"
+    }
+}
