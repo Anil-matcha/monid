@@ -20,7 +20,7 @@ import {
 import type { Logger } from "@shared/logging";
 import { EngineError, EngineErrorCode } from "./errors.ts";
 import type { PreparedRequest, Transport } from "./interfaces/mod.ts";
-import { toScalarQuery } from "./request.ts";
+import { toWireQuery } from "./request.ts";
 import { sniffDecode } from "./transport.ts";
 
 function lastSegment(path: string): string {
@@ -264,7 +264,9 @@ export function makeLifecycleUtils(opts: {
         method: PreparedRequest["method"];
         url: string;
         headers?: Record<string, string>;
-        query: Record<string, string>;
+        /** The wire multimap (see PreparedRequest.query) — callers pass
+         *  `toWireQuery` output, never a raw record. */
+        query: Record<string, string[]>;
         body?: Json;
         requestMs?: number;
     }): Promise<HttpResult> => {
@@ -312,7 +314,9 @@ export function makeLifecycleUtils(opts: {
                 method: c.method,
                 url: c.url ?? origin + c.path,
                 headers: c.headers,
-                query: { ...c.queryParams },
+                // normalized through the ONE serializer, so a lifecycle fn
+                // and the declarative pipeline spell lists identically
+                query: toWireQuery(doc.id, c.queryParams ?? {}),
                 body: c.body,
                 requestMs: c.requestMs,
             });
@@ -335,7 +339,7 @@ export function makeLifecycleUtils(opts: {
                 url: o.url ??
                     (o.path !== undefined ? origin + o.path : requestInfo.url),
                 headers: { ...requestInfo.headers, ...o.headers },
-                query: toScalarQuery(
+                query: toWireQuery(
                     doc.id,
                     o.queryParams ?? input.queryParams ?? {},
                 ),

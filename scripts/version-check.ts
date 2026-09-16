@@ -8,7 +8,10 @@
 const CONTRACT_PATHS = [
     "engine/fn-utils.ts", // JsonUtil + MoneyUtil impls (hook ABI surface)
     "engine/link.ts", // linking + slot-contract wrapping semantics
-    "engine/request.ts", // PreparedRequest shape
+    "engine/request.ts", // input validation + query serialization
+    "engine/interfaces/mod.ts", // PreparedRequest shape (lives HERE, not request.ts)
+    "engine/transport.ts", // wire encoding of the prepared request
+    "shared/core/schema/common/http.ts", // HttpRequestParts (the auth-fn contract)
     "engine/auth.ts", // injection procedure
     "shared/core/schema/hooks/to-request.ts", // fn slot schemas (the ABI)
     "shared/core/schema/hooks/from-response.ts",

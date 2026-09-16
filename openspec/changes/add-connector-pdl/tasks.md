@@ -53,7 +53,9 @@
 
 ## 6. Follow-ups out of this change (design D7)
 
-- [ ] 6.1 ENGINE: repeated-param query encoding (`location=A&location=B`)
-      — `toScalarQuery` rejects arrays today, so PDL's multi-value
-      enrichment parameters stay single-valued. Its own change, with the
-      RunInput/queryParams contract and a spec requirement.
+- [x] 6.1 ENGINE: repeated-param query encoding (`location=A&location=B`)
+      — DONE in openspec/changes/add-repeated-query-params (an array query
+      value is a repeated key; other spellings stay in `input.toRequest`).
+      pdl's matching parameters are lists as of that change; the four
+      vendor-single fields (locality/region/country/street_address, plus
+      company `postal_code`) stay scalars.
