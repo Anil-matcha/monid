@@ -547,7 +547,7 @@ Deno.test("a line consuming an UNDECLARED credit fails compilation", async () =>
     );
 });
 
-Deno.test("a declared credit no line drains fails compilation", async () => {
+Deno.test("a PROVIDER pool drained by NO endpoint fails compilation", async () => {
     await assertRejects(
         () =>
             compileBundle(
@@ -569,21 +569,120 @@ Deno.test("a declared credit no line drains fails compilation", async () => {
                 OPTS,
             ),
         Error,
-        'declared credit "extra" is drained by no line',
+        'declared credit "extra" is drained by no endpoint',
     );
 });
 
-Deno.test("FREE docs compile with EMPTY credits — nothing drains, nothing declared", async () => {
+// THE regression this rule exists for (pdl's four x-call-credits-type
+// pools, PR #7): a provider-wide pool SET, one pool drained per endpoint.
+Deno.test("a provider declares the POOL SET; ONE endpoint per pool is enough", async () => {
+    const bundle = await compileBundle(
+        source(
+            [
+                {
+                    name: "search",
+                    def: makeEndpoint({
+                        usage: {
+                            model: {
+                                kind: "PER_CALL",
+                                consumes: { credit: "search", amount: 1 },
+                            },
+                        },
+                    }),
+                },
+                {
+                    name: "enrich",
+                    def: makeEndpoint({
+                        request: { method: "POST", path: "/enrich" },
+                        usage: {
+                            model: {
+                                kind: "PER_CALL",
+                                consumes: { credit: "enrich", amount: 1 },
+                            },
+                        },
+                    }),
+                },
+            ],
+            makeProvider({
+                usage: {
+                    credits: {
+                        search: { label: "Search credits" },
+                        enrich: { label: "Enrich credits" },
+                    },
+                } as Partial<ProviderDefSeed>["usage"],
+            }),
+        ),
+        OPTS,
+    );
+    // each doc carries ONLY the pool its own lines drain (design D6c)
+    assertEquals(bundle.endpoints["demo#search"].usage.credits, {
+        search: { label: "Search credits" },
+    });
+    assertEquals(bundle.endpoints["demo#enrich"].usage.credits, {
+        enrich: { label: "Enrich credits" },
+    });
+});
+
+Deno.test("an ENDPOINT-declared pool it does not drain fails compilation", async () => {
+    await assertRejects(
+        () =>
+            compileBundle(
+                source([{
+                    name: "search",
+                    def: makeEndpoint({
+                        usage: {
+                            credits: { extra: { label: "Never drained" } },
+                        },
+                    }),
+                }]),
+                OPTS,
+            ),
+        Error,
+        'endpoint-declared credit "extra" is drained by no line',
+    );
+});
+
+Deno.test("credits resolve KEY-WISE, endpoint over provider (D20 closest wins)", async () => {
     const bundle = await compileBundle(
         source([{
             name: "search",
             def: makeEndpoint({
-                usage: { model: { kind: "FREE" } },
+                usage: {
+                    credits: { default: { label: "Endpoint label wins" } },
+                },
             }),
         }]),
         OPTS,
     );
+    assertEquals(bundle.endpoints["demo#search"].usage.credits, {
+        default: { label: "Endpoint label wins" },
+    });
+});
+
+Deno.test("FREE docs compile with EMPTY credits — the provider's pool is another endpoint's", async () => {
+    const bundle = await compileBundle(
+        source([
+            // the billable sibling drains the provider's `default` pool,
+            // so the declaration is live (design D6b)
+            {
+                name: "paid",
+                def: makeEndpoint({
+                    request: { method: "POST", path: "/paid" },
+                }),
+            },
+            {
+                name: "search",
+                def: makeEndpoint({
+                    usage: { model: { kind: "FREE" } },
+                }),
+            },
+        ]),
+        OPTS,
+    );
     assertEquals(bundle.endpoints["demo#search"].usage.credits, {});
+    assertEquals(bundle.endpoints["demo#paid"].usage.credits, {
+        default: { label: "Demo credits" },
+    });
 });
 
 Deno.test("auth.inject is REQUIRED: endpoint ?? provider, neither fails", async () => {

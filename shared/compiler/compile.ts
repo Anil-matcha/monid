@@ -5,6 +5,7 @@ import {
     type Bundle,
     type ConnectorSource,
     contractConfig,
+    type Credits,
     docHash,
     type EndpointDoc,
     type FnRef,
@@ -206,6 +207,9 @@ export async function compileBundle(
         parseCategories(zCategories, provider.meta.categories, providerFile);
 
         const providerEndpointDocs: EndpointDoc[] = [];
+        // D6b: a PROVIDER-declared pool is a provider-wide fact — it must
+        // be drained by at least ONE of its endpoints, not by each one.
+        const drainedByProvider = new Set<string>();
         const sortedEndpoints = [...connector.endpoints]
             .sort((a, b) => a.name.localeCompare(b.name)); // determinism (see above)
         for (const { name: endpointName, def: rawDef } of sortedEndpoints) {
@@ -569,12 +573,13 @@ export async function compileBundle(
                 )
                 : undefined;
 
-            // ---- credits (design D26): the credit systems the model's
-            // lines drain — declared beside the model, resolved provider
-            // ?? endpoint (OPPOSITE of hooks: the pool is a provider-wide
-            // fact; an endpoint declares one only when the provider has
-            // none), referenced by every consumes.credit. The def IS the
-            // rate card; the broker prices ONLY these ids.
+            // ---- credits (design D26, revised D6): the credit systems
+            // the model's lines drain — declared beside the model,
+            // resolved KEY-WISE endpoint over provider (the D20 rule,
+            // like request.headers: a provider declares its pool SET
+            // once, an endpoint adds or restates only what diverges),
+            // referenced by every consumes.credit. The def IS the rate
+            // card; the broker prices ONLY these ids.
             if (usageModel.kind === "FREE" && def.usage?.credits) {
                 throw new CompileError(
                     CompileErrorCode.HOOK_UNRESOLVED,
@@ -582,16 +587,21 @@ export async function compileBundle(
                         `nothing (design D26: compiled FREE credits = {})`,
                 );
             }
-            const credits = usageModel.kind === "FREE"
-                ? {}
-                : provider.usage?.credits ?? def.usage?.credits;
-            if (credits === undefined) {
+            const declared: Credits = usageModel.kind === "FREE" ? {} : {
+                ...provider.usage?.credits,
+                ...def.usage?.credits,
+            };
+            if (
+                usageModel.kind !== "FREE" &&
+                Object.keys(declared).length === 0
+            ) {
                 throw new CompileError(
                     CompileErrorCode.HOOK_UNRESOLVED,
                     `${where}: usage.credits must resolve — a billable ` +
                         `model's lines drain declared credit systems ` +
-                        `(design D26; single-pool providers declare ` +
-                        `{default: {...}} once at provider level)`,
+                        `(design D26; a provider declares its pool SET ` +
+                        `once — {default: {...}} for single-pool vendors — ` +
+                        `and an endpoint may add or restate one key-wise)`,
                 );
             }
             const consumesLines: [string, { credit: string }][] =
@@ -607,7 +617,7 @@ export async function compileBundle(
                             : "CALL",
                         usageModel.consumes,
                     ]];
-            const declaredIds = new Set(Object.keys(credits));
+            const declaredIds = new Set(Object.keys(declared));
             for (const [lineId, consumes] of consumesLines) {
                 if (!declaredIds.has(consumes.credit)) {
                     throw new CompileError(
@@ -621,15 +631,26 @@ export async function compileBundle(
             const usedIds = new Set(
                 consumesLines.map(([, consumes]) => consumes.credit),
             );
-            for (const id of declaredIds) {
+            // an ENDPOINT-level declaration is endpoint-SCOPED: drained
+            // here or dead config. Provider-level pools are checked ONCE
+            // per provider, after the endpoint loop (design D6b).
+            for (const id of Object.keys(def.usage?.credits ?? {})) {
                 if (!usedIds.has(id)) {
                     throw new CompileError(
                         CompileErrorCode.HOOK_UNRESOLVED,
-                        `${where}: declared credit "${id}" is drained by ` +
-                            `no line — remove it or reference it`,
+                        `${where}: endpoint-declared credit "${id}" is ` +
+                            `drained by no line of this endpoint — remove ` +
+                            `it, reference it, or move it to the provider`,
                     );
                 }
             }
+            for (const id of usedIds) drainedByProvider.add(id);
+            // the doc carries ONLY what it drains (design D6c) — sorted
+            // for a deterministic emitted key order (the hash is RFC 8785
+            // either way); every id is declared, checked just above.
+            const credits: Credits = Object.fromEntries(
+                [...usedIds].sort().map((id) => [id, declared[id]]),
+            );
 
             // ---- input/output schemas: leaf-wise fallback -----------------
             const schemaLeaf = (
@@ -746,6 +767,23 @@ export async function compileBundle(
             providerEndpointDocs.push(doc);
             endpoints[doc.id] = doc; // sorted insertion (see determinism note)
             allDocs.push(doc);
+        }
+
+        // ---- D6b: every PROVIDER-declared pool is drained by at least
+        // ONE endpoint — what makes a multi-pool provider (pdl's four
+        // x-call-credits-type pools) declarable in ONE place.
+        for (const id of Object.keys(provider.usage?.credits ?? {})) {
+            if (!drainedByProvider.has(id)) {
+                throw new CompileError(
+                    CompileErrorCode.HOOK_UNRESOLVED,
+                    `${providerFile}: declared credit "${id}" is drained ` +
+                        `by no endpoint — remove it or reference it from ` +
+                        `a line's consumes.credit (drained: ` +
+                        `${
+                            [...drainedByProvider].sort().join(", ") || "none"
+                        })`,
+                );
+            }
         }
 
         // ---- ProviderDoc: identity + display only (nothing derivable) -----

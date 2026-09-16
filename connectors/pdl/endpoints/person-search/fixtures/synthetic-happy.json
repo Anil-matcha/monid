@@ -1,0 +1,29 @@
+{
+    "name": "synthetic-happy",
+    "description": "SYNTHETIC chain for pdl#v5/person/search (shape from the v1 adaptor tests and the PDL Person Search reference; replace via `deno task record`): POST JSON with sql + size 3 returns 3 records in data[], total and a scroll_token; each record is one person credit.",
+    "calls": [
+        {
+            "req": {
+                "method": "POST",
+                "url": "https://api.peopledatalabs.com/v5/person/search",
+                "body": {
+                    "sql": "SELECT * FROM person WHERE job_title='data scientist'",
+                    "size": 3
+                }
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "status": 200,
+                    "data": [
+                        { "id": "p1_0000", "full_name": "jane doe" },
+                        { "id": "p2_0000", "full_name": "john roe" },
+                        { "id": "p3_0000", "full_name": "alex poe" }
+                    ],
+                    "total": 1234,
+                    "scroll_token": "NEXT_PAGE_TOKEN"
+                }
+            }
+        }
+    ]
+}

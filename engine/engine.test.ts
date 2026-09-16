@@ -1733,6 +1733,13 @@ async function usageUnit(
         usage !== undefined && usage.estimate === undefined
             ? { ...usage, estimate: () => ({ counts: {} }) }
             : usage;
+    // a FREE splice leaves the connector with NOTHING draining the
+    // provider's pool — dead config (design D6b: a declared pool needs at
+    // least one draining endpoint), so drop it for those cases
+    if (usage?.model?.kind === "FREE") {
+        delete (connectors[0].provider.usage as { credits?: unknown })
+            ?.credits;
+    }
     delete connectors[0].endpoints[0].def.output; // free-form outputs
     const bundle = await compileBundle(connectors, COMPILE_OPTS);
     return sealUnit(bundle, "demo#search");

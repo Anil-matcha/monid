@@ -46,6 +46,7 @@ deno task check && deno task test            # types + replay tests (zero networ
 | `octen`    | search, broad-search, extract, embedding                                                     | `x-api-key` | calls / sub-queries / successful URLs / tokens from `meta.usage` |
 | `ploid`    | v1/search, v1/socials, v1/enrich, v1/agent (async), v1/linkedin/{profile, search, posts, profiles/comments, companies/get, companies/posts} | `Bearer`    | ACU from `meta.credits_charged` / `meta.acu_used` (1 ACU = USD 0.10) |
 | `fundable` | deals, deal, deal/investors, companies, company, company/deals, company/search, investors, investor, investor/deals, investor/search, people, person, person/deals, person/search, industry/search, location/search | `Bearer` | credits (1 per row or lookup, 0.1 per fuzzy search; permalink resolvers free) |
+| `pdl`      | v5/person/enrich, v5/person/search, v5/company/enrich, v5/company/search                     | `X-Api-Key` | credits by PDL type (people_enrich / people_search / company_enrich / company_search): 1 per match or record |
 
 ## Adding a connector
 
