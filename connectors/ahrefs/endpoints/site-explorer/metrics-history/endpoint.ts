@@ -52,7 +52,11 @@ export default defineEndpoint({
     usage: {
         /** The vendor formula `max(50, 21 × rows)` as two lines (design
          *  D1): rows at their per-row units, plus the top-up to the 50-unit
-         *  request minimum. Both counts are the fns' job (D19). */
+         *  request minimum. Both counts are the fns' job (D19).
+         *  Rate card: 21 units/row = 1 × 1 + org_traffic 10 + paid_traffic 10
+         *  — the field costs on
+         *  https://docs.ahrefs.com/en/api/reference/site-explorer/get-metrics-history
+         *  (1 unit per field unless marked; checked 2026-09-16). */
         model: {
             kind: UsageModelKind.COMPOSITE,
             components: {
@@ -73,11 +77,14 @@ export default defineEndpoint({
                 },
             },
         },
-        /** One row per date bucket of the requested range (design D6). Hook
-         *  fns have no `Date`, so the day count is pure arithmetic
-         *  (days-from-civil) over the two required YYYY-MM-DD strings;
-         *  weekly / monthly buckets are ceil(days / 7) and ceil(days / 30)
-         *  — the settle trues up to the rows the vendor returns. */
+        /** One row per bucket ANCHOR inside the requested range (design
+         *  D6; live-measured 2026-09-16): daily rows carry every day,
+         *  weekly rows are dated on Mondays, monthly rows on the 1st, so
+         *  the count is the anchors in [date_from, date_to] — not the span
+         *  divided by a bucket width, which under-holds a 1st-to-1st span
+         *  in a short month. Hook fns have no `Date`, so the day number is
+         *  pure arithmetic (days-from-civil) over the two required
+         *  YYYY-MM-DD strings; the settle trues up to the rows returned. */
         estimate: ({ data }) => {
             const query = data.input.queryParams;
             const days = (iso: string): number => {
@@ -94,16 +101,24 @@ export default defineEndpoint({
                     Math.floor(yearOfEra / 100) + dayOfYear;
                 return era * 146097 + dayOfEra;
             };
-            const span = Math.max(
-                1,
-                days(query.date_to) - days(query.date_from) + 1,
-            );
+            const monthOf = (iso: string): number =>
+                Number(iso.slice(0, 4)) * 12 + Number(iso.slice(5, 7));
+            const from = days(query.date_from);
+            const to = days(query.date_to);
+            // the first 1st-of-month at or after date_from
+            const firstMonth = monthOf(query.date_from) +
+                (Number(query.date_from.slice(8, 10)) > 1 ? 1 : 0);
+            // 1970-01-05, a Monday, on the day scale above
+            const monday = 719472;
             const grouping = query.history_grouping;
-            const rows = grouping === "daily"
-                ? span
+            const rows = to < from
+                ? 0
+                : grouping === "daily"
+                ? to - from + 1
                 : grouping === "weekly"
-                ? Math.ceil(span / 7)
-                : Math.ceil(span / 30);
+                ? Math.floor((to - monday) / 7) -
+                    Math.floor((from - 1 - monday) / 7)
+                : Math.max(0, monthOf(query.date_to) - firstMonth + 1);
             const model = data.usage.model;
             const perRow = model.kind === "COMPOSITE"
                 ? model.components["rows"]?.consumes.amount ?? 0

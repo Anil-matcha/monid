@@ -72,9 +72,10 @@ Schema `pattern`s that accept only the endpoint's field set.
 `usage.estimate` SHALL promise `limit` rows (rowed reports), 1 (snapshots),
 250 (`metrics-by-country`), `keywords.length` (`keywords-explorer/overview`),
 `top_positions` (`serp-overview`), `targets.length` (`batch-analysis`), or
-the date buckets between `date_from` and `date_to` (history: days,
-`ceil(days/7)`, `ceil(days/30)` by `history_grouping`; `volume-history`
-monthly), with the top-up derived from the doc's own per-row rate.
+the bucket anchors inside the inclusive range `date_from` to `date_to`
+(history: every day, Mondays, or firsts of months by `history_grouping`;
+`volume-history`: firsts of months), with the top-up derived from the doc's
+own per-row rate. An inverted range has zero anchors.
 
 #### Scenario: A monthly history range
 - **WHEN** `/site-explorer/metrics-history` is estimated with `date_from

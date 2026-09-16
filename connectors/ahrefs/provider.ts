@@ -9,8 +9,11 @@ import { defineProvider, presets } from "@shared/core";
  * BILLING (design D1). Ahrefs bills every request in API UNITS:
  * `max(50, units_per_row × rows)`, where `units_per_row` is the sum of the
  * UNIQUE fields across `select` / `where` / `order_by` (1 unit per field by
- * default; expensive fields are annotated 5 / 10 / 15 units in the vendor's
- * OpenAPI spec). Every endpoint injects a FIXED `select` list in its
+ * default; expensive fields are marked `(5 units)` / `(10 units)` / `(15 units)` in
+ * each endpoint's field descriptions — the pricing rule is
+ * https://docs.ahrefs.com/en/api/docs/limits-consumption, and every
+ * endpoint's `Rate card:` comment sums its own fields; checked 2026-09-16).
+ * Every endpoint injects a FIXED `select` list in its
  * `input.toRequest` and restricts `where` / `order_by` to that same list,
  * so its per-row cost is an authored constant — the `rows` line's
  * `consumes.amount`. The 50-unit request minimum is the second line: a
@@ -21,8 +24,9 @@ import { defineProvider, presets } from "@shared/core";
  *
  * No `usage.consolidate`: the response BODY carries no meter. Ahrefs does
  * answer with `x-api-units-cost-*` response headers, but those reach only
- * lifecycle fns (engine 0.2.0), their exact names could not be confirmed
- * without a key, and v1 never read them — so the authored constants are
+ * lifecycle fns (engine 0.2.0), and v1 never read them (the names are
+ * `x-api-units-cost-row` / `-total` / `-total-actual`, same docs page) — so
+ * the authored constants are
  * the bill and the tests hold them as literals (clay D7a). Reading the
  * header as the vendor claim is a follow-up once a key exists (tasks.md).
  *

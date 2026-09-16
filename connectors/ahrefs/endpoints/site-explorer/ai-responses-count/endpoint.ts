@@ -49,7 +49,13 @@ export default defineEndpoint({
     usage: {
         /** The vendor formula `max(50, 120 × rows)` as two lines (design
          *  D1): rows at their per-row units, plus the top-up to the 50-unit
-         *  request minimum. Both counts are the fns' job (D19). */
+         *  request minimum. Both counts are the fns' job (D19).
+         *  Rate card: 120 units/row = chatgpt 15 + copilot 15 + gemini 15 +
+         *  google_ai_mode 15 + google_ai_overviews 15 +
+         *  google_ai_overviews_keywords 15 + grok 15 + perplexity 15 — the
+         *  field costs on
+         *  https://docs.ahrefs.com/en/api/reference/site-explorer/get-ai-responses-count
+         *  (1 unit per field unless marked; checked 2026-09-16). */
         model: {
             kind: UsageModelKind.COMPOSITE,
             components: {
