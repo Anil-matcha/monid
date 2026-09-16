@@ -38,6 +38,11 @@
       caps history at 60 buckets
 - [ ] 3.4 With the key, read the `x-api-units-cost-*` headers on a few
       runs and confirm the 36 units-per-row constants (v1 drill 2026-08)
+- [x] 3.5 PR #20 / #21 review: confirm monthly / weekly / daily anchors
+      through Monid-dev live runs (2026-09-16), fix all eight history
+      estimates, and cover date boundaries plus a hold above the minimum.
+      Re-derive all 36 rates from the vendor field descriptions and record
+      each source URL, field-cost breakdown, and verification date.
 
 ## 4. Follow-ups
 

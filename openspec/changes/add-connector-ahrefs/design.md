@@ -44,6 +44,15 @@ constants — but headers reach only lifecycle fns (engine 0.2.0), so all
 be confirmed without a key (the public docs pages 404); and v1 never read
 them. Deferred to tasks.md, to be done with a key in hand.
 
+Update 2026-09-16: the docs are reachable at
+https://docs.ahrefs.com/en/api/docs/limits-consumption and name the
+headers (`x-api-rows`, `x-api-units-cost-row`, `x-api-units-cost-total`,
+`x-api-units-cost-total-actual`, `x-api-cache`); the same page states the
+rule (`max(base_cost, per_row_cost * num_rows)`, base 50, 1 unit per
+field, expensive fields marked in each endpoint's field description), and
+all 36 authored constants were re-derived from it (PR #20 / #21 review).
+The rest of D2 stands — the header read is still the follow-up.
+
 ## D3 — One generic rows counter, stated on every endpoint
 
 Every doc has TWO metered lines, so the compiler requires each doc to own
@@ -106,9 +115,21 @@ History rows are date buckets between `date_from` and `date_to`. v1
 defaulted `date_to` to today and clamped the hold at 60 buckets via a
 `.superRefine`. Hook fns have no `Date` (not in the closed-term
 whitelist) — so `date_to` is REQUIRED at every history binding, and the
-estimate counts days with pure arithmetic (days-from-civil over the two
-YYYY-MM-DD strings), then `ceil(days / 7)` weekly, `ceil(days / 30)`
-monthly (v1's approximation; the settle trues up to the rows returned).
+estimate counts with pure arithmetic over the two YYYY-MM-DD strings.
+
+What it counts (live-measured 2026-09-16 on the vendor's free targets,
+Monid-dev runs; CodeRabbit on PR #20 flagged the first draft's
+`ceil(days / 30)`): a row is a bucket ANCHOR inside the range —
+daily rows carry every day (01-31→02-01 = 2 rows), weekly rows are dated
+on Mondays (Sun 01-05→Mon 01-06 = 1 row, dated 01-06), monthly rows on
+the 1st (01-31→02-01 = 1 row, dated 02-01). So the estimate counts the
+anchors in `[date_from, date_to]`: days, Mondays (from a known Monday on
+the days-from-civil scale), or 1sts (month index arithmetic). v1's
+`ceil(days / 30)` under-held a 1st-to-1st span in a short month
+(02-01→03-01 = 2 rows, ceil(29 / 30) = 1); the reviewer's "inclusive
+calendar months" would over-hold 01-31→02-01 (2 vs 1). The settle trues
+up to the rows returned either way.
+
 The 60-bucket cap is not enforceable without a refine; it rides
 `meta.notes`, and the estimate promises the whole range rather than
 clamping — a clamp would under-hold.

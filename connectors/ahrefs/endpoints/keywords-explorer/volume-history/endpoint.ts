@@ -33,7 +33,11 @@ export default defineEndpoint({
     usage: {
         /** The vendor formula `max(50, 2 × rows)` as two lines (design
          *  D1): rows at their per-row units, plus the top-up to the 50-unit
-         *  request minimum. Both counts are the fns' job (D19). */
+         *  request minimum. Both counts are the fns' job (D19).
+         *  Rate card: 2 units/row = all returned fields, 2 × 1 — the field
+         *  costs on
+         *  https://docs.ahrefs.com/en/api/reference/keywords-explorer/get-volume-history
+         *  (1 unit per field unless marked; checked 2026-09-16). */
         model: {
             kind: UsageModelKind.COMPOSITE,
             components: {
@@ -54,32 +58,23 @@ export default defineEndpoint({
                 },
             },
         },
-        /** One row per date bucket of the requested range (design D6). Hook
-         *  fns have no `Date`, so the day count is pure arithmetic
-         *  (days-from-civil) over the two required YYYY-MM-DD strings;
-         *  monthly buckets are ceil(days / 30)
-         *  — the settle trues up to the rows the vendor returns. */
+        /** One row per MONTH ANCHOR inside the requested range (design D6;
+         *  live-measured 2026-09-16): monthly rows are dated on the 1st, so
+         *  the count is the 1sts in [date_from, date_to] — not the span
+         *  divided by 30, which under-holds a 1st-to-1st span in a short
+         *  month. Pure arithmetic over the two required YYYY-MM-DD strings
+         *  (hook fns have no `Date`); the settle trues up to the rows
+         *  returned. */
         estimate: ({ data }) => {
             const query = data.input.queryParams;
-            const days = (iso: string): number => {
-                const y = Number(iso.slice(0, 4));
-                const m = Number(iso.slice(5, 7));
-                const d = Number(iso.slice(8, 10));
-                const shifted = m <= 2 ? y - 1 : y;
-                const era = Math.floor(shifted / 400);
-                const yearOfEra = shifted - era * 400;
-                const monthIndex = (m + 9) % 12;
-                const dayOfYear = Math.floor((153 * monthIndex + 2) / 5) + d -
-                    1;
-                const dayOfEra = yearOfEra * 365 + Math.floor(yearOfEra / 4) -
-                    Math.floor(yearOfEra / 100) + dayOfYear;
-                return era * 146097 + dayOfEra;
-            };
-            const span = Math.max(
-                1,
-                days(query.date_to) - days(query.date_from) + 1,
-            );
-            const rows = Math.ceil(span / 30);
+            const monthOf = (iso: string): number =>
+                Number(iso.slice(0, 4)) * 12 + Number(iso.slice(5, 7));
+            // the first 1st-of-month at or after date_from
+            const firstMonth = monthOf(query.date_from) +
+                (Number(query.date_from.slice(8, 10)) > 1 ? 1 : 0);
+            const rows = query.date_to < query.date_from
+                ? 0
+                : Math.max(0, monthOf(query.date_to) - firstMonth + 1);
             const model = data.usage.model;
             const perRow = model.kind === "COMPOSITE"
                 ? model.components["rows"]?.consumes.amount ?? 0

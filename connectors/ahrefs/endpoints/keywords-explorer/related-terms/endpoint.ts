@@ -49,7 +49,11 @@ export default defineEndpoint({
     usage: {
         /** The vendor formula `max(50, 22 × rows)` as two lines (design
          *  D1): rows at their per-row units, plus the top-up to the 50-unit
-         *  request minimum. Both counts are the fns' job (D19). */
+         *  request minimum. Both counts are the fns' job (D19).
+         *  Rate card: 22 units/row = 2 × 1 + volume 10 + difficulty 10 — the
+         *  field costs on
+         *  https://docs.ahrefs.com/en/api/reference/keywords-explorer/get-related-terms
+         *  (1 unit per field unless marked; checked 2026-09-16). */
         model: {
             kind: UsageModelKind.COMPOSITE,
             components: {
