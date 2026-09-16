@@ -143,7 +143,6 @@ export const LEAF_CATEGORIES = defineLeafCategories([
             "clips.",
     },
     {
-
         id: "3d-generation",
         displayName: "3D Generation",
         description:
@@ -166,5 +165,53 @@ export const LEAF_CATEGORIES = defineLeafCategories([
         displayName: "Speech",
         description:
             "Work with voice, including text-to-speech, transcription, dialogue, and more.",
+    },
+    {
+        id: "token-prices",
+        displayName: "Token Prices",
+        description:
+            "Tools to pull token prices, including current and historical, across chains, and more.",
+    },
+    {
+        id: "derivatives",
+        displayName: "Derivatives & Perps",
+        description:
+            "Tools to pull crypto derivatives data, including perpetual funding, open interest, liquidations, options, and more.",
+    },
+    {
+        id: "onchain-data",
+        displayName: "On-chain Data",
+        description:
+            "Tools to pull on-chain data, including RPC access, indexers, analytics, and more.",
+    },
+    {
+        id: "defi",
+        displayName: "DeFi",
+        description:
+            "Tools to pull DeFi data, including protocol TVL, DEX volumes, fees, and more.",
+    },
+    {
+        id: "yields",
+        displayName: "Yields",
+        description:
+            "Tools to pull yield data, including pool APYs, historical rates, and more.",
+    },
+    {
+        id: "prediction-markets",
+        displayName: "Prediction Markets",
+        description:
+            "Tools to pull prediction market data, including Polymarket and Kalshi prices, volume, open interest, and more.",
+    },
+    {
+        id: "crypto-signals",
+        displayName: "Market Signals",
+        description:
+            "Tools to pull crypto market signals, including sentiment indexes, technical indicators, project scores, and more.",
+    },
+    {
+        id: "web-extraction",
+        displayName: "Content Extraction",
+        description:
+            "Tools to extract page content, including clean markdown from any URL, and more.",
     },
 ]);

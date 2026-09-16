@@ -1,0 +1,130 @@
+{
+    "web/fetch": {
+        "queryParams": {
+            "url": "https://ethereum.org"
+        }
+    },
+    "search/airdrop": {},
+    "search/airdrop/activities": {},
+    "search/events": {
+        "queryParams": {
+            "id": "25c6612a-395c-4974-94eb-3b5f9f4b2ed7"
+        }
+    },
+    "search/fund": {
+        "queryParams": {
+            "q": "a16z"
+        }
+    },
+    "search/fundraising": {},
+    "search/news": {
+        "queryParams": {
+            "q": "bitcoin ETF"
+        }
+    },
+    "search/prediction-market": {},
+    "search/project": {
+        "queryParams": {
+            "q": "bitcoin"
+        }
+    },
+    "search/token": {
+        "queryParams": {
+            "q": "USDC"
+        }
+    },
+    "search/web": {
+        "queryParams": {
+            "q": "bitcoin price prediction 2026"
+        }
+    },
+    "market/etf": {
+        "queryParams": {
+            "symbol": "BTC"
+        }
+    },
+    "market/exchange-flow/exchanges": {
+        "queryParams": {
+            "symbol": "BTC"
+        }
+    },
+    "market/fear-greed": {},
+    "market/futures": {},
+    "market/liquidation/chart": {
+        "queryParams": {
+            "symbol": "BTC"
+        }
+    },
+    "market/liquidation/exchange-list": {},
+    "market/liquidation/order": {},
+    "market/listing": {
+        "queryParams": {
+            "from": "2024-01-01"
+        }
+    },
+    "market/onchain-indicator": {
+        "queryParams": {
+            "symbol": "BTC",
+            "metric": "nupl"
+        }
+    },
+    "market/options": {
+        "queryParams": {
+            "symbol": "BTC"
+        }
+    },
+    "market/price": {
+        "queryParams": {
+            "symbol": "BTC"
+        }
+    },
+    "market/price-indicator": {
+        "queryParams": {
+            "indicator": "rsi",
+            "symbol": "BTC"
+        }
+    },
+    "market/public-sale": {
+        "queryParams": {
+            "id": "25c6612a-395c-4974-94eb-3b5f9f4b2ed7"
+        }
+    },
+    "market/ranking": {},
+    "market/tge": {
+        "queryParams": {
+            "id": "25c6612a-395c-4974-94eb-3b5f9f4b2ed7"
+        }
+    },
+    "news/detail": {
+        "queryParams": {
+            "id": "e54e0ac4-1ef8-44d2-928e-52df465e2c81"
+        }
+    },
+    "news/feed": {},
+    "fund/detail": {
+        "queryParams": {
+            "id": "ef3b6da9-283d-4080-b3c7-87b1b45924dc"
+        }
+    },
+    "fund/portfolio": {
+        "queryParams": {
+            "id": "ef3b6da9-283d-4080-b3c7-87b1b45924dc"
+        }
+    },
+    "fund/ranking": {
+        "queryParams": {
+            "metric": "tier"
+        }
+    },
+    "search/wallet": {
+        "queryParams": {
+            "q": "vitalik.eth"
+        }
+    },
+    "dex/token/price": {
+        "queryParams": {
+            "chain": "ethereum",
+            "address": "0x6982508145454ce325ddbe47a25d4ec3d2311933"
+        }
+    }
+}
