@@ -64,7 +64,13 @@ Deno.test("firecrawl async: the sync endpoints carry NO lifecycle", async () => 
     // a provider-level `start` would be inherited leaf-wise and replace their
     // declarative execution, so the lifecycle lives on the async endpoints
     for (
-        const id of ["firecrawl#scrape", "firecrawl#map", "firecrawl#search"]
+        const id of [
+            "firecrawl#scrape",
+            "firecrawl#map",
+            "firecrawl#search",
+            "firecrawl#crawl/{id}",
+            "firecrawl#batch/scrape/{id}",
+        ]
     ) {
         assertEquals(bundle.endpoints[id].lifecycle, undefined, id);
     }
@@ -91,21 +97,28 @@ for (const id of PAGE_JOBS) {
         assertEquals((output.data as unknown[]).length, 2);
     });
 
-    Deno.test(`${id} job-paginated: the poll follows \`next\` and returns one complete result set`, async () => {
+    Deno.test(`${id} chunked results: the envelope is handed back as-is, not walked`, async () => {
         const result = await runEndpoint({
             unit: await testSealedUnit(id),
             input: INPUTS[id],
             mode: "replay",
-            fixture: await loadFixture(`${chains}job-paginated.json`),
+            fixture: await loadFixture(`${chains}job-next-passthrough.json`),
         });
 
         assertEquals(result.httpStatus, 200);
         const output = result.output as Record<string, unknown>;
-        // 2 rows on the first page + 1 on the second, concatenated
-        assertEquals((output.data as unknown[]).length, 3);
-        // `next` needs a Firecrawl key the caller does not hold, so an
-        // exhausted chain must not leave it in the output
-        assertEquals("next" in output, false);
+        // the vendor chunked deliberately: we return ITS first chunk, not a
+        // stitched set. The chain lists no third call, so the replay
+        // transport would have failed the run had the poll walked `next`.
+        assertEquals((output.data as unknown[]).length, 2);
+        assertEquals(
+            output.next,
+            "https://api.firecrawl.dev/v2/crawl/JOB1?skip=2",
+        );
+        // the job id rides along so firecrawl#crawl/{id} is callable — the
+        // status body does not carry it and `next` needs our credential
+        assertEquals(output.id, "JOB1");
+        // billing still settles on the vendor's own count of the WHOLE job
         assertEquals(result.usage.credits, { default: 3 });
         assertEquals(result.usage.evidence, { page: 3 });
     });
@@ -195,7 +208,7 @@ Deno.test("firecrawl#batch/scrape: x_routing counts DELIVERED rows, not the requ
     assertEquals(promised.credits, { default: 31 });
 });
 
-Deno.test("firecrawl#agent: an object `data` short-circuits the pagination walk", async () => {
+Deno.test("firecrawl#agent: an object `data` rides back untouched", async () => {
     const result = await runEndpoint({
         unit: await testSealedUnit("firecrawl#agent"),
         input: INPUTS["firecrawl#agent"],
@@ -205,8 +218,9 @@ Deno.test("firecrawl#agent: an object `data` short-circuits the pagination walk"
 
     assertEquals(result.httpStatus, 200);
     const output = result.output as Record<string, Record<string, unknown>>;
-    // the agent returns one extracted object, not an array of pages — the
-    // shared poll must hand it back untouched rather than replacing it
+    // the agent returns one extracted object, not an array of pages, and
+    // never paginates — the shared poll hands every envelope back as-is, so
+    // this shape needs no special case
     assertEquals(output.data.heading, "Example Domain");
     // dynamic pricing: the vendor's own draw IS the quantity, so the claim
     // and the derived fold agree by construction
@@ -253,5 +267,28 @@ Deno.test({
         assertEquals(typeof result.usage.credits.default, "number");
         // the pinned per-page rate agrees with the vendor's live meter
         assertEquals(result.usage.mismatch, undefined);
+
+        // the pairing, end to end: the crawl hands back the job id, and
+        // reading that job through the vendor's own second operation returns
+        // its pages and bills NOTHING
+        const output = result.output as Record<string, unknown>;
+        const jobId = output.id;
+        assert(
+            typeof jobId === "string" && jobId !== "",
+            "crawl must return the job id",
+        );
+
+        const read = await runEndpoint({
+            unit: await testSealedUnit("firecrawl#crawl/{id}"),
+            input: { pathParams: { id: jobId }, queryParams: { skip: 1 } },
+            mode: "live",
+        });
+        assertEquals(read.isProviderError, false, JSON.stringify(read.output));
+        assertEquals(read.usage, { credits: {}, evidence: {} });
+        const chunk = read.output as Record<string, unknown>;
+        // `skip: 1` really reached the wire — one fewer row than the crawl's 2
+        assertEquals((chunk.data as unknown[]).length, 1);
+        // and the job's own meter is still visible, just not billed again
+        assertEquals(typeof chunk.creditsUsed, "number");
     },
 });

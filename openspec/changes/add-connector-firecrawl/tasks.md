@@ -37,9 +37,11 @@
 ## 4. Fixtures + tests
 
 - [x] 4.1 Record real chains for all six endpoints via `deno task record`
-- [x] 4.2 Hand-minimize into 9 provider-level shared chains (strategy v2):
+- [x] 4.2 Hand-minimize into provider-level shared chains (strategy v2):
       scrape-ok, scrape-pdf-ok, map-ok, search-ok, job-succeeded,
-      job-paginated, job-failed, agent-succeeded, provider-error
+      job-next-passthrough, job-transient-status, job-partial-delivery,
+      job-failed, agent-succeeded, provider-error, crawl-status-ok,
+      batch-scrape-status-ok
 - [x] 4.3 Per-endpoint replay tests for scrape / map / search (happy,
       provider-error, usage + mismatch, mirror fidelity, binding gates)
 - [x] 4.4 Provider-level `lifecycle.test.ts`: job chains across all three
@@ -52,3 +54,21 @@
 - [x] 5.2 Verify: fmt · lint · check · test · double-compile byte-identity ·
       version:check · catalog smoke · estimate spot-checks against the
       published credit table
+
+## 6. Review follow-ups
+
+- [x] 6.1 `/search` estimate scales by DISTINCT source count (`limit` is per
+      source; verified live: 3 sources x limit 10 = 30 results, 6 credits)
+- [x] 6.2 `sources` / `categories` accept the bare-string spelling (both
+      probed live, both 200); `github` NOT added - it does not exist
+- [x] 6.3 Transient status lookups (408/429/5xx) keep the run alive instead of
+      settling it and abandoning a billing job
+- [x] 6.4 `x_routing` evidence counts DELIVERED rows via `metadata.sourceURL`
+- [x] 6.5 `estimateEndpoint` helper in shared/testing - no connector could
+      test an estimate before this
+- [x] 6.6 Pagination: the poll hands the vendor's chunked envelope back
+      instead of stitching it, and two FREE job-read endpoints make the
+      remaining chunks reachable
+- [x] 6.7 Endpoint identities accept `{param}`, so the job-read endpoints are
+      named `firecrawl#crawl/{id}` / `firecrawl#batch/scrape/{id}` -
+      ENGINE_VERSION 0.0.3 + `doc_format_since` 0.0.3

@@ -157,20 +157,57 @@ best-effort.
 - **THEN** usage is `{credits: {default: 2}, evidence: {page: 2}}` with no
   mismatch
 
-### Requirement: Paginated job results are followed, not handed back
-When a terminal status body carries `next`, `lifecycle.poll` SHALL follow the
-cursor through the engine transport and concatenate each page's `data`,
-bounded at 20 pages, returning the accumulated rows on the first envelope and
-leaving `next` in the output ONLY when that bound is hit. A non-array `data`
-SHALL short-circuit the walk and return the envelope untouched.
+### Requirement: Chunked job results are handed back, and reachable
+Firecrawl caps a response at 10 MB and chunks a large job's results, carrying
+a `next` cursor. `lifecycle.poll` SHALL return the vendor's terminal envelope
+as received — `next` intact, `data` unmodified — and SHALL NOT follow the
+cursor: stitching chunks would put an unbounded payload through one run, and a
+failure mid-walk would return a PARTIAL set as a success while the vendor's
+`completed` count billed the whole job. The poll SHALL merge the job `id` into
+the envelope, because the status body does not carry it and `next` requires a
+credential the caller never holds.
 
-#### Scenario: Two-page result set is returned whole
-- **WHEN** a job completes with `next` pointing at one further page of 1 row
-  after 2 rows
-- **THEN** the output holds 3 rows and carries no `next`
+The connector SHALL mirror the vendor's second operation so the remaining
+chunks are reachable: `firecrawl#crawl/{id}` (`GET /crawl/{id}`) and
+`firecrawl#batch/scrape/{id}` (`GET /batch/scrape/{id}`), each taking
+`pathParams.id` and an optional `queryParams.skip`, each `FREE`, and each
+overriding the provider's `usage.consolidate` to an empty claim — a job status
+body repeats the WHOLE job's `creditsUsed` on every chunk, so inheriting it
+would re-bill the entire job on every read.
+
+#### Scenario: A chunked result is returned as the vendor sent it
+- **WHEN** a job completes with 2 rows and a `next` cursor
+- **THEN** the output holds those 2 rows, carries `next` unchanged and the
+  job `id`, and no further request is issued
+- **AND** usage still settles on the vendor's whole-job claim
+
+#### Scenario: Reading a job bills nothing
+- **WHEN** `firecrawl#crawl/{id}` or `firecrawl#batch/scrape/{id}` reads a
+  body reporting `creditsUsed: 3`
+- **THEN** usage is `{credits: {}, evidence: {}}` and the meter remains in the
+  output as the job's own provenance
 
 #### Scenario: Agent object result is left alone
 - **WHEN** `firecrawl#agent` completes with `data` as a single object
 - **THEN** the output's `data` is that object, and usage is
   `{credits: {default: n}, evidence: {CREDIT: n}}` for the reported
   `creditsUsed`
+
+### Requirement: Endpoint identities may carry a path placeholder
+`zEndpointPath` and `zEndpointId` SHALL accept a `{param}` segment alongside
+lowercase literal segments, so a resource-style endpoint is identified by the
+vendor's actual path rather than an invented pin. The parameter name is part
+of the identity. This is a doc-format change: `ENGINE_VERSION` is 0.0.3 and
+`schema.doc_format_since` is 0.0.3, because an earlier engine rejects such an
+id at load.
+
+#### Scenario: The identity is the vendor's path
+- **WHEN** the compiled bundle is inspected
+- **THEN** `firecrawl#crawl/{id}` and `firecrawl#batch/scrape/{id}` exist,
+  each declaring `endpoint` explicitly and equal to its `request.path`
+- **AND** the compiled url keeps `{id}` unencoded, so the engine can
+  substitute it
+
+#### Scenario: Malformed placeholders are still rejected
+- **WHEN** an identity is `/crawl/{}`, `/crawl/{Id}` or `/crawl/{id`
+- **THEN** it fails validation

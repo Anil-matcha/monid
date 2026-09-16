@@ -18,6 +18,8 @@ const CONTRACT_PATHS = [
     "shared/core/schema/hooks/ctx.ts", // ctx shapes + carriers (the ABI)
     "shared/core/schema/sections/lifecycle.ts", // lifecycle def section
     "shared/core/schema/sections/timeouts.ts", // timeouts shape (pollMs)
+    "shared/core/schema/common/ids.ts", // endpoint identity FORMAT (a doc
+    //   minted with an id shape an older engine rejects is a format change)
     "shared/core/schema/endpoint/doc.ts", // structural doc format
     "shared/core/schema/provider/doc.ts", // provider doc format
     "shared/core/schema/bundle/sealed-unit.ts", // sealed unit shape

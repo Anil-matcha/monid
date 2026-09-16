@@ -27,6 +27,8 @@ import {
     Unit,
     UsageModelKind,
     ValidationError,
+    zEndpointId,
+    zEndpointPath,
     zeroUsage,
     zJson,
     zUsage,
@@ -850,4 +852,47 @@ Deno.test("typed FREE model + typed queryParams: the D25 layer narrows as design
                 }),
             },
         }));
+});
+
+// ---------------------------------------------------------------------------
+// endpoint identity — literal segments AND {param} placeholders
+// ---------------------------------------------------------------------------
+
+Deno.test("endpoint identity: a {param} segment is a legal path and id", () => {
+    // the point of allowing placeholders: a resource-style endpoint is named
+    // by the vendor's ACTUAL path, so what the caller sees is what we call
+    for (
+        const path of [
+            "/search",
+            "/v1/company/enrichment",
+            "/apidojo/tweet-scraper",
+            "/crawl/{id}",
+            "/batch/scrape/{id}",
+            "/deals/{id}/investors",
+            "/jobs/{jobId}",
+        ]
+    ) {
+        assertEquals(zEndpointPath.parse(path), path);
+    }
+    assertEquals(
+        zEndpointId.parse("firecrawl#crawl/{id}"),
+        "firecrawl#crawl/{id}",
+    );
+});
+
+Deno.test("endpoint identity: malformed placeholders are still rejected", () => {
+    for (
+        const path of [
+            "/crawl/{}", // empty
+            "/crawl/{Id}", // must start lowercase
+            "/crawl/{id", // unclosed
+            "/crawl/id}", // unopened
+            "/crawl/{id}x", // trailing junk in the segment
+            "/crawl/{a-b}", // hyphen is not a param char
+            "/Crawl/{id}", // literal segments stay lowercase
+        ]
+    ) {
+        assertThrows(() => zEndpointPath.parse(path), Error, "", path);
+    }
+    assertThrows(() => zEndpointId.parse("firecrawl#crawl/{}"));
 });

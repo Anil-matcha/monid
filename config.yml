@@ -26,6 +26,13 @@ schema:
     # at the pre-release floor until a first real release mints 0.1.0.
     fn_abi_since: "0.0.1" # engine release of the current hook ABI; stamped as fn entries' `api`
     async_since: "0.0.1" # engine release of the lifecycle (async) hook family; stamped as lifecycle fn entries' `api`
+    # Engine release that accepts a `{param}` placeholder segment in an
+    # endpoint IDENTITY (`firecrawl#crawl/{id}` — a resource-style endpoint
+    # named by the vendor's real path instead of an invented pin). An earlier
+    # engine REJECTS such an id at load, so it is a per-doc floor and NOT a
+    # doc_format_since bump: docs without a placeholder stay readable by 0.0.1
+    # and must not be over-pinned (same posture as async_since).
+    path_param_id_since: "0.0.3"
     state_max_bytes: 65536 # hard engine cap on serialized lifecycle state (ids + billing signals, never payloads)
 
 compiler:

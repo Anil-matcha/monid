@@ -1,0 +1,37 @@
+{
+    "name": "crawl-status-ok",
+    "description": "A direct read of a completed crawl job - the second chunk, reached with ?skip=2. Carries the WHOLE JOB's creditsUsed (3), which is exactly the trap: inheriting the provider's vendor-claim consolidate here would re-bill the entire job on every read. The endpoint is FREE and overrides it to an empty claim. The url is LITERAL rather than a {{request.url}} binding because the engine substitutes {id} before the call, so the two job-read endpoints diverge once bound and cannot share one chain.",
+    "calls": [
+        {
+            "req": {
+                "method": "GET",
+                "url": "https://api.firecrawl.dev/v2/crawl/JOB1?skip=2"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "success": true,
+                    "status": "completed",
+                    "completed": 3,
+                    "total": 3,
+                    "creditsUsed": 3,
+                    "expiresAt": "2026-09-17T05:46:00.000Z",
+                    "data": [
+                        {
+                            "markdown": "# Example Domain\n\nThis domain is for use in documentation examples without needing permission.",
+                            "metadata": {
+                                "title": "Example Domain",
+                                "language": "en",
+                                "sourceURL": "https://example.com/about",
+                                "url": "https://example.com/about",
+                                "statusCode": 200,
+                                "contentType": "text/html",
+                                "proxyUsed": "basic"
+                            }
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}

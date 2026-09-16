@@ -13,25 +13,45 @@ export const zEndpointName = z.string().regex(
 export type EndpointName = z.infer<typeof zEndpointName>;
 
 /**
+ * ONE path segment of a public endpoint identity: a lowercase literal, OR a
+ * `{param}` PLACEHOLDER for a path parameter.
+ *
+ * The placeholder case exists so a resource-style endpoint can be identified
+ * by the vendor's ACTUAL path — `firecrawl#crawl/{id}` is the endpoint we
+ * call, so it is the endpoint the caller sees. Before this, a placeholder had
+ * to be pinned away to an invented segment (fundable's `/deals/{id}` →
+ * `/deal`), which put a name in the catalog that appears nowhere in the
+ * vendor's API.
+ *
+ * NOTE the consequence: the parameter NAME is part of the identity, so
+ * renaming `{id}` → `{jobId}` is a breaking identity change, exactly as
+ * renaming a literal segment would be.
+ */
+const ID_SEGMENT = String.raw`(?:[a-z0-9][a-z0-9._~-]*|\{[a-z][a-zA-Z0-9_]*\})`;
+
+/**
  * The PUBLIC endpoint identity — a NATIVE path (design D22, v1 parity:
- * `"/search"`, `"/v1/company/enrichment"`, `"/apidojo/tweet-scraper"`).
- * Defaults to `request.path` (trailing slashes stripped); declared
- * explicitly only when the native path is transport plumbing (apify's
- * `/v2/acts/{owner}~{name}/runs` → the actor slug path) or empty
- * (tinyfish's per-endpoint baseUrls). Folder names are ORGANIZATIONAL
- * only — identity lives in the def, never the filesystem.
+ * `"/search"`, `"/v1/company/enrichment"`, `"/apidojo/tweet-scraper"`,
+ * `"/crawl/{id}"`). Defaults to `request.path` (trailing slashes stripped);
+ * declared explicitly when the native path is transport plumbing (apify's
+ * `/v2/acts/{owner}~{name}/runs` → the actor slug path), empty (tinyfish's
+ * per-endpoint baseUrls), or simply worth stating at the call site. Folder
+ * names are ORGANIZATIONAL only — identity lives in the def, never the
+ * filesystem.
  */
 export const zEndpointPath = z.string().regex(
-    /^\/[a-z0-9][a-z0-9._~-]*(?:\/[a-z0-9][a-z0-9._~-]*)*$/,
-    "endpoint must be a lowercase native path like /search or /owner/name",
+    new RegExp(`^/${ID_SEGMENT}(?:/${ID_SEGMENT})*$`),
+    "endpoint must be a lowercase native path like /search, /owner/name, " +
+        "or /crawl/{id}",
 );
 export type EndpointPath = z.infer<typeof zEndpointPath>;
 
 /** "<provider>#<endpoint-path minus its leading slash>" — e.g.
- *  "exa#search", "apify#apidojo/tweet-scraper". Everything left of the
- *  FIRST "#" is the provider; the rest is the endpoint path. */
+ *  "exa#search", "apify#apidojo/tweet-scraper", "firecrawl#crawl/{id}".
+ *  Everything left of the FIRST "#" is the provider; the rest is the
+ *  endpoint path. */
 export const zEndpointId = z.string().regex(
-    /^[a-z0-9][a-z0-9-]*#[a-z0-9][a-z0-9._~-]*(?:\/[a-z0-9][a-z0-9._~-]*)*$/,
+    new RegExp(`^[a-z0-9][a-z0-9-]*#${ID_SEGMENT}(?:/${ID_SEGMENT})*$`),
     "endpoint id must be <provider>#<endpoint-path-sans-slash>",
 );
 export type EndpointId = z.infer<typeof zEndpointId>;

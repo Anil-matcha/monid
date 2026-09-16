@@ -147,53 +147,24 @@ export default defineEndpoint({
                     },
                 };
             }
-            // `next` is an authenticated Firecrawl URL the caller cannot
-            // follow, so walk the chain here and return one complete result
-            // set. Bounded — a truncated run keeps `next` and says so.
-            const plucked = utils.json.pluck(res.body, "$.next");
-            const envelope = plucked.rest;
-            const initial = utils.json.optionalGet(envelope, "$.data");
-            if (!Array.isArray(initial)) {
-                // single-object result (the agent shape) — never paginated
-                return { kind: "COMPLETED", httpStatus: 200, output: envelope };
-            }
-            const rows = initial.slice();
-            let cursor = plucked.value;
-            let pages = 0;
-            while (
-                typeof cursor === "string" && cursor !== "" && pages < 20
-            ) {
-                const page = await utils.http({ method: "GET", url: cursor });
-                if (page.status < 200 || page.status >= 300) {
-                    logger.warn("firecrawl result page fetch failed", {
-                        jobId,
-                        status: page.status,
-                    });
-                    break;
-                }
-                const more = utils.json.optionalGet(page.body, "$.data");
-                if (Array.isArray(more)) {
-                    for (const row of more) rows.push(row);
-                }
-                cursor = utils.json.optionalGet(page.body, "$.next");
-                pages += 1;
-            }
-            const truncated = typeof cursor === "string" && cursor !== "";
-            if (truncated) {
-                logger.warn("firecrawl results truncated at the page bound", {
-                    jobId,
-                    pages,
-                });
-            }
+            // COMPLETED: hand the vendor's envelope back as it came, `next`
+            // intact. We do NOT walk the chain. Firecrawl caps a response at
+            // 10 MB and chunks a large job's results deliberately; stitching
+            // them would put an unbounded payload through a single run, and a
+            // failure mid-walk would ship a PARTIAL set as a success while
+            // `completed` still billed the whole job. The caller pages with
+            // firecrawl#crawl/{id} / firecrawl#batch/scrape/{id}, which are
+            // FREE (reading a job consumes no credits).
+            //
+            // `id` is the ONE addition to the vendor's shape, and it is what
+            // makes those endpoints callable: the status body does not carry
+            // the job id (only the submit response does) and `next` needs a
+            // credential the caller never holds. Same spelling the submit
+            // response uses, so a future vendor `id` field is a no-op merge.
             return {
                 kind: "COMPLETED",
                 httpStatus: 200,
-                output: utils.json.merge(envelope, {
-                    data: rows,
-                    ...(truncated && typeof cursor === "string"
-                        ? { next: cursor }
-                        : {}),
-                }),
+                output: utils.json.merge(res.body, { id: jobId }),
             };
         },
         stop: async ({ data, utils, logger }) => {
