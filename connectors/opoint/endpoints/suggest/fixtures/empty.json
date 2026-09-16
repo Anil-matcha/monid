@@ -1,0 +1,24 @@
+{
+    "name": "empty",
+    "description": "recorded chain for opoint#suggest, scenario 'empty' (per-endpoint recording; real traffic, headers dropped)",
+    "calls": [
+        {
+            "req": {
+                "method": "GET",
+                "url": "https://suggest.api.opoint.com/suggest/en_GB_1/single/5/0/0/1/nometa/zxqvbnmlkjhgf98765qwe"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "results": [],
+                    "search": "zxqvbnmlkjhgf98765qwe",
+                    "tokens": 1,
+                    "hits": 0,
+                    "time(ms)": 64,
+                    "warnings": "*Default english ordering set",
+                    "next_offset": "lang:0,media:0,site:0,geo:0,timePeriod:0,ecb_rank:0,ecb_voice:0,ecb_topic:0,ecb_sentiment:0,content:0,rank:0"
+                }
+            }
+        }
+    ]
+}

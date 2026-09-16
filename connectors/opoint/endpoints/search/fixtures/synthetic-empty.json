@@ -1,0 +1,28 @@
+{
+    "name": "synthetic-empty",
+    "description": "SYNTHETIC — shaped from the v1 adaptor tests (drill shape 2026-09-13) and the Opoint search-response docs; not verified against real traffic (no OPOINT_API_KEY held). A 200 with zero documents: the Search API call is still consumed (design D2).",
+    "calls": [
+        {
+            "req": {
+                "method": "POST",
+                "url": "https://api.opoint.com/search/"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "searchresult": {
+                        "documents": 0,
+                        "first_timestamp": 1789300000,
+                        "last_timestamp": 1789290000,
+                        "search_start": 2147483647,
+                        "context": "",
+                        "range_count": 8,
+                        "response_code": 200,
+                        "host": "euler3.opoint.com",
+                        "document": []
+                    }
+                }
+            }
+        }
+    ]
+}

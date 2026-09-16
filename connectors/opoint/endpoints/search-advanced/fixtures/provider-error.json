@@ -1,0 +1,44 @@
+{
+    "name": "provider-error",
+    "description": "recorded chain for opoint#search-advanced, scenario 'provider-error' (per-endpoint recording; real traffic, headers dropped)",
+    "calls": [
+        {
+            "req": {
+                "method": "POST",
+                "url": "https://api.opoint.com/search/",
+                "body": {
+                    "expressions": [
+                        {
+                            "linemode": "R",
+                            "searchline": {
+                                "searchterm": "spotify",
+                                "filters": [
+                                    {
+                                        "type": "lang",
+                                        "id": "en"
+                                    }
+                                ]
+                            }
+                        }
+                    ],
+                    "params": {
+                        "requestedarticles": 10,
+                        "main": {
+                            "header": 1,
+                            "text": 1
+                        },
+                        "max_article_length": 256,
+                        "allsubject": "0",
+                        "readership": true
+                    }
+                }
+            },
+            "res": {
+                "status": 401,
+                "body": {
+                    "detail": "Invalid token."
+                }
+            }
+        }
+    ]
+}

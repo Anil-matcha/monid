@@ -1,0 +1,151 @@
+{
+    "name": "synthetic-happy",
+    "description": "SYNTHETIC — shaped from the v1 adaptor tests (drill shape 2026-09-13) and the Opoint search-response docs; not verified against real traffic (no OPOINT_API_KEY held). Two headline-only documents (no summary/body): the projection emits no snippet.",
+    "calls": [
+        {
+            "req": {
+                "method": "POST",
+                "url": "https://api.opoint.com/search/"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "searchresult": {
+                        "documents": 2,
+                        "first_timestamp": 1789300000,
+                        "last_timestamp": 1789290000,
+                        "search_start": 2147483647,
+                        "context": "358146519:1:0;TOTDOC=3",
+                        "range_count": 8,
+                        "response_code": 200,
+                        "host": "euler3.opoint.com",
+                        "document": [
+                            {
+                                "id_site": 239167,
+                                "id_article": 6140,
+                                "header": {
+                                    "matches": true,
+                                    "text": "Headline 0"
+                                },
+                                "url": "https://redir.opoint.com/?url=x&OpointData=abc",
+                                "orig_url": "https://example.com/0",
+                                "url_common": "example.com",
+                                "unix_timestamp": 1789300000,
+                                "local_time": {
+                                    "GMT": 1,
+                                    "text": "20260912T14:06:22+0100"
+                                },
+                                "author": "Jane Doe",
+                                "language": {
+                                    "encoding": "iso-639",
+                                    "text": "en"
+                                },
+                                "countrycode": "GB",
+                                "countryname": "United Kingdom",
+                                "site_rank": {
+                                    "rank_global": 26,
+                                    "rank_country": 3
+                                },
+                                "first_source": {
+                                    "id": 85181,
+                                    "name": "BBC News - Wales",
+                                    "sitename": "BBC News",
+                                    "siteurl": "http://www.bbc.com"
+                                },
+                                "mediatype": {
+                                    "paywall": false,
+                                    "fulltext": true,
+                                    "text": "WEB"
+                                },
+                                "word_count": 119,
+                                "similarweb": {
+                                    "domain": "bbc.com",
+                                    "readership": {
+                                        "P": 0.012741,
+                                        "value": 2162922
+                                    }
+                                },
+                                "topics": [
+                                    {
+                                        "id": 52,
+                                        "text": "Europe",
+                                        "linktype_max": 1,
+                                        "metacat": 5
+                                    }
+                                ],
+                                "internal_search_reply": {
+                                    "text": "(d++) 1 (d--)"
+                                },
+                                "quotes": {},
+                                "stimestamp": 534348465,
+                                "hidden": false,
+                                "position": 1
+                            },
+                            {
+                                "id_site": 239167,
+                                "id_article": 6141,
+                                "header": {
+                                    "matches": true,
+                                    "text": "Headline 1"
+                                },
+                                "url": "https://redir.opoint.com/?url=x&OpointData=abc",
+                                "orig_url": "https://example.com/1",
+                                "url_common": "example.com",
+                                "unix_timestamp": 1789299999,
+                                "local_time": {
+                                    "GMT": 1,
+                                    "text": "20260912T14:06:22+0100"
+                                },
+                                "author": "Jane Doe",
+                                "language": {
+                                    "encoding": "iso-639",
+                                    "text": "en"
+                                },
+                                "countrycode": "GB",
+                                "countryname": "United Kingdom",
+                                "site_rank": {
+                                    "rank_global": 26,
+                                    "rank_country": 3
+                                },
+                                "first_source": {
+                                    "id": 85181,
+                                    "name": "BBC News - Wales",
+                                    "sitename": "BBC News",
+                                    "siteurl": "http://www.bbc.com"
+                                },
+                                "mediatype": {
+                                    "paywall": false,
+                                    "fulltext": true,
+                                    "text": "WEB"
+                                },
+                                "word_count": 119,
+                                "similarweb": {
+                                    "domain": "bbc.com",
+                                    "readership": {
+                                        "P": 0.012741,
+                                        "value": 2162922
+                                    }
+                                },
+                                "topics": [
+                                    {
+                                        "id": 52,
+                                        "text": "Europe",
+                                        "linktype_max": 1,
+                                        "metacat": 5
+                                    }
+                                ],
+                                "internal_search_reply": {
+                                    "text": "(d++) 1 (d--)"
+                                },
+                                "quotes": {},
+                                "stimestamp": 534348465,
+                                "hidden": false,
+                                "position": 2
+                            }
+                        ]
+                    }
+                }
+            }
+        }
+    ]
+}

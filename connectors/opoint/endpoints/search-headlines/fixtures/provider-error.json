@@ -1,0 +1,29 @@
+{
+    "name": "provider-error",
+    "description": "recorded chain for opoint#search-headlines, scenario 'provider-error' (per-endpoint recording; real traffic, headers dropped)",
+    "calls": [
+        {
+            "req": {
+                "method": "POST",
+                "url": "https://api.opoint.com/search/",
+                "body": {
+                    "searchterm": "tesla",
+                    "params": {
+                        "requestedarticles": 20,
+                        "main": {
+                            "header": 1
+                        },
+                        "allsubject": "0",
+                        "readership": true
+                    }
+                }
+            },
+            "res": {
+                "status": 401,
+                "body": {
+                    "detail": "Invalid token."
+                }
+            }
+        }
+    ]
+}

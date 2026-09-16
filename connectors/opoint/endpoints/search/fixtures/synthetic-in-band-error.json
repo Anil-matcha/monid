@@ -1,0 +1,22 @@
+{
+    "name": "synthetic-in-band-error",
+    "description": "SYNTHETIC — shaped from the v1 adaptor tests (drill shape 2026-09-13) and the Opoint search-response docs; not verified against real traffic (no OPOINT_API_KEY held). HTTP 200 whose searchresult reports response_code 500 + errors — the in-band failure lifecycle.start turns into a synthesized 422.",
+    "calls": [
+        {
+            "req": {
+                "method": "POST",
+                "url": "https://api.opoint.com/search/"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "searchresult": {
+                        "host": "euler3.opoint.com",
+                        "response_code": 500,
+                        "errors": "Solr could not handle the query"
+                    }
+                }
+            }
+        }
+    ]
+}

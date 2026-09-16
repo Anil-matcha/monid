@@ -142,7 +142,7 @@ deno task catalog endpoints --category web-search
 deno task catalog inspect 'exa#search'       # one endpoint's full contract
 ```
 
-## Adding one
+
 
 ```
 connectors/<name>/

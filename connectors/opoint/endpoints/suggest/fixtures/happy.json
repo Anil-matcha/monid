@@ -1,0 +1,54 @@
+{
+    "name": "happy",
+    "description": "recorded chain for opoint#suggest, scenario 'happy' (per-endpoint recording; real traffic, headers dropped)",
+    "calls": [
+        {
+            "req": {
+                "method": "GET",
+                "url": "https://suggest.api.opoint.com/suggest/en_GB_1/single/3/geo%3A0%2Csite%3A0/0/1/nometa/norway"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "results": [
+                        {
+                            "id": "1203",
+                            "name": "Norway",
+                            "url": "",
+                            "accessGroup": 1,
+                            "type": "geo",
+                            "nl": true,
+                            "meta": "",
+                            "mo": "1",
+                            "match": "1",
+                            "hl": "0-5",
+                            "weight": 203052,
+                            "typeName": "From"
+                        },
+                        {
+                            "id": "3801",
+                            "name": "Greenpeace Norge",
+                            "url": "http://www.greenpeace.org/norway",
+                            "accessGroup": 1,
+                            "access": "all",
+                            "type": "site",
+                            "nl": false,
+                            "meta": "no",
+                            "mo": "2",
+                            "match": "2",
+                            "hlu": "26-31",
+                            "weight": 42,
+                            "typeName": "Source"
+                        }
+                    ],
+                    "search": "norway",
+                    "tokens": 2,
+                    "hits": 3,
+                    "time(ms)": 4,
+                    "warnings": "*Default english ordering set",
+                    "next_offset": "site:9918,geo:40"
+                }
+            }
+        }
+    ]
+}
