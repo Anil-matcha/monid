@@ -238,3 +238,7 @@ config.yml         schema.* and compiler.* are contract; engine and scripts are 
   behind every choice above.
 - [AGENT.md](./AGENT.md) is the brief to hand a coding agent you point at this
   repo.
+
+## License
+
+MIT. See [LICENSE](./LICENSE).
