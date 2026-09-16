@@ -3,7 +3,8 @@
 ## 1. Provider + shared schema
 
 - [x] 1.1 provider.ts: bearer auth, v3 baseUrl + Accept header, timeouts
-      (30/60), one pool (`default` = API units), fromError; no consolidate
+      (30/60), one pool (`default` = API units), fromError, synchronous
+      meter relay and actual-consumption consolidate (D2)
 - [x] 1.2 schema/common.ts: target / mode / protocol / limit / country /
       dates / grouping / keywords fragments (no defaults), `zOrderBy` and
       `zWhere` as field-set PATTERNS (D4)
@@ -46,10 +47,10 @@
 
 ## 4. Follow-ups
 
-- [ ] 4.1 Vendor claim from the cost header (D2): confirm the header name
-      live, then move the 36 docs to a provider `lifecycle.start` that
-      stashes it into `state.data` for a consolidate — gives every run a
-      `usage.mismatch.derived` guard on the constants
+- [x] 4.1 Vendor claim from the documented actual-cost header (D2):
+      provider relay and consolidate, zero billable quantities on cache
+      hits / explicit zero, synthetic replay coverage, and fixture header
+      recording. Live header verification remains in 3.4.
 - [ ] 4.2 Broker: decide whether the 50-unit request minimum passes to the
       caller (the doc now reports it; v1 absorbed it — D1)
 

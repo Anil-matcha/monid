@@ -18,7 +18,7 @@ export default defineEndpoint({
         categories: ["seo"],
         notes: [
             "Billing: 6 API units per returned row, minimum 50 units per " +
-            "request \u2014 an empty result still draws 50.",
+            "billable request; cache hits and explicit zero consumption are free.",
             "Rows are date buckets between date_from and date_to; a range " +
             "may span at most 60 buckets upstream.",
         ],
@@ -62,7 +62,7 @@ export default defineEndpoint({
                     unit: Unit.CREDIT,
                     label: "request minimum top-up",
                     description:
-                        "units added to reach the 50-unit per-request minimum (drawn even on an empty result)",
+                        "units added to reach the 50-unit minimum on billable requests, including empty results",
                     consumes: { credit: "default", amount: 1 },
                 },
             },
@@ -124,7 +124,17 @@ export default defineEndpoint({
          *  interned fn): the first array in the body is the rows, a
          *  single-object body counts one row; the top-up is derived from
          *  the doc's own per-row rate. */
-        evidence: ({ data }) => {
+        evidence: ({ data, utils }) => {
+            // A cache hit or explicit zero meter has no billable rows or
+            // minimum. This also keeps the engine's zero-claim fallback free.
+            if (
+                utils.json.optionalGet(
+                    data.lifecycle?.state ?? null,
+                    "$.data.actualUnits",
+                ) === 0
+            ) {
+                return { counts: { rows: 0, minimum_top_up: 0 } };
+            }
             const model = data.usage.model;
             const perRow = model.kind === "COMPOSITE"
                 ? model.components["rows"]?.consumes.amount ?? 0
