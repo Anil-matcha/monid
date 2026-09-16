@@ -1,4 +1,4 @@
-# AI Agent Instructions for monid-connectors
+# AI Agent Instructions for monid-ai/monid
 
 Guide for AI coding agents working in this repo. Read this first, then the
 relevant `openspec/changes/*/design.md` before touching code.

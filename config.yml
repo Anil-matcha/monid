@@ -1,4 +1,4 @@
-# monid-connectors configuration — top-level sections per component.
+# monid configuration — top-level sections per component.
 #
 # RULE: schema.* and compiler.* are CONTRACT — loaded override-free by
 # shared/core/config.ts (which never touches Deno.env; test-guarded), because
