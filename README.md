@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://monid.ai"><img src="assets/monid-hero.png" alt="Monid at the centre, with the tools it connects around it"></a>
+  <a href="https://monid.ai"><img src="assets/monid-hero.png" alt="Monid at the centre, orbited by the tools it connects"></a>
 </p>
 
 <p align="center">
