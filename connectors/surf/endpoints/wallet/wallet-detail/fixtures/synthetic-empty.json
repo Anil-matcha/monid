@@ -1,0 +1,25 @@
+{
+    "name": "synthetic-empty",
+    "description": "Synthetic (no SURF key held at port time, 2026-09-16): the `{ data, meta }` envelope and the `{ error: { code, message } }` error shape follow the v1 adaptor tests and the v1 design's live-verified upstream contract; field values are placeholders. Unverified against live traffic — replace via `deno task record`. A 2xx with an empty `data` — the flat 2-credit line still settles: Surf bills the tier regardless of result size (v1 sweep 2026-08-03).",
+    "calls": [
+        {
+            "req": {
+                "method": "GET",
+                "url": "https://api.asksurf.ai/gateway/v1/wallet/detail?address=0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045&fields=balance%2Ctokens%2Clabels%2Cnft"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "data": [],
+                    "meta": {
+                        "total": 0,
+                        "limit": 20,
+                        "offset": 0,
+                        "credits_used": 2,
+                        "cached": false
+                    }
+                }
+            }
+        }
+    ]
+}

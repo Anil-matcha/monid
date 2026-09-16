@@ -1,0 +1,36 @@
+{
+    "name": "synthetic-happy",
+    "description": "Synthetic (no SURF key held at port time, 2026-09-16): the `{ data, meta }` envelope and the `{ error: { code, message } }` error shape follow the v1 adaptor tests and the v1 design's live-verified upstream contract; field values are placeholders. Unverified against live traffic — replace via `deno task record`. A 2xx with rows in `data` — the flat 1-credit line settles once; `meta.credits_used` stays in the body (design D1).",
+    "calls": [
+        {
+            "req": {
+                "method": "GET",
+                "url": "https://api.asksurf.ai/gateway/v1/exchange/long-short-ratio?pair=BTC%2FUSDT&interval=1h&limit=50&exchange=binance"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "data": [
+                        {
+                            "id": "00000000-0000-4000-8000-000000000001",
+                            "name": "Example A",
+                            "value": 1
+                        },
+                        {
+                            "id": "00000000-0000-4000-8000-000000000002",
+                            "name": "Example B",
+                            "value": 2
+                        }
+                    ],
+                    "meta": {
+                        "total": 2,
+                        "limit": 2,
+                        "offset": 0,
+                        "credits_used": 1,
+                        "cached": false
+                    }
+                }
+            }
+        }
+    ]
+}

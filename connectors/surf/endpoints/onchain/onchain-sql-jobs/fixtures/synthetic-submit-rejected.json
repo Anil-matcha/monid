@@ -1,0 +1,25 @@
+{
+    "name": "synthetic-submit-rejected",
+    "description": "Synthetic (no SURF key held at port time, 2026-09-16): the `{ data: { job_id, status, ... } }` job envelope, the status vocabulary (queued / running / succeeded / failed / canceled) and the results read follow the v1 adaptor's onchain-sql lifecycle and its 2026-08-04 probes; field values are placeholders. Unverified against live traffic — replace via `deno task record`. A 429 submit never starts a job: error-as-data with the Surf error envelope, zero usage, nothing polled.",
+    "calls": [
+        {
+            "req": {
+                "method": "POST",
+                "url": "https://api.asksurf.ai/gateway/v1/onchain/sql/jobs",
+                "body": {
+                    "sql": "SELECT block_date, sum(amount_usd) AS volume FROM agent.ethereum_dex_trades WHERE block_date >= toDate('2026-09-01') GROUP BY block_date ORDER BY block_date",
+                    "max_rows": 100
+                }
+            },
+            "res": {
+                "status": 429,
+                "body": {
+                    "error": {
+                        "code": "QUEUE_FULL",
+                        "message": "Too many queued jobs for this tenant"
+                    }
+                }
+            }
+        }
+    ]
+}

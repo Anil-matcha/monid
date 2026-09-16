@@ -1,0 +1,22 @@
+{
+    "name": "synthetic-submit-no-id",
+    "description": "Synthetic (no SURF key held at port time, 2026-09-16): the `{ data: { job_id, status, ... } }` job envelope, the status vocabulary (queued / running / succeeded / failed / canceled) and the results read follow the v1 adaptor's onchain-sql lifecycle and its 2026-08-04 probes; field values are placeholders. Unverified against live traffic — replace via `deno task record`. A 2xx submit WITHOUT a job_id: a Surf contract violation — start throws (non-retriable) rather than settling 4 credits for a job that never started.",
+    "calls": [
+        {
+            "req": {
+                "method": "POST",
+                "url": "https://api.asksurf.ai/gateway/v1/onchain/sql/jobs",
+                "body": {
+                    "sql": "SELECT block_date, sum(amount_usd) AS volume FROM agent.ethereum_dex_trades WHERE block_date >= toDate('2026-09-01') GROUP BY block_date ORDER BY block_date",
+                    "max_rows": 100
+                }
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "data": {}
+                }
+            }
+        }
+    ]
+}

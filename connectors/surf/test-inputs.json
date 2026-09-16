@@ -116,9 +116,172 @@
             "metric": "tier"
         }
     },
+    "token/dex-trades": {
+        "queryParams": {
+            "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+        }
+    },
+    "token/holders": {
+        "queryParams": {
+            "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+            "chain": "ethereum"
+        }
+    },
+    "token/tokenomics": {
+        "queryParams": {
+            "id": "25c6612a-395c-4974-94eb-3b5f9f4b2ed7"
+        }
+    },
+    "token/transfer-counterparties": {
+        "queryParams": {
+            "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+            "chain": "ethereum",
+            "direction": "to"
+        }
+    },
+    "token/transfer-stats": {
+        "queryParams": {
+            "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+            "chain": "ethereum"
+        }
+    },
+    "token/transfers": {
+        "queryParams": {
+            "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+            "chain": "ethereum"
+        }
+    },
+    "exchange/candles": {
+        "queryParams": {
+            "exchange": "bithumb",
+            "pair": "BTC/KRW"
+        }
+    },
+    "exchange/coverage": {},
+    "exchange/depth": {
+        "queryParams": {
+            "pair": "BTC/USDT"
+        }
+    },
+    "exchange/funding-history": {
+        "queryParams": {
+            "pair": "BTC/USDT"
+        }
+    },
+    "exchange/klines": {
+        "queryParams": {
+            "pair": "BTC/USDT"
+        }
+    },
+    "exchange/long-short-ratio": {
+        "queryParams": {
+            "pair": "BTC/USDT"
+        }
+    },
+    "exchange/markets": {},
+    "exchange/perp": {
+        "queryParams": {
+            "pair": "BTC/USDT"
+        }
+    },
+    "exchange/price": {
+        "queryParams": {
+            "pair": "BTC/USDT"
+        }
+    },
     "search/wallet": {
         "queryParams": {
             "q": "vitalik.eth"
+        }
+    },
+    "wallet/detail": {
+        "queryParams": {
+            "address": "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"
+        }
+    },
+    "wallet/history": {
+        "queryParams": {
+            "address": "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"
+        }
+    },
+    "wallet/labels/batch": {
+        "queryParams": {
+            "addresses": "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045,0xdead"
+        }
+    },
+    "wallet/net-worth": {
+        "queryParams": {
+            "address": "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"
+        }
+    },
+    "wallet/protocols": {
+        "queryParams": {
+            "address": "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"
+        }
+    },
+    "wallet/transfers": {
+        "queryParams": {
+            "address": "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"
+        }
+    },
+    "project/ai-news": {
+        "queryParams": {
+            "id": "25c6612a-395c-4974-94eb-3b5f9f4b2ed7"
+        }
+    },
+    "project/defi/metrics": {
+        "queryParams": {
+            "id": "25c6612a-395c-4974-94eb-3b5f9f4b2ed7"
+        }
+    },
+    "project/defi/ranking": {
+        "queryParams": {
+            "metric": "tvl"
+        }
+    },
+    "project/detail": {
+        "queryParams": {
+            "id": "25c6612a-395c-4974-94eb-3b5f9f4b2ed7"
+        }
+    },
+    "onchain/bridge/ranking": {},
+    "onchain/dex/activity": {
+        "queryParams": {
+            "chain": "ethereum",
+            "project": "uniswap"
+        }
+    },
+    "onchain/gas-price": {
+        "queryParams": {
+            "chain": "ethereum"
+        }
+    },
+    "onchain/tx": {
+        "queryParams": {
+            "hash": "0x5c504ed432cb51138bcf09aa5e8a410dd4a1e204ef84bfed1be16dfba1b22060",
+            "chain": "ethereum"
+        }
+    },
+    "onchain/yield/ranking": {},
+    "onchain/schema": {},
+    "onchain/query": {
+        "body": {
+            "source": "agent.ethereum_dex_trades"
+        }
+    },
+    "onchain/sql": {
+        "body": {
+            "sql": "SELECT block_date, sum(amount_usd) AS volume FROM agent.ethereum_dex_trades WHERE block_date >= toDate('2026-09-01') GROUP BY block_date ORDER BY block_date"
+        }
+    },
+    "onchain/sql/preflight": {
+        "body": {
+            "sql": "SELECT block_date, sum(amount_usd) AS volume FROM agent.ethereum_dex_trades WHERE block_date >= toDate('2026-09-01') GROUP BY block_date ORDER BY block_date"
+        }
+    },
+    "onchain/sql/jobs": {
+        "body": {
+            "sql": "SELECT block_date, sum(amount_usd) AS volume FROM agent.ethereum_dex_trades WHERE block_date >= toDate('2026-09-01') GROUP BY block_date ORDER BY block_date"
         }
     },
     "dex/token/price": {

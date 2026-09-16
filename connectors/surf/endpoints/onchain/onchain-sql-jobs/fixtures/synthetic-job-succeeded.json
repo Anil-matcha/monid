@@ -1,0 +1,93 @@
+{
+    "name": "synthetic-job-succeeded",
+    "description": "Synthetic (no SURF key held at port time, 2026-09-16): the `{ data: { job_id, status, ... } }` job envelope, the status vocabulary (queued / running / succeeded / failed / canceled) and the results read follow the v1 adaptor's onchain-sql lifecycle and its 2026-08-04 probes; field values are placeholders. Unverified against live traffic — replace via `deno task record`. The happy ASYNC chain: submit 202 with a job_id -> poll reports running -> poll reports succeeded -> the results read (free) becomes the output. Proves the park / poll / settle loop and the flat 4-credit submit draw (design D3).",
+    "calls": [
+        {
+            "req": {
+                "method": "POST",
+                "url": "https://api.asksurf.ai/gateway/v1/onchain/sql/jobs",
+                "body": {
+                    "sql": "SELECT block_date, sum(amount_usd) AS volume FROM agent.ethereum_dex_trades WHERE block_date >= toDate('2026-09-01') GROUP BY block_date ORDER BY block_date",
+                    "max_rows": 100
+                }
+            },
+            "res": {
+                "status": 202,
+                "body": {
+                    "data": {
+                        "job_id": "sqljob_01HZYX3QK5N8V2M4T6R9W1XC7B",
+                        "status": "queued",
+                        "created_at": "2026-09-16T08:00:00Z"
+                    }
+                }
+            }
+        },
+        {
+            "req": {
+                "method": "GET",
+                "url": "https://api.asksurf.ai/gateway/v1/onchain/sql/jobs/sqljob_01HZYX3QK5N8V2M4T6R9W1XC7B"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "data": {
+                        "job_id": "sqljob_01HZYX3QK5N8V2M4T6R9W1XC7B",
+                        "status": "running",
+                        "created_at": "2026-09-16T08:00:00Z"
+                    }
+                }
+            }
+        },
+        {
+            "req": {
+                "method": "GET",
+                "url": "https://api.asksurf.ai/gateway/v1/onchain/sql/jobs/sqljob_01HZYX3QK5N8V2M4T6R9W1XC7B"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "data": {
+                        "job_id": "sqljob_01HZYX3QK5N8V2M4T6R9W1XC7B",
+                        "status": "succeeded",
+                        "created_at": "2026-09-16T08:00:00Z",
+                        "row_count": 2,
+                        "elapsed_ms": 1840,
+                        "completed_at": "2026-09-16T08:00:04Z"
+                    }
+                }
+            }
+        },
+        {
+            "req": {
+                "method": "GET",
+                "url": "https://api.asksurf.ai/gateway/v1/onchain/sql/jobs/sqljob_01HZYX3QK5N8V2M4T6R9W1XC7B/results"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "data": {
+                        "columns": [
+                            "block_date",
+                            "volume"
+                        ],
+                        "rows": [
+                            [
+                                "2026-09-01",
+                                123456.78
+                            ],
+                            [
+                                "2026-09-02",
+                                98765.43
+                            ]
+                        ],
+                        "row_count": 2
+                    },
+                    "meta": {
+                        "credits_used": 0,
+                        "cached": false
+                    }
+                }
+            }
+        }
+    ]
+}

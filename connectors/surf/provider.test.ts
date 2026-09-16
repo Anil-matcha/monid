@@ -101,6 +101,15 @@ const validates = async (id: string, input: RunInput) => {
  */
 const TIER: Record<string, number> = {
     "surf#dex/token/price": 1,
+    "surf#exchange/candles": 1,
+    "surf#exchange/coverage": 1,
+    "surf#exchange/depth": 1,
+    "surf#exchange/funding-history": 1,
+    "surf#exchange/klines": 1,
+    "surf#exchange/long-short-ratio": 1,
+    "surf#exchange/markets": 1,
+    "surf#exchange/perp": 1,
+    "surf#exchange/price": 1,
     "surf#fund/detail": 1,
     "surf#fund/portfolio": 1,
     "surf#fund/ranking": 1,
@@ -121,6 +130,20 @@ const TIER: Record<string, number> = {
     "surf#market/tge": 2,
     "surf#news/detail": 1,
     "surf#news/feed": 1,
+    "surf#onchain/bridge/ranking": 2,
+    "surf#onchain/dex/activity": 2,
+    "surf#onchain/gas-price": 2,
+    "surf#onchain/query": 4,
+    "surf#onchain/schema": 4,
+    "surf#onchain/sql": 4,
+    "surf#onchain/sql/jobs": 4,
+    "surf#onchain/sql/preflight": 4,
+    "surf#onchain/tx": 2,
+    "surf#onchain/yield/ranking": 2,
+    "surf#project/ai-news": 2,
+    "surf#project/defi/metrics": 2,
+    "surf#project/defi/ranking": 2,
+    "surf#project/detail": 2,
     "surf#search/airdrop": 1,
     "surf#search/airdrop/activities": 1,
     "surf#search/events": 1,
@@ -132,6 +155,18 @@ const TIER: Record<string, number> = {
     "surf#search/token": 1,
     "surf#search/wallet": 4,
     "surf#search/web": 1,
+    "surf#token/dex-trades": 4,
+    "surf#token/holders": 2,
+    "surf#token/tokenomics": 2,
+    "surf#token/transfer-counterparties": 2,
+    "surf#token/transfer-stats": 2,
+    "surf#token/transfers": 2,
+    "surf#wallet/detail": 2,
+    "surf#wallet/history": 2,
+    "surf#wallet/labels/batch": 2,
+    "surf#wallet/net-worth": 2,
+    "surf#wallet/protocols": 2,
+    "surf#wallet/transfers": 2,
     "surf#web/fetch": 1,
 };
 
@@ -144,6 +179,11 @@ const FAMILY_REPRESENTATIVES = [
     "surf#market/etf",
     "surf#news/detail",
     "surf#fund/detail",
+    "surf#token/dex-trades",
+    "surf#exchange/candles",
+    "surf#wallet/detail",
+    "surf#project/ai-news",
+    "surf#onchain/bridge/ranking",
     "surf#dex/token/price",
 ] as const;
 
@@ -153,15 +193,15 @@ const FAMILY_REPRESENTATIVES = [
 
 Deno.test("surf docs: every endpoint is in the tier table", async () => {
     const ids = await surfIds();
-    assertEquals(ids.length, 33);
+    assertEquals(ids.length, 68);
     // a new endpoint must state its tier
     assertEquals(Object.keys(TIER).sort(), ids);
-    // 16 Light, 15 Standard, 2 Heavy — v1's split
+    // 25 Light, 35 Standard, 8 Heavy — v1's split
     const byTier = ids.reduce<Record<number, number>>((acc, id) => {
         acc[TIER[id]] = (acc[TIER[id]] ?? 0) + 1;
         return acc;
     }, {});
-    assertEquals(byTier, { 1: 16, 2: 15, 4: 2 });
+    assertEquals(byTier, { 1: 25, 2: 35, 4: 8 });
 });
 
 Deno.test("surf docs: one auth, one error digest, no consolidate, synthesized quantities, one lifecycle", async () => {
@@ -244,6 +284,11 @@ Deno.test("surf meta: the credits_used caveat rides every doc; identifier rules 
     // v1's `.refine + .meta(anyOf)` (at least one) and `.meta(oneOf)`
     // (exactly one) — the arms compile to anyOf, the exclusivity is a note
     assert(notesOf("surf#fund/detail").includes("at least one of `id` or `q`"));
+    assert(
+        notesOf("surf#onchain/dex/activity").includes(
+            "exactly one of `project` or `address`",
+        ),
+    );
     assert(!notesOf("surf#news/feed").includes("Pass"), "no rule, no note");
 });
 
@@ -263,6 +308,17 @@ Deno.test("surf schemas: vendor defaults ride the binding; a union arm carries n
     assertEquals(feed.additionalProperties, false);
     // a describe hung inside `.optional()` survives the `.unwrap()` binding
     assert(feed.properties.limit.description?.includes("max 50"));
+    // the live-OpenAPI corrections (design D12) landed at the binding
+    const markets = bundle.endpoints["surf#exchange/markets"].input.schema
+        .queryParams as {
+            properties: Record<string, { default?: Json; enum?: string[] }>;
+        };
+    assertEquals(markets.properties.exchange.default, "binance");
+    assertEquals(markets.properties.exchange.enum?.length, 17);
+    const sql = bundle.endpoints["surf#onchain/sql"].input.schema.body as {
+        properties: Record<string, { default?: Json }>;
+    };
+    assertEquals(sql.properties.max_rows.default, 1000);
     const detail = bundle.endpoints["surf#fund/detail"].input.schema
         .queryParams as {
             anyOf: {
@@ -282,7 +338,7 @@ Deno.test("surf schemas: vendor defaults ride the binding; a union arm carries n
 });
 
 // ---------------------------------------------------------------------------
-// the synchronous relays
+// the 104 synchronous relays
 // ---------------------------------------------------------------------------
 
 Deno.test("surf: every relay settles its published tier on a 2xx and relays meta.credits_used", async () => {
@@ -364,6 +420,18 @@ Deno.test("surf schema gates: enum, pattern, url and the identifier alternatives
         "INVALID_INPUT",
     );
     await validates("surf#news/feed", { queryParams: { source: "coindesk" } });
+    // pattern: the table must be database-qualified as agent.<table>
+    await assertRejects(
+        () =>
+            validates("surf#onchain/query", {
+                body: { source: "ethereum_dex_trades" },
+            }),
+        Error,
+        "INVALID_INPUT",
+    );
+    await validates("surf#onchain/query", {
+        body: { source: "agent.ethereum_dex_trades" },
+    });
     // url: format uri is enforced (ajv-formats)
     await assertRejects(
         () => validates("surf#web/fetch", { queryParams: { url: "ethereum" } }),
@@ -380,6 +448,116 @@ Deno.test("surf schema gates: enum, pattern, url and the identifier alternatives
     await validates("surf#fund/detail", {
         queryParams: { id: "ef3b6da9-283d-4080-b3c7-87b1b45924dc" },
     });
+    // exactly one of project | address: neither is rejected before the
+    // wire; both together is the vendor's 400 (a note, not a gate)
+    await assertRejects(
+        () =>
+            validates("surf#onchain/dex/activity", {
+                queryParams: { chain: "ethereum" },
+            }),
+        Error,
+        "INVALID_INPUT",
+    );
+    await validates("surf#onchain/dex/activity", {
+        queryParams: { chain: "ethereum", address: "0x" + "ab".repeat(20) },
+    });
+});
+
+// ---------------------------------------------------------------------------
+// the SQL job (design D3)
+// ---------------------------------------------------------------------------
+
+Deno.test(`${SQL_JOB}: submit, poll to succeeded, the results read is the output, 4 credits`, async () => {
+    const result = await runEndpoint({
+        unit: await testSealedUnit(SQL_JOB),
+        input: inputFor(SQL_JOB),
+        mode: "replay",
+        fixture: await fixtureFor(SQL_JOB, "synthetic-job-succeeded"),
+    });
+    assertEquals(result.httpStatus, 200);
+    assertEquals(result.isProviderError, false);
+    // the submit tier; polls and the results read are free (v1 measured)
+    assertEquals(result.usage, {
+        credits: { default: 4 },
+        evidence: { CALL: 1 },
+    });
+    const output = result.output as {
+        data: { rows: Json[]; row_count: number };
+    };
+    assertEquals(output.data.row_count, 2);
+    assertEquals(output.data.rows.length, 2);
+});
+
+Deno.test(`${SQL_JOB}: a failed job is a synthesized 500 carrying the job's own error, zero usage`, async () => {
+    const result = await runEndpoint({
+        unit: await testSealedUnit(SQL_JOB),
+        input: inputFor(SQL_JOB),
+        mode: "replay",
+        fixture: await fixtureFor(SQL_JOB, "synthetic-job-failed"),
+    });
+    // OURS 500 (the JOB failed) / THEIRS 200 (the poll exchange was fine)
+    assertEquals(result.httpStatus, 500);
+    assertEquals(result.isProviderError, true);
+    assertEquals(result.usage, { credits: {}, evidence: {} });
+    const output = result.output as Record<string, unknown>;
+    // fromError digested the job's {code, message} error
+    assertEquals(output.message, "Query exceeded the execution budget");
+    assertEquals(output.code, "QUERY_TIMEOUT");
+    assertEquals((output.raw as { status: string }).status, "failed");
+});
+
+Deno.test(`${SQL_JOB}: a rejected submit never starts a job — data, zero usage`, async () => {
+    const result = await runEndpoint({
+        unit: await testSealedUnit(SQL_JOB),
+        input: inputFor(SQL_JOB),
+        mode: "replay",
+        fixture: await fixtureFor(SQL_JOB, "synthetic-submit-rejected"),
+    });
+    assertEquals(result.httpStatus, 429);
+    assertEquals(result.isProviderError, true);
+    assertEquals(result.usage, { credits: {}, evidence: {} });
+    assertEquals((result.output as { code: string }).code, "QUEUE_FULL");
+});
+
+Deno.test(`${SQL_JOB}: a non-2xx poll settles as data — the job can no longer be observed`, async () => {
+    const result = await runEndpoint({
+        unit: await testSealedUnit(SQL_JOB),
+        input: inputFor(SQL_JOB),
+        mode: "replay",
+        fixture: await fixtureFor(SQL_JOB, "synthetic-poll-error"),
+    });
+    assertEquals(result.httpStatus, 404);
+    assertEquals(result.isProviderError, true);
+    assertEquals(result.usage, { credits: {}, evidence: {} });
+    assertEquals((result.output as { code: string }).code, "NOT_FOUND");
+});
+
+Deno.test(`${SQL_JOB}: a 2xx submit without a job_id is a contract violation, not a billed success`, async () => {
+    await assertRejects(
+        async () =>
+            await runEndpoint({
+                unit: await testSealedUnit(SQL_JOB),
+                input: inputFor(SQL_JOB),
+                mode: "replay",
+                fixture: await fixtureFor(SQL_JOB, "synthetic-submit-no-id"),
+            }),
+        Error,
+        "SQL job id",
+    );
+});
+
+Deno.test(`${SQL_JOB}: a succeeded job whose results cannot be read fails the run`, async () => {
+    await assertRejects(
+        async () =>
+            await runEndpoint({
+                unit: await testSealedUnit(SQL_JOB),
+                input: inputFor(SQL_JOB),
+                mode: "replay",
+                fixture: await fixtureFor(SQL_JOB, "synthetic-results-error"),
+            }),
+        Error,
+        "results fetch returned 500",
+    );
 });
 
 // ---------------------------------------------------------------------------

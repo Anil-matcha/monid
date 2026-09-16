@@ -1,0 +1,21 @@
+{
+    "name": "synthetic-unauthorized",
+    "description": "Synthetic (no SURF key held at port time, 2026-09-16): the `{ data, meta }` envelope and the `{ error: { code, message } }` error shape follow the v1 adaptor tests and the v1 design's live-verified upstream contract; field values are placeholders. Unverified against live traffic — replace via `deno task record`. Upstream 401 `{ error: { code, message } }` (the live-verified Surf error envelope, no `meta`) — data, zero usage, digested by the provider fromError.",
+    "calls": [
+        {
+            "req": {
+                "method": "GET",
+                "url": "https://api.asksurf.ai/gateway/v1/exchange/candles?exchange=bithumb&pair=BTC%2FKRW&interval=5m&include_synthetic=true&limit=100&offset=0"
+            },
+            "res": {
+                "status": 401,
+                "body": {
+                    "error": {
+                        "code": "UNAUTHORIZED",
+                        "message": "Invalid or missing API key"
+                    }
+                }
+            }
+        }
+    ]
+}
