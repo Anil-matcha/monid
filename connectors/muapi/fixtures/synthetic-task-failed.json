@@ -1,0 +1,35 @@
+{
+    "name": "synthetic-task-failed",
+    "description": "A MuAPI prediction that submits successfully and then reaches failed. The poll synthesizes a 500 with providerHttpStatus 200, so the generation is zero-billed. Synthetic because provider task failures are not safe to provoke on demand.",
+    "calls": [
+        {
+            "req": {
+                "method": "POST",
+                "url": "{{request.url}}"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "request_id": "MUAPI_TASK_2"
+                }
+            }
+        },
+        {
+            "req": {
+                "method": "GET",
+                "url": "{{request.origin}}/predictions/MUAPI_TASK_2/result"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "request_id": "MUAPI_TASK_2",
+                    "status": "failed",
+                    "error": {
+                        "code": "content_moderation",
+                        "message": "the prompt was rejected"
+                    }
+                }
+            }
+        }
+    ]
+}

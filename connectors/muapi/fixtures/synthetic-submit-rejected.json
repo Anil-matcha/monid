@@ -1,0 +1,21 @@
+{
+    "name": "synthetic-submit-rejected",
+    "description": "MuAPI rejects a submit with a normal HTTP error. No prediction exists, so the connector relays the envelope as zero-usage error-as-data. Synthetic because no paid request is used to provoke rejection.",
+    "calls": [
+        {
+            "req": {
+                "method": "POST",
+                "url": "{{request.url}}"
+            },
+            "res": {
+                "status": 401,
+                "body": {
+                    "error": {
+                        "code": "invalid_api_key",
+                        "message": "invalid api key"
+                    }
+                }
+            }
+        }
+    ]
+}

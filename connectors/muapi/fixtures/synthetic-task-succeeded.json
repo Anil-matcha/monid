@@ -1,0 +1,53 @@
+{
+    "name": "synthetic-task-succeeded",
+    "description": "A minimal MuAPI Seedance 2.5 chain: submit returns request_id, one poll remains processing, and the terminal poll returns the completed video plus the vendor cost claim. Synthetic so no media generation or API key is required in CI.",
+    "calls": [
+        {
+            "req": {
+                "method": "POST",
+                "url": "{{request.url}}"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "request_id": "MUAPI_TASK_1"
+                }
+            }
+        },
+        {
+            "req": {
+                "method": "GET",
+                "url": "{{request.origin}}/predictions/MUAPI_TASK_1/result"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "request_id": "MUAPI_TASK_1",
+                    "status": "processing"
+                }
+            }
+        },
+        {
+            "req": {
+                "method": "GET",
+                "url": "{{request.origin}}/predictions/MUAPI_TASK_1/result"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "request_id": "MUAPI_TASK_1",
+                    "status": "completed",
+                    "outputs": [
+                        "https://cdn.muapi.ai/video/MUAPI_TASK_1.mp4"
+                    ],
+                    "cost": {
+                        "amount_usd": 1.7,
+                        "amount_credits": 1,
+                        "bonus_credits_used": 0,
+                        "refunded": false
+                    }
+                }
+            }
+        }
+    ]
+}
