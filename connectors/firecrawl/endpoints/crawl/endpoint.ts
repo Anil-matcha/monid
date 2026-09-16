@@ -17,11 +17,16 @@ import { zCrawlBody } from "./schema/inputs.ts";
  * `start` would be inherited by the synchronous endpoints and replace their
  * declarative execution.
  *
- * `next` is FOLLOWED rather than passed through: it is a plain Firecrawl URL
- * that needs `Authorization: Bearer <firecrawl key>`, and the caller never
- * holds that key, so handing it back would hand them a URL they cannot call —
- * a silently truncated crawl. The poll walks the chain (bounded at 20 pages)
- * and only leaves `next` in the output when that bound is hit.
+ * `next` is PASSED THROUGH, not followed. The poll returns the vendor envelope
+ * as it arrived — the first chunk of `data`, `next` intact — rather than
+ * stitching the chain into one output: a 10,000-page crawl would otherwise
+ * become a single unbounded payload, and the vendor's own paging would vanish
+ * from the caller's view. But `next` is an authenticated Firecrawl URL the
+ * caller cannot fetch, so a cursor alone would be a dead end; the poll
+ * therefore merges the job `id` into the envelope and the connector exposes
+ * the vendor's OWN reader as a first-class endpoint — `firecrawl#crawl/{id}`,
+ * which pages with `skip`/`limit` and is FREE, because reading a job draws no
+ * credits.
  *
  * BILLING: 1 credit per page crawled, plus the same per-page modifier stack
  * `/scrape` carries — applied to EVERY page, which is what makes a `json`
@@ -37,14 +42,20 @@ export default defineEndpoint({
         description: "Crawl a site from a starting URL, following links page " +
             "by page, and get clean content for every page found — a " +
             "durable job that runs for minutes over thousands of pages, " +
-            "polled until done, and stoppable mid-run. `limit` is required " +
-            "and caps the page count. `includePaths` and `excludePaths` " +
-            "scope the walk with regex, `maxDiscoveryDepth` bounds it, and " +
-            "`crawlEntireDomain`, `allowSubdomains` and `allowExternalLinks` " +
-            "widen it. `scrapeOptions` applies the full per-page scrape " +
-            "option set — note that its LLM formats multiply the cost of " +
-            "EVERY page crawled, not just one. Each page is billed whether " +
-            "or not its server answered 200.",
+            "polled to completion, and stoppable mid-run. `limit` is " +
+            "required and caps the page count. `includePaths` and " +
+            "`excludePaths` scope the walk with regex, `maxDiscoveryDepth` " +
+            "bounds it, and `crawlEntireDomain`, `allowSubdomains` and " +
+            "`allowExternalLinks` widen it. `scrapeOptions` applies the full " +
+            "per-page scrape option set — note that its LLM formats multiply " +
+            "the cost of EVERY page crawled, not just one. Each page is " +
+            "billed whether or not its server answered 200. A large crawl " +
+            "comes back paginated: the result holds the first chunk plus a " +
+            "`next` cursor, and the remaining pages are read with " +
+            "`firecrawl#crawl/{id}` using the job `id` in the result, which " +
+            "costs nothing. Because `delay` forces one page at a time, " +
+            "`limit` times `delay` has to fit the 30-minute run budget — a " +
+            "job that outlives it is cancelled with its pages already billed.",
         docsUrl: "https://docs.firecrawl.dev/api-reference/endpoint/crawl-post",
         categories: ["web-scraping"],
     },
@@ -343,7 +354,20 @@ export default defineEndpoint({
         /** Settle on `completed` — the vendor's own count of pages it
          *  processed, authoritative even when the result set was paginated or
          *  truncated. `pdf_page` sums the parsed page counts the documents
-         *  actually carry. */
+         *  actually carry.
+         *
+         *  SCOPE is deliberately mixed, and worth stating: `page` and the flag
+         *  lines derive from `completed` (the WHOLE job), while `x_routing`
+         *  and `pdf_page` are counted off the rows in `$.data` — which is the
+         *  FIRST CHUNK only when the envelope carries `next`. A chunked crawl
+         *  whose later chunks hold x.com URLs or multi-page PDFs therefore
+         *  derives less than the vendor claims and reports a
+         *  `usage.mismatch.derived`. That is EXPECTED. Billing is unaffected:
+         *  `creditsUsed` is the vendor's claim and the claim is what bills
+         *  (D27). Scaling the observed count up by `completed / delivered`
+         *  would invent a number for rows never seen, and D27 is explicit
+         *  that unobserved entries are omitted rather than guessed — a true
+         *  lower bound reads better on a receipt than a plausible fiction. */
         evidence: ({ data, utils }) => {
             const body = data.input.body;
             const rows = utils.json.optionalGet(data.output, "$.data");

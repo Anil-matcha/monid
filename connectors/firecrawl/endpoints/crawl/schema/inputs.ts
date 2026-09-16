@@ -56,7 +56,11 @@ export const zCrawlBody = z.object({
         "User-Agent used to evaluate robots.txt. Enterprise-gated.",
     ),
     delay: z.number().min(0).optional().describe(
-        "Seconds between page fetches. Setting this forces concurrency to 1.",
+        "Seconds between page fetches. Setting this forces concurrency to " +
+            "1, so `limit` times `delay` is a floor on how long the crawl " +
+            "takes and it must fit the 30-minute run budget — 1000 pages at " +
+            "2 seconds cannot finish in time, and a run that overruns is " +
+            "cancelled with its pages already billed.",
     ),
     maxConcurrency: z.number().int().min(1).optional().describe(
         "Concurrency cap for this crawl. Defaults to the team limit.",

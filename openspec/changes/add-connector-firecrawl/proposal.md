@@ -45,9 +45,12 @@ without inventing input structure the vendor does not have.
   lifecycle sits on the endpoints, not the provider, because a provider-level
   `start` would be inherited by the synchronous three and replace their
   declarative execution.
-- **`next` is followed, not passed through.** A paginated job cursor is an
-  authenticated Firecrawl URL the caller cannot fetch, so the poll walks the
-  chain (bounded at 20 pages) and returns one complete result set.
+- **`next` is passed through, and the vendor's reader is exposed.** The poll
+  returns the envelope as received rather than stitching an unbounded chain into
+  one output. Because the cursor is an authenticated URL the caller cannot
+  fetch, the poll merges the job `id` into the envelope and two FREE read
+  endpoints — `#crawl/{id}` and `#batch/scrape/{id}` — page the rest with
+  `skip`/`limit`.
 - Real recorded fixtures, hand-minimized into 9 provider-level shared chains.
 
 ## Capabilities
@@ -67,5 +70,9 @@ without inventing input structure the vendor does not have.
 
 ## Impact
 
-New connector tree + README row. No schema, compiler or engine change:
-`ENGINE_VERSION` is untouched, no new `Unit`, no new preset, no new hook.
+New connector tree + README row. No new `Unit`, preset or hook, and no compiler
+change. One schema change: endpoint identities accept `{param}` segments
+(`shared/core/schema/common/ids.ts`) so the two job-read endpoints can declare
+`/crawl/{id}` and `/batch/scrape/{id}`. That widens the doc format, so
+`ENGINE_VERSION` and `config.yml`'s `doc_format_since` both move to 0.3.0 and
+every compiled doc floors there.

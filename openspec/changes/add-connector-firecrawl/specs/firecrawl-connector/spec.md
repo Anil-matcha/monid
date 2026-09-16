@@ -4,8 +4,10 @@
 
 ### Requirement: Firecrawl provider definition with the shared vendor meter
 The firecrawl provider SHALL declare name `firecrawl`, `request.baseUrl`
-`https://api.firecrawl.dev/v2`, auth `presets.auth.bearer()`, timeouts 30 s
-request / 60 s run, credit pool `default` ("Firecrawl credits"), a
+`https://api.firecrawl.dev/v2`, auth `presets.auth.bearer()`, timeouts 300 s
+request / 310 s run — matching the vendor's own per-page `timeout` ceiling of
+300 s so that a caller-set `timeout` is never cut short by our transport —
+credit pool `default` ("Firecrawl credits"), a
 provider-level `usage.consolidate` that reads the vendor's own `creditsUsed`
 claim — plucking the bare top-level field out of the output and falling back
 to `data.metadata.creditsUsed` — and a provider-level `output.fromError` that
@@ -173,7 +175,10 @@ chunks are reachable: `firecrawl#crawl/{id}` (`GET /crawl/{id}`) and
 `pathParams.id` and an optional `queryParams.skip`, each `FREE`, and each
 overriding the provider's `usage.consolidate` to an empty claim — a job status
 body repeats the WHOLE job's `creditsUsed` on every chunk, so inheriting it
-would re-bill the entire job on every read.
+would re-bill the entire job on every read. Both SHALL also override the
+provider's timeouts down to 30 s request / 60 s run: the provider's 300 s
+budget exists to honour a caller-set per-page `timeout` on a scrape, and a job
+read takes no such field.
 
 #### Scenario: A chunked result is returned as the vendor sent it
 - **WHEN** a job completes with 2 rows and a `next` cursor

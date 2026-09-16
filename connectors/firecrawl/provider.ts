@@ -68,7 +68,16 @@ export default defineProvider({
     },
     auth: { inject: presets.auth.bearer() },
     request: { baseUrl: "https://api.firecrawl.dev/v2" },
-    timeouts: { requestMs: 30_000, runMs: 60_000 },
+    /** The budget for the three SCRAPING endpoints — `/scrape`, `/map` and
+     *  `/search`. The three job submits and the two job reads all override it.
+     *  300 s tracks the VENDOR'S own ceiling rather than a house default:
+     *  Firecrawl's per-page `timeout` defaults to 60 s and caps at 300 s, and
+     *  that field is mirrored faithfully (D25), so a 30 s transport would
+     *  abort a `timeout: 120000` scrape the vendor had every intention of
+     *  serving — our budget must not contradict an input we accept. `runMs`
+     *  sits just above `requestMs` so the run never cuts off a request the
+     *  transport still considers live. */
+    timeouts: { requestMs: 300_000, runMs: 310_000 },
     usage: {
         /** THE credit system (design D26): Firecrawl meters in its OWN
          *  credits and its dollar rate is plan-dependent (pay-as-you-go runs

@@ -286,8 +286,19 @@ Deno.test({
         assertEquals(read.isProviderError, false, JSON.stringify(read.output));
         assertEquals(read.usage, { credits: {}, evidence: {} });
         const chunk = read.output as Record<string, unknown>;
-        // `skip: 1` really reached the wire — one fewer row than the crawl's 2
-        assertEquals((chunk.data as unknown[]).length, 1);
+        // `skip: 1` really reached the wire — one fewer row than the job
+        // actually completed. `limit: 2` is a CEILING, not a promise (a site
+        // with one reachable page satisfies it with one), so the expectation
+        // is derived from the vendor's own count rather than hardcoded.
+        const completed = output.completed;
+        assert(
+            typeof completed === "number",
+            "crawl envelope must carry `completed`",
+        );
+        assertEquals(
+            (chunk.data as unknown[]).length,
+            Math.max(0, completed - 1),
+        );
         // and the job's own meter is still visible, just not billed again
         assertEquals(typeof chunk.creditsUsed, "number");
     },

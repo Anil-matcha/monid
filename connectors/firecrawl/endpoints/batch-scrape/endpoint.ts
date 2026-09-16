@@ -20,14 +20,18 @@ export default defineEndpoint({
         displayName: "Firecrawl Batch Scrape",
         summary: "Scrape up to hundreds of known URLs as one durable job.",
         description: "Scrape a list of URLs you already have as one job — " +
-            "submitted once, processed in parallel, polled until every page " +
-            "resolves, and stoppable mid-run. The full scrape option set " +
-            "applies to every page: anti-bot proxy modes, caching, and the " +
-            "LLM formats, which multiply the cost of every URL in the list. " +
+            "submitted once, processed in parallel, polled to completion, " +
+            "and stoppable mid-run. The full scrape option set applies to " +
+            "every page: anti-bot proxy modes, caching, and the LLM " +
+            "formats, which multiply the cost of every URL in the list. " +
             "`ignoreInvalidURLs` skips malformed entries instead of failing " +
             "the batch, returning them in `invalidURLs`. Each processed page " +
-            "is billed whether or not its server answered 200. For URL " +
-            "discovery first, run a map or crawl instead.",
+            "is billed whether or not its server answered 200. A large batch " +
+            "comes back paginated: the result holds the first chunk plus a " +
+            "`next` cursor, and the remaining pages are read with " +
+            "`firecrawl#batch/scrape/{id}` using the job `id` in the result, " +
+            "which costs nothing. For URL discovery first, run a map or " +
+            "crawl instead.",
         docsUrl:
             "https://docs.firecrawl.dev/api-reference/endpoint/batch-scrape",
         categories: ["web-scraping"],
@@ -321,7 +325,20 @@ export default defineEndpoint({
             };
         },
         /** Settle on `completed` — the vendor's own count of pages processed,
-         *  which excludes entries `ignoreInvalidURLs` dropped. */
+         *  which excludes entries `ignoreInvalidURLs` dropped.
+         *
+         *  SCOPE is deliberately mixed, and worth stating: `page` and the flag
+         *  lines derive from `completed` (the WHOLE job), while `x_routing`
+         *  and `pdf_page` are counted off the rows in `$.data` — which is the
+         *  FIRST CHUNK only when the envelope carries `next`. A chunked job
+         *  whose later chunks hold x.com URLs or multi-page PDFs therefore
+         *  derives less than the vendor claims and reports a
+         *  `usage.mismatch.derived`. That is EXPECTED. Billing is unaffected:
+         *  `creditsUsed` is the vendor's claim and the claim is what bills
+         *  (D27). Scaling the observed count up by `completed / delivered`
+         *  would invent a number for rows never seen, and D27 is explicit
+         *  that unobserved entries are omitted rather than guessed — a true
+         *  lower bound reads better on a receipt than a plausible fiction. */
         evidence: ({ data, utils }) => {
             const body = data.input.body;
             const rows = utils.json.optionalGet(data.output, "$.data");

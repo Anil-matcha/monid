@@ -41,6 +41,11 @@ export default defineEndpoint({
             queryParams: zCrawlStatusQueryParams,
         },
     },
+    /** Tighter than the provider's 300 s. That budget exists to honour the
+     *  per-page `timeout` a caller may set on a SCRAPE; a job read takes no
+     *  such field and just returns stored rows, so it gets the ordinary
+     *  short-request budget instead. */
+    timeouts: { requestMs: 30_000, runMs: 60_000 },
     usage: {
         /** Reading a job is free — Firecrawl's billing docs state that
          *  "polling or checking batch status does not consume credits", and

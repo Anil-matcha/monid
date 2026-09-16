@@ -164,9 +164,10 @@ deno task apify:scaffold <actorId>   # authoring-time actor input-schema scaffol
 - **Billing before presentation**: `usage.consolidate` is OPTIONAL (D27 — not
   every vendor reports a meter; clay, pdl and tinyfish ship without one) and,
   when present, runs on the RAW response envelope BEFORE `fromResponse` —
-  presentation changes can never change a bill. Vendor non-2xx is DATA (zero usage), not an exception;
-  lifecycle fns synthesize error statuses for in-body failures and the engine
-  zero-bills every non-2xx envelope (a fn cannot bill an error).
+  presentation changes can never change a bill. Vendor non-2xx is DATA (zero
+  usage), not an exception; lifecycle fns synthesize error statuses for in-body
+  failures and the engine zero-bills every non-2xx envelope (a fn cannot bill an
+  error).
 - **Versioning**: every doc carries compiler-derived `minEngineVersion`.
   Connector-only changes never bump the engine. Any hook-ABI or doc-format
   change requires an `ENGINE_VERSION` minor bump + `doc_format_since`/
@@ -246,5 +247,13 @@ Hard-won, each one costs an hour if you meet it cold:
   back out of a body (a pagination `next`) must be a literal absolute url in the
   fixture.
 - **A vendor cursor is not a caller-usable url.** If following it needs the
-  credential the engine holds, the fn must follow it — handing it back hands the
-  caller a URL they cannot fetch.
+  credential the engine holds, handing it back hands the caller a URL they
+  cannot fetch. Two ways out, and it is a real trade. The fn FOLLOWS the cursor
+  — one complete result set, at the price of stitching an unbounded payload into
+  a single output and hiding the vendor's paging. Or the connector PASSES it
+  through and exposes the vendor's own reader as its own endpoint — bounded
+  outputs and honest paging, at the price of a second call. If you pass it
+  through, the output must also carry whatever that reader needs as a path param
+  (usually the job id), or the unusable cursor is the caller's only handle.
+  Firecrawl takes the second route: `#crawl` returns `next` untouched beside the
+  job `id`, and `#crawl/{id}` reads the rest for free.

@@ -39,6 +39,9 @@ export default defineEndpoint({
             queryParams: zBatchScrapeStatusQueryParams,
         },
     },
+    /** Short-request budget rather than the provider's 300 s — see
+     *  firecrawl#crawl/{id}. */
+    timeouts: { requestMs: 30_000, runMs: 60_000 },
     usage: {
         /** Reading a job is free — see firecrawl#crawl/{id}. */
         model: { kind: UsageModelKind.FREE },
