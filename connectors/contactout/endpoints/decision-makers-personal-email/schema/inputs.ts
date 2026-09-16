@@ -6,7 +6,7 @@ import { z } from "zod";
  *  endpoint as a compiled `anyOf`. */
 export const zDecisionMakersQueryParams = z.object({
     linkedin_url: z.string().regex(
-        /^https?:\/\/.*linkedin\.com\/company\//,
+        /^https?:\/\/([a-z0-9-]+\.)*linkedin\.com\/company\//i,
         "Must be a LinkedIn company URL (linkedin.com/company/...).",
     ).describe("The company's LinkedIn URL — name or numeric form.")
         .optional(),

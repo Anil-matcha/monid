@@ -53,6 +53,8 @@ Deno.test(`${ID} schema gate: the other key's include value and unknown keys are
             { linkedin_url: PROFILE, include: ["personal_email"] },
             { linkedin_url: PROFILE, bogus: 1 },
             { linkedin_url: "https://www.linkedin.com/company/example" },
+            // linkedin.com outside the hostname (CodeQL js/incomplete-hostname-regexp)
+            { linkedin_url: "https://evil.example/?u=linkedin.com/in/example" },
         ] as Record<string, Json>[]
     ) {
         await assertRejects(

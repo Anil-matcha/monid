@@ -14,7 +14,7 @@ import { z } from "zod";
  * JSON Schema `pattern` and is enforced before the wire.
  */
 export const zLinkedInProfileUrl = z.string().regex(
-    /^https?:\/\/.*linkedin\.com\/(in|pub)\//,
+    /^https?:\/\/([a-z0-9-]+\.)*linkedin\.com\/(in|pub)\//i,
     "Must be a LinkedIn profile URL (linkedin.com/in/... or " +
         "linkedin.com/pub/...); Sales Navigator and Recruiter URLs are " +
         "not accepted.",

@@ -51,6 +51,11 @@ Deno.test(`${ID} schema gate: at least one company identifier, as a compiled any
             { page: 1 },
             { linkedin_url: "https://www.linkedin.com/in/a-person" },
             { domain: "contactout.com", bogus: 1 },
+            // linkedin.com outside the hostname (CodeQL js/incomplete-hostname-regexp)
+            {
+                linkedin_url:
+                    "https://evil.example/?u=linkedin.com/company/acme",
+            },
         ] as Record<string, Json>[]
     ) {
         await assertRejects(
