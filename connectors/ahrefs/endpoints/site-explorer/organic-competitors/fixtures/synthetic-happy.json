@@ -1,0 +1,40 @@
+{
+    "name": "synthetic-happy",
+    "description": "Synthetic (no AHREFS key held at port time, 2026-09-16): body shape from the v1 adaptor tests (`{ <collection>: [...] }` for rowed reports, `{ <name>: {...} }` for snapshots); field values are placeholders. Unverified against live traffic — replace via `deno task record`. 3 row(s) back — usage is max(50, 14 × 3) units, split into the rows line and the request-minimum top-up.",
+    "calls": [
+        {
+            "req": {
+                "method": "GET",
+                "url": "https://api.ahrefs.com/v3/site-explorer/organic-competitors?target=ahrefs.com&date=2026-09-01&country=us&limit=3&mode=subdomains&protocol=both&select=competitor_domain%2Cdomain_rating%2Ckeywords_common%2Cshare%2Ctraffic"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "competitors": [
+                        {
+                            "competitor_domain": "https://example-0.test/",
+                            "domain_rating": 10,
+                            "keywords_common": 10,
+                            "share": 10,
+                            "traffic": 10
+                        },
+                        {
+                            "competitor_domain": "https://example-1.test/",
+                            "domain_rating": 20,
+                            "keywords_common": 20,
+                            "share": 20,
+                            "traffic": 20
+                        },
+                        {
+                            "competitor_domain": "https://example-2.test/",
+                            "domain_rating": 30,
+                            "keywords_common": 30,
+                            "share": 30,
+                            "traffic": 30
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}

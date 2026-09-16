@@ -1,0 +1,40 @@
+{
+    "name": "synthetic-happy",
+    "description": "Synthetic (no AHREFS key held at port time, 2026-09-16): body shape from the v1 adaptor tests (`{ <collection>: [...] }` for rowed reports, `{ <name>: {...} }` for snapshots); field values are placeholders. Unverified against live traffic — replace via `deno task record`. 3 row(s) back — usage is max(50, 23 × 3) units, split into the rows line and the request-minimum top-up.",
+    "calls": [
+        {
+            "req": {
+                "method": "GET",
+                "url": "https://api.ahrefs.com/v3/site-explorer/top-pages?target=ahrefs.com&date=2026-09-01&limit=3&mode=subdomains&protocol=both&select=url%2Csum_traffic%2Ctop_keyword%2Ctop_keyword_volume%2Ctop_keyword_best_position"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "pages": [
+                        {
+                            "url": "https://example-0.test/",
+                            "sum_traffic": 10,
+                            "top_keyword": "top_keyword 0",
+                            "top_keyword_volume": 10,
+                            "top_keyword_best_position": 10
+                        },
+                        {
+                            "url": "https://example-1.test/",
+                            "sum_traffic": 20,
+                            "top_keyword": "top_keyword 1",
+                            "top_keyword_volume": 20,
+                            "top_keyword_best_position": 20
+                        },
+                        {
+                            "url": "https://example-2.test/",
+                            "sum_traffic": 30,
+                            "top_keyword": "top_keyword 2",
+                            "top_keyword_volume": 30,
+                            "top_keyword_best_position": 30
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}

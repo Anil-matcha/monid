@@ -1,0 +1,37 @@
+{
+    "name": "synthetic-happy",
+    "description": "Synthetic (no AHREFS key held at port time, 2026-09-16): body shape from the v1 adaptor tests (`{ <collection>: [...] }` for rowed reports, `{ <name>: {...} }` for snapshots); field values are placeholders. Unverified against live traffic — replace via `deno task record`. 3 row(s) back — usage is max(50, 4 × 3) units, split into the rows line and the request-minimum top-up.",
+    "calls": [
+        {
+            "req": {
+                "method": "GET",
+                "url": "https://api.ahrefs.com/v3/site-explorer/linked-anchors-internal?target=ahrefs.com&limit=3&mode=subdomains&protocol=both&select=anchor%2Clinks_from_target%2Clinked_pages%2Cfirst_seen"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "linkedanchors": [
+                        {
+                            "anchor": "anchor 0",
+                            "links_from_target": 10,
+                            "linked_pages": 10,
+                            "first_seen": "2026-08-13"
+                        },
+                        {
+                            "anchor": "anchor 1",
+                            "links_from_target": 20,
+                            "linked_pages": 20,
+                            "first_seen": "2026-08-13"
+                        },
+                        {
+                            "anchor": "anchor 2",
+                            "links_from_target": 30,
+                            "linked_pages": 30,
+                            "first_seen": "2026-08-13"
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}

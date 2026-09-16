@@ -1,0 +1,43 @@
+{
+    "name": "synthetic-happy",
+    "description": "Synthetic (no AHREFS key held at port time, 2026-09-16): body shape from the v1 adaptor tests (`{ <collection>: [...] }` for rowed reports, `{ <name>: {...} }` for snapshots); field values are placeholders. Unverified against live traffic — replace via `deno task record`. 3 row(s) back — usage is max(50, 6 × 3) units, split into the rows line and the request-minimum top-up.",
+    "calls": [
+        {
+            "req": {
+                "method": "GET",
+                "url": "https://api.ahrefs.com/v3/site-explorer/crawled-pages?target=ahrefs.com&limit=3&mode=subdomains&protocol=both&select=url%2Ctitle%2Curl_rating%2Chttp_code%2Cfirst_seen%2Clast_crawled"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "pages": [
+                        {
+                            "url": "https://example-0.test/",
+                            "title": "title 0",
+                            "url_rating": "https://example-0.test/",
+                            "http_code": 10,
+                            "first_seen": "2026-08-13",
+                            "last_crawled": "2026-08-13"
+                        },
+                        {
+                            "url": "https://example-1.test/",
+                            "title": "title 1",
+                            "url_rating": "https://example-1.test/",
+                            "http_code": 20,
+                            "first_seen": "2026-08-13",
+                            "last_crawled": "2026-08-13"
+                        },
+                        {
+                            "url": "https://example-2.test/",
+                            "title": "title 2",
+                            "url_rating": "https://example-2.test/",
+                            "http_code": 30,
+                            "first_seen": "2026-08-13",
+                            "last_crawled": "2026-08-13"
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}
