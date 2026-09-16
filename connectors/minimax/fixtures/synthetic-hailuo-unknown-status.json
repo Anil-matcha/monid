@@ -1,0 +1,96 @@
+{
+    "name": "synthetic-hailuo-unknown-status",
+    "description": "A Hailuo task whose query returns a 200 with a status we do not recognize ('Queued'), then resolves normally. The poll must KEEP POLLING rather than falling into the Success path — without the guard it would find no file_id and end a still-running task with a synthesized 502. Regression fixture for CodeRabbit PR #15 comment 2. Synthetic.",
+    "calls": [
+        {
+            "req": {
+                "method": "POST",
+                "url": "{{request.url}}"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "task_id": "TASK3",
+                    "base_resp": {
+                        "status_code": 0,
+                        "status_msg": "success"
+                    }
+                }
+            }
+        },
+        {
+            "req": {
+                "method": "GET",
+                "url": "{{request.origin}}/v1/query/video_generation?task_id=TASK3"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "task_id": "TASK3",
+                    "status": "Queued",
+                    "base_resp": {
+                        "status_code": 0,
+                        "status_msg": "success"
+                    }
+                }
+            }
+        },
+        {
+            "req": {
+                "method": "GET",
+                "url": "{{request.origin}}/v1/query/video_generation?task_id=TASK3"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "task_id": "TASK3",
+                    "base_resp": {
+                        "status_code": 0,
+                        "status_msg": "success"
+                    }
+                }
+            }
+        },
+        {
+            "req": {
+                "method": "GET",
+                "url": "{{request.origin}}/v1/query/video_generation?task_id=TASK3"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "task_id": "TASK3",
+                    "status": "Success",
+                    "file_id": "FILE3",
+                    "video_width": 1366,
+                    "video_height": 768,
+                    "base_resp": {
+                        "status_code": 0,
+                        "status_msg": "success"
+                    }
+                }
+            }
+        },
+        {
+            "req": {
+                "method": "GET",
+                "url": "{{request.origin}}/v1/files/retrieve?file_id=FILE3"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "file": {
+                        "file_id": "FILE3",
+                        "bytes": 1918844,
+                        "filename": "MiniMax-Hailuo-2.3-TASK3.mp4",
+                        "download_url": "https://cdn.minimax.io/video/TASK3.mp4"
+                    },
+                    "base_resp": {
+                        "status_code": 0,
+                        "status_msg": "success"
+                    }
+                }
+            }
+        }
+    ]
+}

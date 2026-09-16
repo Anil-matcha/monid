@@ -1,0 +1,40 @@
+{
+    "name": "synthetic-blocking-ok",
+    "description": "The canonical happy BLOCKING call (music / image / text-to-speech): one POST that returns 200 with a clean base_resp envelope. The body carries every billing basis the three blocking endpoints read — image urls, extra_info.usage_characters — plus the provider-internal fields output.fromResponse must strip. Minimal shared chain (fixture strategy v2): {{request.url}} binds per endpoint. Synthetic — no MINIMAX_API_KEY is held.",
+    "calls": [
+        {
+            "req": {
+                "method": "POST",
+                "url": "{{request.url}}"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "data": {
+                        "audio": "https://cdn.minimax.io/audio/song-1.mp3",
+                        "status": 2,
+                        "image_urls": [
+                            "https://cdn.minimax.io/img/1.png",
+                            "https://cdn.minimax.io/img/2.png",
+                            "https://cdn.minimax.io/img/3.png"
+                        ]
+                    },
+                    "extra_info": {
+                        "audio_length": 12000,
+                        "audio_sample_rate": 32000,
+                        "audio_size": 192000,
+                        "bitrate": 128000,
+                        "usage_characters": 1200,
+                        "word_count": 210,
+                        "invisible_character_ratio": 0
+                    },
+                    "trace_id": "0f2c9a7e5d1b4a",
+                    "base_resp": {
+                        "status_code": 0,
+                        "status_msg": "success"
+                    }
+                }
+            }
+        }
+    ]
+}

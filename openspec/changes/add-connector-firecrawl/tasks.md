@@ -71,5 +71,5 @@
       remaining chunks reachable
 - [x] 6.7 Endpoint identities accept `{param}`, so the job-read endpoints are
       named `firecrawl#crawl/{id}` / `firecrawl#batch/scrape/{id}` -
-      ENGINE_VERSION 0.2.0 and a PER-DOC `schema.path_param_id_since`, not a
-      `doc_format_since` bump (only placeholder docs are floored)
+      ENGINE_VERSION 0.3.0 + `doc_format_since` 0.3.0 (one declared fact, not
+      a per-doc inference - add-meta-notes D4)

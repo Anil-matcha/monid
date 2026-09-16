@@ -1,0 +1,20 @@
+{
+    "name": "synthetic-unauthorized",
+    "description": "A rejected key (401 unauthorized) on the first exchange. Serves every endpoint: the generation start, the sync overrides, and the poll all relay a non-2xx as data with zero usage.",
+    "calls": [
+        {
+            "req": { "method": "POST", "url": "{{request.url}}" },
+            "res": {
+                "status": 401,
+                "body": {
+                    "error": {
+                        "type": "auth",
+                        "code": "unauthorized",
+                        "message": "Missing or invalid API key.",
+                        "request_id": "req_01HZYXW9P3K5M7N2"
+                    }
+                }
+            }
+        }
+    ]
+}

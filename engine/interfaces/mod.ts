@@ -51,6 +51,10 @@ export interface PreparedRequest {
 export interface TransportResponse {
     status: number;
     body: string;
+    /** The vendor's response headers, keys LOWERCASED. OPTIONAL so a
+     *  transport that does not surface them stays source-compatible; the
+     *  engine presents `{}` to fns in that case. */
+    headers?: Record<string, string>;
     contentType?: string;
 }
 

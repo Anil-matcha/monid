@@ -1,0 +1,23 @@
+{
+    "name": "synthetic-download-not-done",
+    "description": "The download is asked for before the job finished (409 job_not_done): a non-3xx relays verbatim as a provider error with zero usage. Proves the download start's fall-through branch.",
+    "calls": [
+        {
+            "req": {
+                "method": "GET",
+                "url": "{{request.origin}}/v1/models/job_01HZYX3QK5N8V2M4T6R9W1XC7B/download?format=glb"
+            },
+            "res": {
+                "status": 409,
+                "body": {
+                    "error": {
+                        "type": "invalid_request",
+                        "code": "job_not_done",
+                        "message": "The job hasn't completed yet; poll GET /v1/jobs/{job_id} first.",
+                        "request_id": "req_01HZYXT4K8M2N6P9"
+                    }
+                }
+            }
+        }
+    ]
+}

@@ -1,0 +1,82 @@
+{
+    "name": "synthetic-hailuo-succeeded",
+    "description": "The canonical happy Hailuo-2.3 run — the V1 three-hop chain: submit parks a task, one still-Processing poll tick, a Success poll, then the files/retrieve hop that turns file_id into a download_url. Settles 200 with the flattened result. Billing comes from the REQUEST cell, since the V1 task API reports no usage block. Synthetic.",
+    "calls": [
+        {
+            "req": {
+                "method": "POST",
+                "url": "{{request.url}}"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "task_id": "TASK1",
+                    "base_resp": {
+                        "status_code": 0,
+                        "status_msg": "success"
+                    }
+                }
+            }
+        },
+        {
+            "req": {
+                "method": "GET",
+                "url": "{{request.origin}}/v1/query/video_generation?task_id=TASK1"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "task_id": "TASK1",
+                    "status": "Processing",
+                    "base_resp": {
+                        "status_code": 0,
+                        "status_msg": "success"
+                    }
+                }
+            }
+        },
+        {
+            "req": {
+                "method": "GET",
+                "url": "{{request.origin}}/v1/query/video_generation?task_id=TASK1"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "task_id": "TASK1",
+                    "status": "Success",
+                    "file_id": "FILE1",
+                    "video_width": 1366,
+                    "video_height": 768,
+                    "base_resp": {
+                        "status_code": 0,
+                        "status_msg": "success"
+                    }
+                }
+            }
+        },
+        {
+            "req": {
+                "method": "GET",
+                "url": "{{request.origin}}/v1/files/retrieve?file_id=FILE1"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "file": {
+                        "file_id": "FILE1",
+                        "bytes": 2318844,
+                        "created_at": 1757894400,
+                        "filename": "MiniMax-Hailuo-2.3-TASK1.mp4",
+                        "purpose": "video_generation",
+                        "download_url": "https://cdn.minimax.io/video/TASK1.mp4"
+                    },
+                    "base_resp": {
+                        "status_code": 0,
+                        "status_msg": "success"
+                    }
+                }
+            }
+        }
+    ]
+}

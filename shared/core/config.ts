@@ -26,7 +26,6 @@ const zContractSections = z.object({
         doc_format_since: zSemverRaw,
         fn_abi_since: zSemverRaw,
         async_since: zSemverRaw,
-        path_param_id_since: zSemverRaw,
         state_max_bytes: z.number().int().positive(),
         logging: zIgnoredLogging,
     }).strict(),
@@ -68,10 +67,6 @@ export const contractConfig = Object.freeze({
         /** Engine release of the lifecycle (async) hook family — stamped as
          *  lifecycle fn entries' `api` (docs carrying a lifecycle floor here). */
         asyncSince: loaded.schema.async_since,
-        /** Engine release accepting a `{param}` segment in an endpoint
-         *  IDENTITY — a PER-DOC floor (only docs whose id carries a
-         *  placeholder), never a global doc_format_since bump. */
-        pathParamIdSince: loaded.schema.path_param_id_since,
         /** Hard engine cap on serialized lifecycle state bytes. */
         stateMaxBytes: loaded.schema.state_max_bytes,
     }),

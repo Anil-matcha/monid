@@ -1,0 +1,64 @@
+{
+    "name": "synthetic-h3-succeeded",
+    "description": "The canonical happy H3-family run — the V2 two-hop chain: submit parks a task, one still-running poll tick, then a succeeded poll carrying task.usage. The usage block deliberately carries EVERY basis the four H3 models read (total_seconds, output_seconds, input_seconds, input_image_count) plus the token counters output.fromResponse must strip, so ONE chain settles all four. Replay matches on method+url only, so the differing `model` per endpoint does not matter. Synthetic.",
+    "calls": [
+        {
+            "req": {
+                "method": "POST",
+                "url": "{{request.url}}"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "task_id": "H3TASK1"
+                }
+            }
+        },
+        {
+            "req": {
+                "method": "GET",
+                "url": "{{request.origin}}/v2/query/video_generation/H3TASK1"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "task": {
+                        "id": "H3TASK1",
+                        "status": "running"
+                    }
+                }
+            }
+        },
+        {
+            "req": {
+                "method": "GET",
+                "url": "{{request.origin}}/v2/query/video_generation/H3TASK1"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "task": {
+                        "id": "H3TASK1",
+                        "status": "succeeded",
+                        "model": "MiniMax-H3",
+                        "video": {
+                            "url": "https://cdn.minimax.io/video/H3TASK1.mp4",
+                            "width": 1366,
+                            "height": 768,
+                            "duration": 6
+                        },
+                        "usage": {
+                            "total_seconds": 21,
+                            "output_seconds": 6,
+                            "input_seconds": 15,
+                            "input_image_count": 7,
+                            "total_tokens": 41233,
+                            "prompt_tokens": 1233,
+                            "completion_tokens": 40000
+                        }
+                    }
+                }
+            }
+        }
+    ]
+}

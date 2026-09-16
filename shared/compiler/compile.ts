@@ -686,14 +686,9 @@ export async function compileBundle(
                 lifecycleStopRef,
             ]
                 .filter((ref): ref is FnRef => ref !== undefined);
-            // A `{param}` segment in the IDENTITY is only understood from
-            // schema.path_param_id_since onward, so it floors THIS doc —
-            // docs without one stay at the doc_format_since baseline rather
-            // than being over-pinned by a format bump they do not use.
-            const minEngineVersion = semverMax([
-                ...refs.map((ref) => interner.table[ref.$fn.key].api),
-                ...(endpointPath.includes("{") ? [SC.pathParamIdSince] : []),
-            ]);
+            const minEngineVersion = semverMax(
+                refs.map((ref) => interner.table[ref.$fn.key].api),
+            );
 
             // ---- assemble + validate --------------------------------------
             const docWithoutHash = pruneUndefined({

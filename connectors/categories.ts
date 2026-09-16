@@ -133,13 +133,37 @@ export const LEAF_CATEGORIES = defineLeafCategories([
             "Hosted multi-step research agents that plan, search, and synthesize.",
     },
     {
-        // The first GENERATIVE leaf: every other id above names data that
-        // already exists somewhere and is retrieved. This one names an
-        // artifact the call creates.
+        // The GENERATIVE leaves: every other id above names data that
+        // already exists somewhere and is retrieved. These name an artifact
+        // the call creates.
         id: "video-generation",
         displayName: "Video Generation",
         description:
             "Generate video from a text prompt, a still image, or reference " +
             "clips.",
+    },
+    {
+        id: "3d-generation",
+        displayName: "3D Generation",
+        description:
+            "Generate production 3D meshes from text prompts and photos.",
+    },
+    {
+        id: "image-generation",
+        displayName: "Image Generation",
+        description:
+            "Generate images, including text-to-image, editing, and more.",
+    },
+    {
+        id: "music-generation",
+        displayName: "Music Generation",
+        description:
+            "Generate music, including full tracks from natural language, and more.",
+    },
+    {
+        id: "speech",
+        displayName: "Speech",
+        description:
+            "Work with voice, including text-to-speech, transcription, dialogue, and more.",
     },
 ]);

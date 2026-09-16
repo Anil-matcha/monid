@@ -1,0 +1,20 @@
+{
+    "name": "synthetic-start-rejected",
+    "description": "The submit is REJECTED (409 concurrent_limit_reached): no job ever started, so the run settles terminally on the vendor's nested error envelope with zero usage. Proves error-as-data at the start phase and the fromError digest of {error: {type, code, message, request_id}}.",
+    "calls": [
+        {
+            "req": { "method": "POST", "url": "{{request.url}}" },
+            "res": {
+                "status": 409,
+                "body": {
+                    "error": {
+                        "type": "rate_limit",
+                        "code": "concurrent_limit_reached",
+                        "message": "Account is at the concurrent-jobs ceiling (10).",
+                        "request_id": "req_01HZYXR8N3K2P5Q7"
+                    }
+                }
+            }
+        }
+    ]
+}

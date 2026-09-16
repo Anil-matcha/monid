@@ -75,11 +75,21 @@ export const zHttpCall = z.strictObject({
 );
 export type HttpCall = z.infer<typeof zHttpCall>;
 
-/** What utils.http returns: status + sniff-decoded body. Vendor non-2xx is
- *  RETURNED (data), never thrown — the fn decides; transport failures throw
- *  EXECUTION_FAILED through the fn (retriable). */
+/** What utils.http returns: status + response headers + sniff-decoded body.
+ *  Vendor non-2xx is RETURNED (data), never thrown — the fn decides; transport
+ *  failures throw EXECUTION_FAILED through the fn (retriable). */
 export interface HttpResult {
     status: number;
+    /** The VENDOR'S RESPONSE headers, keys LOWERCASED — envelope facts a
+     *  vendor answers WITH instead of a body (a 302's `location` IS the
+     *  payload for an endpoint whose answer is the redirect target — a
+     *  presigned URL minted per request; `retry-after`, `content-range` and
+     *  `link` pagination are the same shape). Always present ({} when the
+     *  transport reports none), so fns never branch on presence. REQUEST
+     *  headers — where credentials live — stay invisible to fns: redirects
+     *  are never followed, so a credential never travels to the target
+     *  either (design D16). */
+    headers: Record<string, string>;
     body: Json;
 }
 
