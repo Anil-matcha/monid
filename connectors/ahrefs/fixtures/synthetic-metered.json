@@ -1,0 +1,25 @@
+{
+    "name": "ahrefs metered response (synthetic)",
+    "description": "Synthetic domain-rating response with documented billing headers. Tests vary the headers to cover cache hits, explicit zero consumption, paid claims, malformed meters, and provider errors. No live header recording is claimed.",
+    "calls": [
+        {
+            "req": {
+                "method": "GET",
+                "url": "{{request.url}}?target=example.com&date=2026-09-01"
+            },
+            "res": {
+                "status": 200,
+                "headers": {
+                    "x-api-units-cost-total-actual": "50",
+                    "x-api-cache": "miss"
+                },
+                "body": {
+                    "domain_rating": {
+                        "domain_rating": 91,
+                        "ahrefs_rank": 58
+                    }
+                }
+            }
+        }
+    ]
+}

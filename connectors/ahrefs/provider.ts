@@ -1,4 +1,5 @@
 import { defineProvider, presets } from "@shared/core";
+import { z } from "zod";
 
 /**
  * Ahrefs (ahrefs.com) — SEO and backlink intelligence, ported from
@@ -6,7 +7,7 @@ import { defineProvider, presets } from "@shared/core";
  * on ONE wire surface: `GET https://api.ahrefs.com/v3/<path>` with query
  * parameters (Batch Analysis is the single JSON POST), Bearer auth.
  *
- * BILLING (design D1). Ahrefs bills every request in API UNITS:
+ * BILLING (design D1). Ahrefs bills uncached, non-free requests in API UNITS:
  * `max(50, units_per_row × rows)`, where `units_per_row` is the sum of the
  * UNIQUE fields across `select` / `where` / `order_by` (1 unit per field by
  * default; expensive fields are marked `(5 units)` / `(10 units)` / `(15 units)` in
@@ -22,13 +23,13 @@ import { defineProvider, presets } from "@shared/core";
  * minimum on the platform side; the doc states the vendor's card — clay
  * D3 posture — and pass-through is the broker's call).
  *
- * No `usage.consolidate`: the response BODY carries no meter. Ahrefs does
- * answer with `x-api-units-cost-*` response headers, but those reach only
- * lifecycle fns (engine 0.2.0), and v1 never read them (the names are
- * `x-api-units-cost-row` / `-total` / `-total-actual`, same docs page) — so
- * the authored constants are
- * the bill and the tests hold them as literals (clay D7a). Reading the
- * header as the vendor claim is a follow-up once a key exists (tasks.md).
+ * The actual consumption header is the vendor claim (design D2). A sync
+ * lifecycle relay carries it into state for usage.consolidate. Explicit
+ * zero consumption, including cache hits and free test queries, also
+ * zeroes the billable quantities: the engine prunes zero credit claims,
+ * so a zero claim alone would fall back to the nonzero derived charge.
+ * Missing or malformed meter headers retain the documented rate-card
+ * fallback; output always remains the vendor body.
  *
  * The `rows` counter is ONE generic fn every endpoint states verbatim (so
  * it interns to a single fnTable entry): Ahrefs answers `{ <collection>:
@@ -56,8 +57,10 @@ export default defineProvider({
         categories: ["seo"],
         notes: [
             "Billed in Ahrefs API units: each endpoint states its units per " +
-            "returned row, and every request draws at least 50 units — an " +
-            "empty result still costs 50.",
+            "returned row, with a 50-unit minimum for billable requests. " +
+            "Actual vendor consumption settles the bill; cache hits and " +
+            "explicit zero consumption are free. Without usable cost " +
+            "headers, settlement falls back to the published rate card.",
             "where and order_by accept only the endpoint's own returned " +
             "fields; a field outside that set would raise the per-row cost, " +
             "so it is rejected before the request is sent.",
@@ -76,6 +79,33 @@ export default defineProvider({
     // mirrors services/workflows/endpointExecution/config.yml (ahrefs):
     // request 30s, run 60s; no pollMs — every endpoint is sync.
     timeouts: { requestMs: 30_000, runMs: 60_000 },
+    lifecycle: {
+        state: z.strictObject({
+            actualUnits: z.number().nonnegative().optional(),
+        }),
+        start: async ({ utils }) => {
+            const response = await utils.request();
+            const raw = response.headers["x-api-units-cost-total-actual"];
+            const parsed = raw !== undefined && /^\d+$/.test(raw.trim())
+                ? Number(raw)
+                : undefined;
+            const actualUnits =
+                parsed !== undefined && Number.isSafeInteger(parsed)
+                    ? parsed
+                    : response.headers["x-api-cache"]?.trim().toLowerCase() ===
+                            "hit"
+                    ? 0
+                    : undefined;
+            return {
+                kind: "COMPLETED",
+                httpStatus: response.status,
+                output: response.body,
+                ...(actualUnits !== undefined
+                    ? { state: { data: { actualUnits } } }
+                    : {}),
+            };
+        },
+    },
     usage: {
         /** THE credit system (design D1): Ahrefs meters ONE pool of API
          *  units per workspace (a monthly allowance, `/subscription-info/
@@ -86,14 +116,25 @@ export default defineProvider({
             default: {
                 label: "Ahrefs API units",
                 description:
-                    "the workspace's monthly API-unit allowance; every " +
-                    "request draws max(50, units per row × rows)",
+                    "the workspace's monthly API-unit allowance; billable " +
+                    "requests draw max(50, units per row × rows)",
             },
         },
-        // No `consolidate`: no response body reports a consumed amount
-        // (design D1). No provider-level model/estimate/evidence: every
-        // doc has two metered lines, so the compiler requires doc-level
-        // fns — each endpoint states the generic counter verbatim.
+        consolidate: ({ data, utils }) => {
+            const actualUnits = utils.json.optionalGet(
+                data.lifecycle?.state ?? null,
+                "$.data.actualUnits",
+            );
+            return {
+                credits: {
+                    ...(typeof actualUnits === "number"
+                        ? { default: actualUnits }
+                        : {}),
+                },
+            };
+        },
+        // Every doc has two metered lines, so each endpoint owns its
+        // estimate and states the generic evidence counter verbatim.
     },
     output: {
         /** THE error-digestion hook: Ahrefs errors are real non-2xx

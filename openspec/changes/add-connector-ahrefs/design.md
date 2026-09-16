@@ -1,12 +1,16 @@
 # Design: add-connector-ahrefs
 
+Stack scope: PR #20 contains 21 endpoints and the shared provider; PR #21
+adds the remaining 15. The 36-endpoint design and rate audit cover both
+authored branches.
+
 Only the choices the port was FORCED to make. Everything not listed follows
 the precedents in `.claude/commands/provider-port.md` (sync GET → akta,
 sync POST → exa).
 
 ## D1 — The vendor formula `max(50, units × rows)` as two lines; the minimum is charged
 
-Ahrefs bills every request in API units: `units_per_row × rows`, floored at
+Ahrefs bills uncached, non-free requests in API units: `units_per_row × rows`, floored at
 50 per request (empty results included). v1 billed the caller per ROW and
 absorbed the 50-unit floor on the platform side (`billAtPublishedRate`,
 "requests under ceil(21.5 / U) rows run at a loss by design").
@@ -25,33 +29,43 @@ A `max()` is not a model shape. Two options were live:
    made with the fact in hand; a doc that hides it settles less than the
    vendor took on every small request.
 
-Consequence, eyes open: an empty 2xx now settles 50 units where v1 settled
-0. It is the vendor's charge.
+Consequence: a billable empty 2xx settles 50 units where v1 settled 0.
+Cached/free responses settle zero under D2.
 
-## D2 — No `usage.consolidate`; the cost headers are a follow-up
+## D2 — Settle the actual consumption header, including explicit zero
 
-No Ahrefs response BODY carries a meter, so there is no vendor claim and
-the derived fold is the bill — the 36 authored units-per-row constants
-have no runtime cross-check, and the tests hold them as literals (clay
-D7a: a `{id → units}` table, asserted to cover exactly the catalog).
+The initial port deferred response headers and always derived the bill.
+PR #20 re-review correctly identified that this would bill cache hits,
+which the vendor serves without consuming units. The official rule at
+https://docs.ahrefs.com/en/api/docs/limits-consumption names
+`x-api-units-cost-total-actual` as actual consumption and `x-api-cache`
+as `hit` / `miss` / `no_cache`. All 36 per-row constants (21 here, 15 in
+PR #21) were separately re-derived from endpoint field descriptions on
+2026-09-16; their source URLs and cost breakdowns live beside each rate.
 
-Ahrefs does answer with `x-api-units-cost-*` response headers (v1 used
-`x-api-units-cost-row` / `-total-actual` in drills only). Reading one as
-the claim would give every run a `usage.mismatch.derived` guard on the
-constants — but headers reach only lifecycle fns (engine 0.2.0), so all
-36 docs would become `lifecycle.start` docs stashing the header into
-`state.data` for a provider consolidate; the exact header names could not
-be confirmed without a key (the public docs pages 404); and v1 never read
-them. Deferred to tasks.md, to be done with a key in hand.
+A provider `lifecycle.start` performs the ordinary synchronous request and
+relays status/body unchanged. It stores a valid nonnegative safe integer
+from `x-api-units-cost-total-actual` in typed `state.data.actualUnits`.
+If that header is absent or malformed and `x-api-cache` says `hit`, it
+stores zero. A valid actual meter takes precedence over cache metadata.
+Missing/malformed meter information with no cache hit remains absent:
+settlement falls back to the published card, never an invented zero.
 
-Update 2026-09-16: the docs are reachable at
-https://docs.ahrefs.com/en/api/docs/limits-consumption and name the
-headers (`x-api-rows`, `x-api-units-cost-row`, `x-api-units-cost-total`,
-`x-api-units-cost-total-actual`, `x-api-cache`); the same page states the
-rule (`max(base_cost, per_row_cost * num_rows)`, base 50, 1 unit per
-field, expensive fields marked in each endpoint's field description), and
-all 36 authored constants were re-derived from it (PR #20 / #21 review).
-The rest of D2 stands — the header read is still the follow-up.
+Provider `usage.consolidate` reports this value without changing output.
+A positive claim overrides the fold and mismatches retain the derived
+amount. The engine intentionally prunes zero claims before deciding
+whether to fall back, so consolidate alone cannot settle a free response.
+Every endpoint's shared evidence function therefore returns zero billable
+rows and zero minimum top-up when `actualUnits` is explicitly zero. Both
+paths then agree on zero, without changing engine-wide claim semantics.
+Estimates still reserve the uncached amount because cache status is not
+known before the request. Errors remain zero usage through the engine.
+
+The fixture recorder allowlist now retains these two non-sensitive
+response headers. New synthetic replay cases test paid/zero claims,
+cache-only responses, malformed or missing meters, mismatches, and
+non-2xx responses. These are documented-header simulations, not live
+header recordings; direct recording with an Ahrefs key remains task 3.4.
 
 ## D3 — One generic rows counter, stated on every endpoint
 
@@ -151,10 +165,11 @@ recorded exactly as issued. Every file is `synthetic-` prefixed and says
 so. Live tests are written and gated on `AHREFS_API_KEY`; each live run
 draws at least 50 units.
 
-## D9 — Provider-level hooks: `fromError` only
+## D9 — Provider error handling and the synchronous meter relay
 
 Ahrefs errors are real non-2xx `{ error: string }` bodies (v1 drills) —
 digested, raw kept. `request.headers: { Accept: application/json }`
 mirrors v1. Timeouts 30 s / 60 s from `endpointExecution/config.yml`.
-Categories `seo` / `geo` added to `categories.ts` with the manifest's
+The provider-level synchronous relay and meter claim are described in D2;
+there is no poll or stop hook. Categories `seo` / `geo` added to `categories.ts` with the manifest's
 own names and descriptions; `ai-responses-count` alone is `geo`.

@@ -7,9 +7,10 @@ The ahrefs provider SHALL declare name `ahrefs`, `request.baseUrl`
 `https://api.ahrefs.com/v3`, `request.headers` `{Accept: application/json}`,
 auth `presets.auth.bearer()`, timeouts 30 s request / 60 s run, the single
 credit pool `default` ("Ahrefs API units"), and a provider-level
-`output.fromError` digesting `{ error: string }`. It SHALL declare no
-`usage.consolidate`, no `output.fromResponse`, no `input.toRequest` and no
-lifecycle.
+`output.fromError` digesting `{ error: string }`. A synchronous
+`lifecycle.start` SHALL relay status/body and store the actual cost header
+in typed state for provider `usage.consolidate`. It SHALL declare no
+`output.fromResponse`, provider `input.toRequest`, poll, or stop hook.
 
 #### Scenario: The rows counter is one fn
 - **WHEN** the bundle is compiled
@@ -23,7 +24,12 @@ The connector SHALL expose exactly 36 endpoints whose ids are the v3 paths
 `rows` line (PER_UNIT·RESULT, `amount` = the endpoint's units per row) and a
 `minimum_top_up` line (PER_UNIT·CREDIT, `amount` 1). `usage.evidence` SHALL
 count the first array in the body as rows (an object body as one row) and
-put `max(0, 50 − units × rows)` on the top-up.
+put `max(0, 50 − units × rows)` on the top-up for billable responses.
+A valid actual-consumption header SHALL settle the vendor claim. Explicit
+zero consumption, or a cache hit without a usable meter, SHALL zero both
+billable counts. Missing/malformed headers without a cache hit SHALL
+retain the derived fold. The formula scenarios below assume no free/cache
+signal and no differing vendor claim.
 
 #### Scenario: Three backlinks at 10 units each
 - **WHEN** `GET /site-explorer/all-backlinks` with `limit: 3` returns three
@@ -51,6 +57,18 @@ put `max(0, 50 − units × rows)` on the top-up.
 - **THEN** the run SHALL complete as a provider error with usage
   `{credits: {}, evidence: {}}` and output `{message: "invalid filter",
   raw: {...}}`
+
+#### Scenario: A cache hit returns data for free
+- **WHEN** a successful response includes `x-api-units-cost-total-actual: 0`
+  or `x-api-cache: hit` without a usable actual meter
+- **THEN** usage SHALL be `{credits: {}, evidence: {rows: 0,
+  minimum_top_up: 0}}`, and the vendor body SHALL be unchanged
+- **AND** estimates SHALL still reserve the uncached request cost
+
+#### Scenario: A positive actual meter differs from the card
+- **WHEN** the derived amount is 50 and the actual cost header is 63
+- **THEN** credits SHALL be `{default: 63}` and
+  `usage.mismatch.derived` SHALL be `{default: 50}`
 
 ### Requirement: Fixed field sets on the wire and in the schema
 Every endpoint with a `select` SHALL inject its fixed field list in

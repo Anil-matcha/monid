@@ -62,7 +62,7 @@ Deno.test("ahrefs: the units-per-row literals — one line per doc, the vendor O
     const evidenceKeys = new Set<string>();
     for (const id of ids) {
         const doc = bundle.endpoints[id];
-        assertEquals(doc.usage.consolidate, undefined, id);
+        assertEquals(typeof doc.usage.consolidate?.$fn.key, "string", id);
         assertEquals(Object.keys(doc.usage.credits), ["default"], id);
         const model = doc.usage.model as {
             kind: string;
@@ -72,8 +72,8 @@ Deno.test("ahrefs: the units-per-row literals — one line per doc, the vendor O
             >;
         };
         assertEquals(model.kind, "COMPOSITE", id);
-        // no vendor claim exists, so the derived fold IS usage — the table
-        // is the only thing between a typo and a wrong bill (clay D7a)
+        // The pinned table also guards estimates and fallback settlement
+        // when a transport does not supply the actual-cost header.
         assertEquals(
             model.components!.rows.consumes.amount,
             UNITS_PER_ROW[id],

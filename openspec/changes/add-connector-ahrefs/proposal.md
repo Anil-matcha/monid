@@ -23,8 +23,10 @@ line whose count is a rule (D19), and the field-set guard is a JSON Schema
     the endpoint's units per row, minimum_top_up: PER_UNIT·CREDIT at 1}`;
     `evidence` counts the returned rows and puts `max(0, 50 − units × rows)`
     on the top-up, so the fold IS `max(50, units × rows)` — empty result
-    included. No `usage.consolidate`: the body carries no meter (the
-    `x-api-units-cost-*` response headers are a follow-up, D2).
+    included for billable requests. A synchronous provider relay reads
+    the actual consumption header for `usage.consolidate`; cached/free
+    responses zero both billable counts so explicit zero survives the
+    engine's empty-claim fallback (D2).
   - **Fixed field sets (D4).** Each endpoint's `input.toRequest` injects its
     `select` list (comma-joined on GET, array in the POST body); `where` and
     `order_by` are restricted to that list by compiled `pattern`s, so the
@@ -67,4 +69,5 @@ line whose count is a rule (D19), and the field-set guard is a JSON Schema
 ## Impact
 
 New connector tree, two category leaves, `openspec/changes/add-connector-ahrefs`.
-No schema/engine contract change.
+The fixture response-header allowlist also retains the actual cost and
+cache headers. No schema/engine contract change.
