@@ -1,0 +1,37 @@
+{
+    "name": "job-failed",
+    "description": "An async job that the vendor reports as failed on a 200 status body. The poll synthesizes httpStatus 500 while providerHttpStatus keeps the real 200, so the engine zero-bills it \u2014 a fn cannot bill an error.",
+    "calls": [
+        {
+            "req": {
+                "method": "POST",
+                "url": "{{request.url}}"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "success": true,
+                    "id": "JOB1",
+                    "url": "{{request.url}}/JOB1"
+                }
+            }
+        },
+        {
+            "req": {
+                "method": "GET",
+                "url": "{{request.url}}/JOB1"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "success": false,
+                    "status": "failed",
+                    "completed": 0,
+                    "total": 0,
+                    "creditsUsed": 0,
+                    "error": "Crawl failed: the start URL could not be reached"
+                }
+            }
+        }
+    ]
+}

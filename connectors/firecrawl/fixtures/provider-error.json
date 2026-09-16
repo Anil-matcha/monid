@@ -1,0 +1,19 @@
+{
+    "name": "provider-error",
+    "description": "Firecrawl refuses the request outright (402 payment required \u2014 the out-of-credits answer every endpoint can give). Vendor non-2xx is DATA: the engine classifies it as a provider error and forces zero usage, so no fn can bill it. Serves sync and async endpoints alike.",
+    "calls": [
+        {
+            "req": {
+                "method": "POST",
+                "url": "{{request.url}}"
+            },
+            "res": {
+                "status": 402,
+                "body": {
+                    "success": false,
+                    "error": "Insufficient credits to perform this request."
+                }
+            }
+        }
+    ]
+}

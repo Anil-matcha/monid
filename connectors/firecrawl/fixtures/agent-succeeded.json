@@ -1,0 +1,57 @@
+{
+    "name": "agent-succeeded",
+    "description": "The /agent chain (minimized from a real 2026-09-16 recording): submit, one processing tick, then a completed body whose `data` is a single OBJECT rather than an array \u2014 the shape that short-circuits the poll's `next` walk. creditsUsed=4 is both the vendor claim and the CREDIT quantity.",
+    "calls": [
+        {
+            "req": {
+                "method": "POST",
+                "url": "{{request.url}}"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "success": true,
+                    "id": "JOB1",
+                    "threadId": "THREAD1",
+                    "threadTurn": 1
+                }
+            }
+        },
+        {
+            "req": {
+                "method": "GET",
+                "url": "{{request.url}}/JOB1"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "success": true,
+                    "status": "processing",
+                    "model": "spark-2",
+                    "mode": "extract"
+                }
+            }
+        },
+        {
+            "req": {
+                "method": "GET",
+                "url": "{{request.url}}/JOB1"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "success": true,
+                    "status": "completed",
+                    "model": "spark-2",
+                    "mode": "extract",
+                    "data": {
+                        "heading": "Example Domain",
+                        "heading_citation": "https://example.com"
+                    },
+                    "message": "The page heading was extracted from example.com.",
+                    "creditsUsed": 4
+                }
+            }
+        }
+    ]
+}

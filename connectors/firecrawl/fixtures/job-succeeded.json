@@ -1,0 +1,80 @@
+{
+    "name": "job-succeeded",
+    "description": "The canonical async job chain shared by /crawl and /batch/scrape: submit parks RUNNING with a job id, one still-scraping poll tick, then a terminal poll reporting completed=2 and the vendor's creditsUsed=2. Settles 2 credits, evidence {page: 2}. {{request.url}} binds the submit AND status urls per endpoint.",
+    "calls": [
+        {
+            "req": {
+                "method": "POST",
+                "url": "{{request.url}}"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "success": true,
+                    "id": "JOB1",
+                    "url": "{{request.url}}/JOB1"
+                }
+            }
+        },
+        {
+            "req": {
+                "method": "GET",
+                "url": "{{request.url}}/JOB1"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "success": true,
+                    "status": "scraping",
+                    "completed": 0,
+                    "total": 2,
+                    "creditsUsed": 0,
+                    "data": []
+                }
+            }
+        },
+        {
+            "req": {
+                "method": "GET",
+                "url": "{{request.url}}/JOB1"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "success": true,
+                    "status": "completed",
+                    "completed": 2,
+                    "total": 2,
+                    "creditsUsed": 2,
+                    "expiresAt": "2026-09-17T05:46:00.000Z",
+                    "data": [
+                        {
+                            "markdown": "# Example Domain\n\nThis domain is for use in documentation examples without needing permission.",
+                            "metadata": {
+                                "title": "Example Domain",
+                                "language": "en",
+                                "sourceURL": "https://example.com/",
+                                "url": "https://example.com/",
+                                "statusCode": 200,
+                                "contentType": "text/html",
+                                "proxyUsed": "basic"
+                            }
+                        },
+                        {
+                            "markdown": "# Example Domain\n\nThis domain is for use in documentation examples without needing permission.",
+                            "metadata": {
+                                "title": "Example Domain",
+                                "language": "en",
+                                "sourceURL": "https://example.com/pricing",
+                                "url": "https://example.com/pricing",
+                                "statusCode": 200,
+                                "contentType": "text/html",
+                                "proxyUsed": "basic"
+                            }
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}

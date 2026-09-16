@@ -191,6 +191,11 @@ The async run protocol (D10/D29's reserved surface) is IMPLEMENTED — see
 (removed in D19), metered/accruing endpoints, declarative poll/stop phase arms,
 `stop` result reporting — "return with a concrete need, as their own change".
 
+A connector port that needs no schema/engine change carries no `design.md`: the
+proposal plus `specs/<capability>/spec.md` and `tasks.md` are the record (see
+`openspec/changes/add-connector-firecrawl/`). Reach for a `design.md` only when
+the contract itself moves.
+
 ## Conventions
 
 - Deno 2 workspace; fmt `indentWidth: 4`; import aliases `@shared/<name>`.
@@ -201,3 +206,41 @@ The async run protocol (D10/D29's reserved surface) is IMPLEMENTED — see
   version bump. Follow the existing pattern end-to-end.
 - Commit style: `<type>(<scope>): <subject>` (e.g. `feat(engine): ...`,
   `feat(connectors): ...`, `docs(openspec): ...`).
+
+## Gotchas worth knowing before you write a fn
+
+Hard-won, each one costs an hour if you meet it cold:
+
+- **Fn bodies are executable JS, not TS.** The engine reinstantiates the source
+  in an empty scope, so a type annotation is a syntax error at run time. That
+  collides with `noImplicitAny`: a standalone helper lambda
+  (`const has = (name) => …`) has no contextual type and fails `deno check`,
+  while the SAME logic inline in a `.map()` / `.some()` / `for…of` infers fine.
+  Write the inference-friendly form —
+  `const names = xs.map((x) =>
+  typeof x === "string" ? x : x.type)` then
+  `names.includes(…)` — rather than reaching for a cast.
+- **Closed-term globals are a whitelist** (`shared/compiler/lint.ts`): `JSON`,
+  `Math`, `Object`, `Array`, `String`, `Number`, `Boolean`, `Error`, `Promise`,
+  `encodeURIComponent`. Notably **`URL` is not on it** — parse a host with
+  string ops, not `new URL()`.
+- **`utils.json.omit` is DEEP, `pluck` is EXACT.** To lift one receipt field out
+  of a payload use `pluck(output, "$.field")` — `omit` walks the whole tree and
+  will also strip an identically-named key nested inside the data.
+- **Identical fn sources intern to ONE fnTable entry.** Closed terms cannot
+  import a shared helper, but duplication is free when the sources are
+  byte-identical after normalization — so derive per-endpoint differences from
+  ctx (`data.request.url + "/" + id`) instead of hardcoding a path, and the
+  three copies collapse to one entry. Assert it in a test; `deno task fmt` will
+  not break it (normalization strips formatting).
+- **Provider-level hooks fall through to EVERY endpoint.** A provider
+  `lifecycle.start` replaces declarative execution on the provider's synchronous
+  endpoints too. Mixed sync/async providers must author the lifecycle on the
+  async endpoints.
+- **Fixture `{{request.url}}` bindings substitute in recorded REQUEST urls
+  only** (`replayFetch`), never in response bodies. An opaque cursor a fn reads
+  back out of a body (a pagination `next`) must be a literal absolute url in the
+  fixture.
+- **A vendor cursor is not a caller-usable url.** If following it needs the
+  credential the engine holds, the fn must follow it — handing it back hands the
+  caller a URL they cannot fetch.

@@ -1,0 +1,29 @@
+{
+    "name": "map-ok",
+    "description": "Sync /map happy path: {success, id, links} with NO creditsUsed meter anywhere \u2014 the one Firecrawl response that carries none, so the flat derived fold (1 credit) settles the run on its own.",
+    "calls": [
+        {
+            "req": {
+                "method": "POST",
+                "url": "{{request.url}}"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "success": true,
+                    "id": "01a0a8bf-b72e-773c-83d0-4c20f221753d",
+                    "links": [
+                        {
+                            "url": "https://example.com/",
+                            "title": "Example Domain"
+                        },
+                        {
+                            "url": "https://example.com/pricing",
+                            "title": "Pricing"
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}

@@ -1,0 +1,93 @@
+{
+    "name": "job-paginated",
+    "description": "An async job whose results span two pages: the terminal status body carries `next`, which the poll FOLLOWS (the caller holds no Firecrawl key and could never fetch it themselves) and concatenates, so the output is one complete 3-row set with no `next` left behind. Vendor claims 3 credits; completed=3 agrees. The cursor is a LITERAL absolute url rather than a {{request.url}} binding \u2014 bindings apply to request urls, not response bodies, and the poll treats the cursor as opaque anyway, which is exactly why this one chain serves /crawl and /batch/scrape alike.",
+    "calls": [
+        {
+            "req": {
+                "method": "POST",
+                "url": "{{request.url}}"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "success": true,
+                    "id": "JOB1",
+                    "url": "{{request.url}}/JOB1"
+                }
+            }
+        },
+        {
+            "req": {
+                "method": "GET",
+                "url": "{{request.url}}/JOB1"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "success": true,
+                    "status": "completed",
+                    "completed": 3,
+                    "total": 3,
+                    "creditsUsed": 3,
+                    "next": "https://api.firecrawl.dev/v2/crawl/JOB1?skip=2",
+                    "data": [
+                        {
+                            "markdown": "# Example Domain\n\nThis domain is for use in documentation examples without needing permission.",
+                            "metadata": {
+                                "title": "Example Domain",
+                                "language": "en",
+                                "sourceURL": "https://example.com/",
+                                "url": "https://example.com/",
+                                "statusCode": 200,
+                                "contentType": "text/html",
+                                "proxyUsed": "basic"
+                            }
+                        },
+                        {
+                            "markdown": "# Example Domain\n\nThis domain is for use in documentation examples without needing permission.",
+                            "metadata": {
+                                "title": "Example Domain",
+                                "language": "en",
+                                "sourceURL": "https://example.com/pricing",
+                                "url": "https://example.com/pricing",
+                                "statusCode": 200,
+                                "contentType": "text/html",
+                                "proxyUsed": "basic"
+                            }
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "req": {
+                "method": "GET",
+                "url": "https://api.firecrawl.dev/v2/crawl/JOB1?skip=2"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "success": true,
+                    "status": "completed",
+                    "completed": 3,
+                    "total": 3,
+                    "creditsUsed": 3,
+                    "data": [
+                        {
+                            "markdown": "# Example Domain\n\nThis domain is for use in documentation examples without needing permission.",
+                            "metadata": {
+                                "title": "Example Domain",
+                                "language": "en",
+                                "sourceURL": "https://example.com/about",
+                                "url": "https://example.com/about",
+                                "statusCode": 200,
+                                "contentType": "text/html",
+                                "proxyUsed": "basic"
+                            }
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}

@@ -1,0 +1,33 @@
+{
+    "name": "scrape-pdf-ok",
+    "description": "Sync /scrape of a 3-page PDF: metadata.numPages=3 and the vendor bills 3 credits (1 base + 2 pages beyond the first), which is exactly what the pdf_page line derives. Pins the offset-by-one rule.",
+    "calls": [
+        {
+            "req": {
+                "method": "POST",
+                "url": "{{request.url}}"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "success": true,
+                    "data": {
+                        "markdown": "# Example Domain\n\nThis domain is for use in documentation examples without needing permission.",
+                        "metadata": {
+                            "title": "Example Domain",
+                            "language": "en",
+                            "sourceURL": "https://example.com/report.pdf",
+                            "url": "https://example.com/report.pdf",
+                            "statusCode": 200,
+                            "contentType": "application/pdf",
+                            "proxyUsed": "basic",
+                            "creditsUsed": 3,
+                            "numPages": 3,
+                            "totalPages": 3
+                        }
+                    }
+                }
+            }
+        }
+    ]
+}

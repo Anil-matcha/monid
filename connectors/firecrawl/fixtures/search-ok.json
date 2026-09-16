@@ -1,0 +1,42 @@
+{
+    "name": "search-ok",
+    "description": "Sync /search happy path: 3 web results with the vendor's top-level creditsUsed=2 receipt (2 credits per 10 results, rounded up). The receipt is plucked out of the output; the derived fold ceil(3/10)x2 agrees, so no mismatch rides out.",
+    "calls": [
+        {
+            "req": {
+                "method": "POST",
+                "url": "{{request.url}}"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "success": true,
+                    "creditsUsed": 2,
+                    "id": "01a0a8bf-c111-7000-9000-000000000001",
+                    "data": {
+                        "web": [
+                            {
+                                "url": "https://docs.deno.com/runtime/fundamentals/workspaces/",
+                                "title": "Workspaces and monorepos | Deno Docs",
+                                "description": "Deno supports workspaces, also known as monorepos.",
+                                "position": 1
+                            },
+                            {
+                                "url": "https://deno.com/blog/v1.29",
+                                "title": "Deno 1.29 release notes",
+                                "description": "Workspace support lands.",
+                                "position": 2
+                            },
+                            {
+                                "url": "https://example.org/monorepo-guide",
+                                "title": "A monorepo guide",
+                                "description": "Patterns for multi-package repos.",
+                                "position": 3
+                            }
+                        ]
+                    }
+                }
+            }
+        }
+    ]
+}

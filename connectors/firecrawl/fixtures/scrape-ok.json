@@ -1,0 +1,31 @@
+{
+    "name": "scrape-ok",
+    "description": "Sync /scrape happy path (minimized from a real 2026-09-16 recording): one POST returning a document whose metadata carries the vendor's own creditsUsed=1 meter. Settles 1 credit, evidence {page: 1}. Bound per endpoint via {{request.url}}.",
+    "calls": [
+        {
+            "req": {
+                "method": "POST",
+                "url": "{{request.url}}"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "success": true,
+                    "data": {
+                        "markdown": "# Example Domain\n\nThis domain is for use in documentation examples without needing permission.",
+                        "metadata": {
+                            "title": "Example Domain",
+                            "language": "en",
+                            "sourceURL": "https://example.com/",
+                            "url": "https://example.com/",
+                            "statusCode": 200,
+                            "contentType": "text/html",
+                            "proxyUsed": "basic",
+                            "creditsUsed": 1
+                        }
+                    }
+                }
+            }
+        }
+    ]
+}
