@@ -1,0 +1,243 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+#
+# CodeRabbit review configuration.
+#
+# Read automatically from the root of the branch under review — no UI setup.
+# `@coderabbitai configuration` in any PR prints the resolved config and its sources.
+#
+# House conventions are NOT duplicated here: knowledge_base.code_guidelines points
+# CodeRabbit at AGENT.md / DEVELOPMENT.md / the openspec decision records, which stay
+# the single source of truth. path_instructions below carry only the rules whose
+# violation changes what a customer is charged or breaks the compiled bundle.
+#
+# Ported from monid-services/.coderabbit.yaml. Same shape on purpose: a rule learned
+# in one repo should be a copy-paste away from the other.
+
+language: en-US
+
+# Hard limit: 250 characters. The full review bar lives in path_instructions.
+tone_instructions: >-
+  Terse and direct. No praise, no emoji, no restating the code. deno fmt governs
+  formatting, so never comment on it. If nothing you have would change the code,
+  post nothing.
+
+reviews:
+  profile: chill
+  request_changes_workflow: false
+
+  # Walkthrough: keep the summary, drop the decorative parts.
+  high_level_summary: true
+  collapse_walkthrough: true
+  changed_files_summary: false
+  sequence_diagrams: false
+  suggested_labels: false
+  suggested_reviewers: false
+  related_issues: false
+  related_prs: false
+  assess_linked_issues: false
+  estimate_code_review_effort: false
+  in_progress_fortune: false
+  poem: false
+
+  auto_review:
+    enabled: true
+    drafts: false
+    # base_branches defaults to main — the only long-lived branch here.
+
+  # Nothing generated is reviewable. .output/ is gitignored already; these are the
+  # tracked ones. Fixtures are NOT filtered: they are recorded vendor traffic and the
+  # review must see them (secrets, PII, headers — see the connectors/** rule).
+  path_filters:
+    - "!**/deno.lock"
+    - "!shared/testing/goldens/**"
+
+  path_instructions:
+    # ---- Anti-slop. The main reason this file exists. ----
+    - path: "**/*.ts"
+      instructions: >-
+        Comment only when a change can cause a defect, a billing or security
+        incident, or breaks a documented house convention (AGENT.md).
+        Flag machine-generated bloat. Each of the following is a defect worth a
+        comment, not a style preference:
+        (1) an abstraction introduced by this diff with exactly one call site or
+        one implementation — interface, factory, options bag, generic parameter,
+        or config flag that nothing else uses;
+        (2) a helper that duplicates something already exported from an @shared/*
+        module (presets in @shared/core, testSealedUnit/runEndpoint in
+        @shared/testing) or the ctx.utils host ABI (utils.json, utils.money) —
+        name the existing one. Exception: hook fns are closed terms and cannot
+        import, so logic repeated INSIDE a hook body is by design; never ask to
+        extract it;
+        (3) a new code path added beside the old one without deleting the old one;
+        also commented-out code, unreachable branches, and back-compat shims for
+        callers that do not exist in this repository;
+        (4) try/catch, null checks, or fallbacks guarding states the zod schema or
+        the caller already rule out;
+        (5) comments or JSDoc that restate the signature or narrate the next line;
+        (6) edits unrelated to the stated purpose of the PR — reformatting,
+        renaming, or "improving" untouched neighbouring code.
+        Say which lines to delete. Prefer "drop this" over "consider refactoring".
+
+    # ---- Tests that cannot fail are worse than no tests. ----
+    - path: "**/*.test.ts"
+      instructions: >-
+        Reject tests that cannot fail: assertions only against mocks, assertions
+        against values the test itself just constructed, tautologies, and tests
+        that mirror the implementation line by line instead of pinning behaviour.
+        Endpoint tests run the compiled artifact through testSealedUnit(id) and
+        replay fixtures/*.json with zero network; flag a test that calls the
+        vendor directly, bypasses the compiler, or hand-builds a doc. Live tests
+        gate on <PROVIDER>_API_KEY and auto-skip without it — flag one that does
+        not.
+        A sync-provider endpoint.test.ts has fixed parts; flag a missing one:
+        happy (result.usage deep-equalled as a WHOLE {credits, evidence} object,
+        billing fields gone from output, result count = the fixture's), provider
+        error (isProviderError true, empty usage), schema gate (assertRejects
+        INVALID_INPUT on a near-valid bad input PLUS a passing near-twin proving
+        the gate is not too wide), live (ignore: liveSkip(slug), asserts shape not
+        amounts). Provenance (testBundle, which docs share the provider's fn keys)
+        is one per provider, not per endpoint.
+
+    # ---- Connectors: this code decides what a customer is charged. ----
+    - path: "connectors/**"
+      instructions: >-
+        The def IS the rate card. Treat any change to usage.model, usage.credits,
+        consumes.amount, usage.estimate/evidence/consolidate, or an endpoint's
+        request binding as high risk and say so explicitly in the review. A
+        changed pinned amount must state its source (vendor pricing page, date);
+        apify amounts are Business-tier event prices and the drift suite pins
+        them — a PR that "fixes" one by hand needs to say why drift did not.
+        schema/inputs.ts is the faithful vendor mirror: no .default(), no
+        .refine()/.superRefine() (they do not survive compilation), unquoted
+        keys; ALL tightening (.required, .default, .min) lives at the binding in
+        endpoint.ts. Never invent structure the vendor does not have.
+        Endpoint ids are inferred from folder names — flag an authored id.
+        Schemas are never imported across providers.
+        Fixtures: no secret VALUE and no request/response headers ever; PII
+        scrubbed; synthetic fixtures carry the synthetic- filename prefix; the
+        provider-level chain fixtures carry a description. Flag a fixture that
+        contradicts the vendor shape the endpoint's fromResponse/consolidate
+        assume.
+
+    # ---- Same way, same place: the /port-review bar. ----
+    # A connector PR is judged against the repo's precedent for its shape, not
+    # against taste. These are the deviations the compiler cannot catch (the doc
+    # compiles identically) that only a review has caught so far.
+    - path: "connectors/**"
+      instructions: >-
+        Judge a connector PR against its PRECEDENT, chosen by shape: sync GET +
+        queryParams -> akta; sync POST + body -> exa; multi-host -> tinyfish;
+        per-endpoint meters -> octen; async job + poll -> apify. The most recent
+        port is NOT a precedent. Read the precedent's provider.ts and one of its
+        endpoint.ts before commenting. Two questions only: does each kind of
+        logic use the same construct as the precedent, and does it live in the
+        same file? A construct unique in this repo is a deviation UNLESS
+        openspec/changes/add-connector-<slug>/design.md records a D-entry for it
+        — then it is a new capability; do not comment. Where the repo itself
+        already carries two styles (displayName wording, provider prefix on schema
+        variable names, describe placement) the PR is not at fault; do not
+        comment. A style difference that compiles to the same
+        doc is not a defect.
+        Flag as defects, each with the precedent's file and the minimal move:
+        (1) endpoints/<e>/schema/inputs.ts importing or re-exporting from ANOTHER
+        endpoint's directory — an endpoint's input shape is defined in its own
+        folder; a fragment used by two or more endpoints goes in
+        connectors/<slug>/schema/ and each inputs.ts composes it;
+        (2) "required" written as shape.f.unwrap() instead of
+        zBody.required({ f: true }) — .unwrap() drops a describe attached outside
+        .optional(), so the compiled field loses its description; .unwrap() is
+        only for attaching .default(n) or .min();
+        (3) a sync provider with fewer endpoint.test.ts files than endpoints,
+        unless the PR body lists every untested endpoint with its reason;
+        (4) a new connector missing either openspec/changes/add-connector-<slug>/
+        or its connectors/categories.ts leaves;
+        (5) connector-only PRs touching engine/, shared/, config.yml or
+        ENGINE_VERSION — a compiler fix found mid-port is its own commit with a
+        D-entry.
+        Say it plainly: file:line, what it is, what the precedent does, the
+        minimal change. No "consider".
+
+    # ---- Engine, contract, compiler, tooling: the rules that are domain law. ----
+    - path: "{engine,shared,scripts}/**/*.ts"
+      instructions: >-
+        Deno 2 workspace. Flag deviations from these:
+        mod.ts is the only public surface (never index.ts); cross-library imports
+        go through the @shared/* alias, never relative paths into another lib.
+        Determinism: the bundle is a pure function of repo content — flag
+        Date.now, Math.random, env reads, or unsorted iteration on the compile
+        path (shared/core, shared/compiler); schema.*/compiler.* config never
+        reads env. Deno.env belongs only in engine/transport.ts, @shared/app-config
+        and scripts/.
+        Any hook-ABI or doc-format change needs an ENGINE_VERSION minor bump plus
+        doc_format_since/fn_abi_since in config.yml; connector-only changes never
+        bump the engine. A new hook lands end-to-end (contract file, section
+        carrier, zFnRef slot, fnKeysOf, linkFns, engine phase, version bump) — a
+        partial one is a bug.
+        Error law: invalid client input fails INVALID_INPUT before any spend;
+        vendor non-2xx is DATA (run completes, zero usage), never an exception;
+        load gates fail closed. Credentials never reach a fn — injection happens
+        inside the transport port, same-origin only; flag anything that widens
+        that.
+
+    # ---- CI: this is a PUBLIC repo. ----
+    - path: ".github/workflows/**"
+      instructions: >-
+        Flag: any AWS or cloud credential, or a step that writes to S3/EventBridge
+        directly (the GitLab trigger exists so this repo never holds those);
+        permissions broader than the job needs; a publish path that does not gate
+        on deno task check + test first; secrets echoed to logs.
+
+    # ---- Specs, docs: facts only. ----
+    - path: "openspec/**"
+      instructions: >-
+        Comment only on statements that are factually wrong about the code, broken
+        commands, or committed credentials. No prose, tone, or structure feedback.
+
+    - path: "**/*.md"
+      instructions: >-
+        Comment only on claims that contradict the code or on broken commands.
+        No wording, tone, or structure feedback.
+
+  # No linters for the code itself: this is Deno (CodeRabbit cannot run deno lint,
+  # and biome/oxlint would fight deno fmt's 4-space indent and deno.json's lint
+  # exclusions). Left ON: gitleaks/trufflehog (public repo, provider API keys) and
+  # actionlint/zizmor (three GitHub Actions workflows, one of them publishes).
+  tools:
+    markdownlint:
+      enabled: false
+    yamllint:
+      enabled: false
+    biome:
+      enabled: false
+    oxc:
+      enabled: false
+    eslint:
+      enabled: false
+    semgrep:
+      enabled: false
+
+  # Unsolicited docstring and test commits are exactly the bloat we are cutting.
+  finishing_touches:
+    docstrings:
+      enabled: false
+    unit_tests:
+      enabled: false
+
+  # Docstring coverage is anti-convention here (rule 5 above); the check would warn
+  # on every PR.
+  pre_merge_checks:
+    docstrings:
+      mode: "off"
+
+# Point CodeRabbit at the guidelines we already maintain instead of duplicating them.
+# AGENT.md is a CodeRabbit default pattern; the other two are not.
+knowledge_base:
+  code_guidelines:
+    enabled: true
+    filePatterns:
+      - "AGENT.md"
+      - "DEVELOPMENT.md"
+      - "openspec/changes/*/design.md"
+
+chat:
+  auto_reply: true
