@@ -18,10 +18,10 @@
 
 # Monid (OpenRouter for agent tools)
 
-**OpenRouter, but for agent tools instead of models.** One base URL, one key,
-and an agent can reach **2,000+ endpoints across 70+ providers**: web search and
-scraping, people and company enrichment, social platforms, reviews and market
-data, and video, image and voice generation.
+**OpenRouter, but for agent tools.** One base URL, one key, and an agent can
+reach **2,000+ endpoints across 70+ providers**: web search and scraping, people
+and company enrichment, social platforms, reviews and market data, and video,
+image and voice generation.
 
 **This repo is the connector layer**, the one generic framework every endpoint
 above is described in: how it is called, what it accepts, what it returns, how
