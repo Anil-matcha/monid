@@ -1,0 +1,72 @@
+{
+    "name": "happy",
+    "description": "A search page returning 2 rows: 2 draws on the annual results quota (Clay's own meter counts rows RETURNED, not the requested limit), and period_quota rides the output untouched — it is Clay's own field, not a billing input. Recorded live 2026-09-16; the two profiles and the quota watermark are replaced with structural stand-ins (real people, and our account's consumption, do not belong in a public repo) — every field, type and nesting is the recording's.",
+    "calls": [
+        {
+            "req": {
+                "method": "POST",
+                "url": "https://api.clay.com/public/v0/search/query-mode/SEARCH1/run",
+                "body": {
+                    "limit": 2
+                }
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "data": [
+                        {
+                            "clay_profile_id": 10000001,
+                            "name": "Avery Stone",
+                            "first_name": "Avery",
+                            "last_name": "Stone",
+                            "linkedin_url": "https://www.linkedin.com/in/example-profile-one/",
+                            "location": {
+                                "name": "Providence, Rhode Island, United States",
+                                "city": "Providence",
+                                "state_or_province": "Rhode Island"
+                            },
+                            "matched_experiences": [
+                                {
+                                    "company": "Example Software",
+                                    "title": "Global VP, Sales & Marketing",
+                                    "location": "Hybrid",
+                                    "start_date": "2026-08",
+                                    "end_date": ""
+                                }
+                            ]
+                        },
+                        {
+                            "clay_profile_id": 10000002,
+                            "name": "Jordan Reyes",
+                            "first_name": "Jordan",
+                            "last_name": "Reyes",
+                            "linkedin_url": "https://www.linkedin.com/in/example-profile-two/",
+                            "location": {
+                                "name": "Denver Metropolitan Area",
+                                "city": "Denver",
+                                "state_or_province": "Colorado"
+                            },
+                            "matched_experiences": [
+                                {
+                                    "company": "Example Assurance",
+                                    "title": "VP, Sales",
+                                    "location": "Denver Metropolitan Area",
+                                    "start_date": "2026-01",
+                                    "end_date": ""
+                                }
+                            ]
+                        }
+                    ],
+                    "has_more": true,
+                    "source_type": "people",
+                    "period_quota": {
+                        "limit": 1000000,
+                        "used": 3,
+                        "remaining": 999997,
+                        "resets_at": "2027-01-01T00:00:00.000Z"
+                    }
+                }
+            }
+        }
+    ]
+}

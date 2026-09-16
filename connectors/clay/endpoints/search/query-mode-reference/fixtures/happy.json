@@ -1,0 +1,18 @@
+{
+    "name": "happy",
+    "description": "The query-language reference: 200 with the whole grammar document under `reference` (markdown). FREE — reading the grammar draws nothing. Recorded live 2026-09-16; the document is truncated by the recorder's 500-character string cap, which is what a fixture needs (the shape, not the prose).",
+    "calls": [
+        {
+            "req": {
+                "method": "GET",
+                "url": "https://api.clay.com/public/v0/search/query-mode/reference"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "reference": "---\nname: clay-search-query\ndescription: Convert natural-language audience descriptions — including job postings, briefs, and ICP notes — into Clay search queries over people and companies. Use when the user wants to write or refine a Clay search query, or describes leads, companies, or candidates they want to find in Clay.\n---\n\n# Clay search query reference\n\nUse this reference to author a Clay advanced search query.\n\nExternal usage:\n- The final Clay search query can be pasted into Clay Search a"
+                }
+            }
+        }
+    ]
+}

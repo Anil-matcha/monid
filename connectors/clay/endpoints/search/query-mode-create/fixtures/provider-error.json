@@ -1,0 +1,21 @@
+{
+    "name": "provider-error",
+    "description": "A query the grammar rejects: 400 naming the offending operator and field. Vendor non-2xx is DATA — zero usage, body relayed verbatim (the message is the actionable part, so it must reach the caller). Recorded live 2026-09-16 by applying is_similar_to to a field that does not support it.",
+    "calls": [
+        {
+            "req": {
+                "method": "POST",
+                "url": "https://api.clay.com/public/v0/search/query-mode",
+                "body": {
+                    "query": "select from companies where estimated_employee_count >= 500 and industry is_similar_to (\"Software Development\")"
+                }
+            },
+            "res": {
+                "status": 400,
+                "body": {
+                    "message": "'is_similar_to' is not supported on field 'industry'. It can only be used on job title fields or the company products_and_services field."
+                }
+            }
+        }
+    ]
+}

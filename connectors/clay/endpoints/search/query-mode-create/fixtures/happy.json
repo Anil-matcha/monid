@@ -1,0 +1,22 @@
+{
+    "name": "happy",
+    "description": "Creating a search: 200 with the search_id handle and the detected source_type. FREE — creating draws nothing from any of Clay's three pools; only the rows the run endpoint returns touch the annual quota. Recorded live 2026-09-16 (search_id normalized).",
+    "calls": [
+        {
+            "req": {
+                "method": "POST",
+                "url": "https://api.clay.com/public/v0/search/query-mode",
+                "body": {
+                    "query": "select from people where experiences.any(is_current = true and job_title is_similar_to (\"VP Sales\") and company.estimated_employee_count >= 500)"
+                }
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "search_id": "SEARCH1",
+                    "source_type": "people"
+                }
+            }
+        }
+    ]
+}
