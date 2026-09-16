@@ -1,0 +1,37 @@
+{
+    "name": "synthetic-empty",
+    "description": "SYNTHETIC — shaped from the v1 adaptor tests (drill 2026-09-05) and the Ploid OpenAPI 2.0.0; not verified against real traffic (no PLOID_API_KEY held). Zero results, meter 0: nothing billed.",
+    "calls": [
+        {
+            "req": {
+                "method": "POST",
+                "url": "https://api.ploid.com/v1/search",
+                "body": {
+                    "query": "zxqvbnmlkjhgf",
+                    "num_results": 10
+                }
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "data": {
+                        "results": [],
+                        "search_time_ms": 120,
+                        "rows_indexed": 3000000000,
+                        "request": {
+                            "query": "fintech engineers",
+                            "type": "auto",
+                            "category": "people",
+                            "num_results": 0
+                        }
+                    },
+                    "meta": {
+                        "request_id": "req_1",
+                        "credits_charged": 0,
+                        "remaining_credits": 990.84
+                    }
+                }
+            }
+        }
+    ]
+}

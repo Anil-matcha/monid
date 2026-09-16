@@ -1,0 +1,25 @@
+{
+    "name": "synthetic-happy",
+    "description": "SYNTHETIC — shaped from the v1 adaptor tests (drill 2026-09-05) and the Ploid OpenAPI 2.0.0; not verified against real traffic (no PLOID_API_KEY held). One read, meter 0.06 ACU.",
+    "calls": [
+        {
+            "req": {
+                "method": "GET",
+                "url": "https://api.ploid.com/v1/linkedin/companies/get?universalName=retool"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "data": {
+                        "name": "Retool",
+                        "universalName": "retool"
+                    },
+                    "meta": {
+                        "request_id": "req_li",
+                        "credits_charged": 0.06
+                    }
+                }
+            }
+        }
+    ]
+}

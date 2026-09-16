@@ -1,0 +1,34 @@
+{
+    "name": "synthetic-error-inside-200",
+    "description": "SYNTHETIC — shaped from the v1 adaptor tests (drill 2026-09-05) and the Ploid OpenAPI 2.0.0; not verified against real traffic (no PLOID_API_KEY held). HTTP 200 whose top-level error carries http_status 503 — start synthesizes 503 over providerHttpStatus 200.",
+    "calls": [
+        {
+            "req": {
+                "method": "POST",
+                "url": "https://api.ploid.com/v1/agent",
+                "body": {
+                    "prompt": "Research Retool's current stage.",
+                    "max_acu": 12,
+                    "operation": "ask",
+                    "memory": "none",
+                    "sources": [
+                        "people",
+                        "public_web"
+                    ]
+                }
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "error": {
+                        "code": "agent_unavailable",
+                        "message": "Agent failed after transport opened.",
+                        "request_id": "req_6",
+                        "http_status": 503,
+                        "retryable": true
+                    }
+                }
+            }
+        }
+    ]
+}

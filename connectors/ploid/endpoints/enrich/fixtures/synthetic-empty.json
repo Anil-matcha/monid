@@ -1,0 +1,35 @@
+{
+    "name": "synthetic-empty",
+    "description": "SYNTHETIC — shaped from the v1 adaptor tests (drill 2026-09-05) and the Ploid OpenAPI 2.0.0; not verified against real traffic (no PLOID_API_KEY held). Nothing resolved (all null), meter 0: nothing billed.",
+    "calls": [
+        {
+            "req": {
+                "method": "POST",
+                "url": "https://api.ploid.com/v1/enrich",
+                "body": {
+                    "linkedin_url": "https://www.linkedin.com/in/nobody",
+                    "enrichments": [
+                        "profile",
+                        "email"
+                    ]
+                }
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "data": {
+                        "linkedin_profile": null,
+                        "email": null
+                    },
+                    "meta": {
+                        "request_id": "req_4",
+                        "acu_used": 0,
+                        "acu_remaining": 986.84,
+                        "acu_value_usd": 0.1,
+                        "warnings": []
+                    }
+                }
+            }
+        }
+    ]
+}

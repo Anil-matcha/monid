@@ -1,0 +1,84 @@
+{
+    "name": "synthetic-run-succeeded",
+    "description": "SYNTHETIC — shaped from the v1 adaptor tests (drill 2026-09-05) and the Ploid OpenAPI 2.0.0; not verified against real traffic (no PLOID_API_KEY held). 202 queues the run, one running tick, then the completed body: meter 1 ACU; session_id and the ACU internals must not reach the output.",
+    "calls": [
+        {
+            "req": {
+                "method": "POST",
+                "url": "https://api.ploid.com/v1/agent",
+                "body": {
+                    "prompt": "Research Retool's current stage.",
+                    "max_acu": 12,
+                    "operation": "ask",
+                    "memory": "none",
+                    "sources": [
+                        "people",
+                        "public_web"
+                    ]
+                }
+            },
+            "res": {
+                "status": 202,
+                "body": {
+                    "data": {
+                        "run_id": "f55b4637-7cb5-4b41-9755-e50f47e688dd",
+                        "status": "queued",
+                        "poll_url": "/v1/agent/runs/f55b4637-7cb5-4b41-9755-e50f47e688dd"
+                    },
+                    "meta": {
+                        "request_id": "req_5",
+                        "acu_limit": 12,
+                        "acu_used": 0,
+                        "acu_value_usd": 0.1
+                    }
+                }
+            }
+        },
+        {
+            "req": {
+                "method": "GET",
+                "url": "https://api.ploid.com/v1/agent/runs/f55b4637-7cb5-4b41-9755-e50f47e688dd"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "data": {
+                        "run_id": "f55b4637-7cb5-4b41-9755-e50f47e688dd",
+                        "status": "running",
+                        "poll_url": "/v1/agent/runs/f55b4637-7cb5-4b41-9755-e50f47e688dd"
+                    },
+                    "meta": {
+                        "request_id": "req_5",
+                        "acu_limit": 12,
+                        "acu_used": 0,
+                        "acu_value_usd": 0.1
+                    }
+                }
+            }
+        },
+        {
+            "req": {
+                "method": "GET",
+                "url": "https://api.ploid.com/v1/agent/runs/f55b4637-7cb5-4b41-9755-e50f47e688dd"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "data": {
+                        "output": "Findings…",
+                        "artifacts": []
+                    },
+                    "meta": {
+                        "request_id": "req_5b",
+                        "session_id": "agent_workspace-handle",
+                        "max_results": 25,
+                        "acu_limit": 12,
+                        "acu_used": 1,
+                        "acu_remaining": 976.32,
+                        "acu_value_usd": 0.1
+                    }
+                }
+            }
+        }
+    ]
+}
