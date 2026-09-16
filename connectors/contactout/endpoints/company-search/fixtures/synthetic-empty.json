@@ -1,0 +1,29 @@
+{
+    "name": "synthetic-empty",
+    "description": "Synthetic (no CONTACTOUT key held at port time, 2026-09-16): shape from the v1 adaptor tests and the public API reference; field values are placeholders. Unverified against live traffic \u2014 replace via `deno task record`. Zero companies returned \u2014 nothing drawn.",
+    "calls": [
+        {
+            "req": {
+                "method": "POST",
+                "url": "https://api.contactout.com/v1/company/search",
+                "body": {
+                    "name": [
+                        "No Such Company Zzz"
+                    ]
+                }
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "status_code": 200,
+                    "metadata": {
+                        "page": 1,
+                        "page_size": 25,
+                        "total_results": 0
+                    },
+                    "companies": []
+                }
+            }
+        }
+    ]
+}

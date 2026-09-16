@@ -1,0 +1,22 @@
+{
+    "name": "synthetic-happy",
+    "description": "Synthetic (no CONTACTOUT key held at port time, 2026-09-16): shape from the v1 adaptor tests and the public API reference; field values are placeholders. Unverified against live traffic \u2014 replace via `deno task record`. A hit: the matching LinkedIn URL (public API reference shape) \u2014 one work email credit, flat.",
+    "calls": [
+        {
+            "req": {
+                "method": "GET",
+                "url": "https://api.contactout.com/v1/people/person?email=person%40example.com"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "status_code": 200,
+                    "profile": {
+                        "email": "person@example.com",
+                        "linkedin": "https://www.linkedin.com/in/example-person"
+                    }
+                }
+            }
+        }
+    ]
+}

@@ -1,0 +1,19 @@
+{
+    "name": "synthetic-miss",
+    "description": "Synthetic (no CONTACTOUT key held at port time, 2026-09-16): shape from the v1 adaptor tests and the public API reference; field values are placeholders. Unverified against live traffic \u2014 replace via `deno task record`. An unknown address answers 404 \u2014 error-as-data, zero-billed by the engine.",
+    "calls": [
+        {
+            "req": {
+                "method": "GET",
+                "url": "https://api.contactout.com/v1/email/enrich?email=person%40example.com"
+            },
+            "res": {
+                "status": 404,
+                "body": {
+                    "status_code": 404,
+                    "message": "Not found"
+                }
+            }
+        }
+    ]
+}

@@ -1,0 +1,35 @@
+{
+    "name": "synthetic-happy",
+    "description": "Synthetic (no CONTACTOUT key held at port time, 2026-09-16): shape from the v1 adaptor tests and the public API reference; field values are placeholders. Unverified against live traffic \u2014 replace via `deno task record`. `companies` as an ARRAY (this endpoint's live shape): one company returned \u2014 1 search credit.",
+    "calls": [
+        {
+            "req": {
+                "method": "POST",
+                "url": "https://api.contactout.com/v1/company/search",
+                "body": {
+                    "name": [
+                        "ContactOut"
+                    ]
+                }
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "status_code": 200,
+                    "metadata": {
+                        "page": 1,
+                        "page_size": 25,
+                        "total_results": 1
+                    },
+                    "companies": [
+                        {
+                            "name": "ContactOut",
+                            "domain": "contactout.com",
+                            "size": "51_200"
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}

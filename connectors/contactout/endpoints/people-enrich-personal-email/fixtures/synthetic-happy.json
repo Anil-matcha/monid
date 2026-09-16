@@ -1,0 +1,35 @@
+{
+    "name": "synthetic-happy",
+    "description": "Synthetic (no CONTACTOUT key held at port time, 2026-09-16): shape from the v1 adaptor tests and the public API reference; field values are placeholders. Unverified against live traffic \u2014 replace via `deno task record`. A match with a personal email under the PERSONAL key: one search credit + one personal email credit (v1 test: 0.018 + 0.17).",
+    "calls": [
+        {
+            "req": {
+                "method": "POST",
+                "url": "https://api.contactout.com/v1/people/enrich",
+                "body": {
+                    "linkedin_url": "https://www.linkedin.com/in/example-person",
+                    "include": [
+                        "personal_email"
+                    ]
+                }
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "status_code": 200,
+                    "profile": {
+                        "full_name": "Example Person",
+                        "email": [
+                            "person@example.net"
+                        ],
+                        "personal_email": [
+                            "person@example.net"
+                        ],
+                        "work_email": [],
+                        "phone": []
+                    }
+                }
+            }
+        }
+    ]
+}

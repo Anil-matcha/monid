@@ -1,0 +1,26 @@
+{
+    "name": "synthetic-miss",
+    "description": "Synthetic (no CONTACTOUT key held at port time, 2026-09-16): shape from the v1 adaptor tests and the public API reference; field values are placeholders. Unverified against live traffic \u2014 replace via `deno task record`. No match answers 404 \u2014 zero-billed.",
+    "calls": [
+        {
+            "req": {
+                "method": "POST",
+                "url": "https://api.contactout.com/v1/people/enrich",
+                "body": {
+                    "linkedin_url": "https://www.linkedin.com/in/example-person",
+                    "include": [
+                        "work_email",
+                        "phone"
+                    ]
+                }
+            },
+            "res": {
+                "status": 404,
+                "body": {
+                    "status_code": 404,
+                    "message": "Not found"
+                }
+            }
+        }
+    ]
+}

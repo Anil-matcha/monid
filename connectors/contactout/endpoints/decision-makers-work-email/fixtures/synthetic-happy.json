@@ -1,0 +1,33 @@
+{
+    "name": "synthetic-happy",
+    "description": "Synthetic (no CONTACTOUT key held at port time, 2026-09-16): shape from the v1 adaptor tests and the public API reference; field values are placeholders. Unverified against live traffic \u2014 replace via `deno task record`. Two decision makers, no reveal: 2 search credits (the page is fixed at 25 upstream; a small company returns fewer).",
+    "calls": [
+        {
+            "req": {
+                "method": "GET",
+                "url": "https://api.contactout.com/v1/people/decision-makers?domain=contactout.com"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "status_code": 200,
+                    "metadata": {
+                        "page": 1,
+                        "page_size": 25,
+                        "total_results": 2
+                    },
+                    "profiles": {
+                        "https://www.linkedin.com/in/a": {
+                            "full_name": "A Founder",
+                            "title": "CEO"
+                        },
+                        "https://www.linkedin.com/in/b": {
+                            "full_name": "B Founder",
+                            "title": "CTO"
+                        }
+                    }
+                }
+            }
+        }
+    ]
+}

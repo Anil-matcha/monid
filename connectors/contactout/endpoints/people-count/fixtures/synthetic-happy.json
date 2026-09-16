@@ -1,0 +1,27 @@
+{
+    "name": "synthetic-happy",
+    "description": "Synthetic (no CONTACTOUT key held at port time, 2026-09-16): shape from the v1 adaptor tests and the public API reference; field values are placeholders. Unverified against live traffic \u2014 replace via `deno task record`. The free sizing probe: totals plus contact-coverage estimates (public API reference example).",
+    "calls": [
+        {
+            "req": {
+                "method": "POST",
+                "url": "https://api.contactout.com/v1/people/count",
+                "body": {
+                    "job_title": [
+                        "CTO"
+                    ]
+                }
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "status_code": 200,
+                    "total_results": 100000,
+                    "estimated_personal_emails": 72000,
+                    "estimated_work_emails": 85000,
+                    "estimated_phones": 45000
+                }
+            }
+        }
+    ]
+}

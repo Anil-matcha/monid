@@ -1,0 +1,19 @@
+{
+    "name": "synthetic-miss",
+    "description": "Synthetic (no CONTACTOUT key held at port time, 2026-09-16): shape from the v1 adaptor tests and the public API reference; field values are placeholders. Unverified against live traffic \u2014 replace via `deno task record`. A profile with no email of this key's kind answers 404 \u2014 zero-billed.",
+    "calls": [
+        {
+            "req": {
+                "method": "GET",
+                "url": "https://api.contactout.com/v1/people/linkedin?profile=https%3A%2F%2Fwww.linkedin.com%2Fin%2Fexample-person"
+            },
+            "res": {
+                "status": 404,
+                "body": {
+                    "status_code": 404,
+                    "message": "Not found"
+                }
+            }
+        }
+    ]
+}

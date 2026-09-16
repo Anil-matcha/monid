@@ -1,0 +1,30 @@
+{
+    "name": "synthetic-empty",
+    "description": "Synthetic (no CONTACTOUT key held at port time, 2026-09-16): shape from the v1 adaptor tests and the public API reference; field values are placeholders. Unverified against live traffic \u2014 replace via `deno task record`. Zero results: `profiles: []` \u2014 nothing drawn, evidence still reports the zeros.",
+    "calls": [
+        {
+            "req": {
+                "method": "POST",
+                "url": "https://api.contactout.com/v1/people/search",
+                "body": {
+                    "job_title": [
+                        "CTO"
+                    ],
+                    "page_size": 2
+                }
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "status_code": 200,
+                    "metadata": {
+                        "page": 1,
+                        "page_size": 2,
+                        "total_results": 0
+                    },
+                    "profiles": []
+                }
+            }
+        }
+    ]
+}

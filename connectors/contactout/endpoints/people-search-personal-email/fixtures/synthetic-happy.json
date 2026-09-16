@@ -1,0 +1,41 @@
+{
+    "name": "synthetic-happy",
+    "description": "Synthetic (no CONTACTOUT key held at port time, 2026-09-16): shape from the v1 adaptor tests and the public API reference; field values are placeholders. Unverified against live traffic \u2014 replace via `deno task record`. The ARRAY form of `profiles` (the documented shape) under the PERSONAL key, no reveal: contact_info carries availability flags only \u2014 2 search credits, no reveals.",
+    "calls": [
+        {
+            "req": {
+                "method": "POST",
+                "url": "https://api.contactout.com/v1/people/search",
+                "body": {
+                    "job_title": [
+                        "CTO"
+                    ],
+                    "page_size": 2
+                }
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "status_code": 200,
+                    "metadata": {
+                        "page": 1,
+                        "page_size": 2,
+                        "total_results": 45
+                    },
+                    "profiles": [
+                        {
+                            "full_name": "A Person",
+                            "contact_info": {
+                                "personal_emails": [],
+                                "phones": []
+                            }
+                        },
+                        {
+                            "full_name": "B Person"
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}

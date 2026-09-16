@@ -1,0 +1,19 @@
+{
+    "name": "synthetic-miss",
+    "description": "Synthetic (no CONTACTOUT key held at port time, 2026-09-16): shape from the v1 adaptor tests and the public API reference; field values are placeholders. Unverified against live traffic \u2014 replace via `deno task record`. The miss shape: HTTP 200 with `profile` as an EMPTY ARRAY \u2014 free.",
+    "calls": [
+        {
+            "req": {
+                "method": "GET",
+                "url": "https://api.contactout.com/v1/linkedin/enrich?profile=https%3A%2F%2Fwww.linkedin.com%2Fin%2Fexample-person"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "status_code": 200,
+                    "profile": []
+                }
+            }
+        }
+    ]
+}

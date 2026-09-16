@@ -1,0 +1,37 @@
+{
+    "name": "synthetic-happy",
+    "description": "Synthetic (no CONTACTOUT key held at port time, 2026-09-16): shape from the v1 adaptor tests and the public API reference; field values are placeholders. Unverified against live traffic \u2014 replace via `deno task record`. `companies` as an OBJECT keyed by domain (the live shape of this endpoint, local E2E 2026-08-25 \u2014 the docs show an array): three domains requested, two found \u2014 2 search credits; the unmatched domain is simply absent.",
+    "calls": [
+        {
+            "req": {
+                "method": "POST",
+                "url": "https://api.contactout.com/v1/domain/enrich",
+                "body": {
+                    "domains": [
+                        "contactout.com",
+                        "example.com",
+                        "nomatch.invalid"
+                    ]
+                }
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "status_code": 200,
+                    "companies": {
+                        "contactout.com": {
+                            "name": "ContactOut",
+                            "domain": "contactout.com",
+                            "size": "51_200"
+                        },
+                        "example.com": {
+                            "name": "Example",
+                            "domain": "example.com",
+                            "size": "11_50"
+                        }
+                    }
+                }
+            }
+        }
+    ]
+}

@@ -1,0 +1,53 @@
+{
+    "name": "synthetic-happy",
+    "description": "Synthetic (no CONTACTOUT key held at port time, 2026-09-16): shape from the v1 adaptor tests and the public API reference; field values are placeholders. Unverified against live traffic \u2014 replace via `deno task record`. reveal_info=true, page_size 2: LIVE responses key `profiles` by profile URL (an object), the docs show an array \u2014 this fixture is the object form. Two profiles, one with a work email and a phone: 2 search + 1 email + 1 phone credits.",
+    "calls": [
+        {
+            "req": {
+                "method": "POST",
+                "url": "https://api.contactout.com/v1/people/search",
+                "body": {
+                    "job_title": [
+                        "CTO"
+                    ],
+                    "page_size": 2,
+                    "reveal_info": true
+                }
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "status_code": 200,
+                    "metadata": {
+                        "page": 1,
+                        "page_size": 2,
+                        "total_results": 45
+                    },
+                    "profiles": {
+                        "https://www.linkedin.com/in/a": {
+                            "full_name": "A Person",
+                            "title": "CTO",
+                            "contact_info": {
+                                "emails": [
+                                    "a@example.com"
+                                ],
+                                "work_emails": [
+                                    "a@example.com"
+                                ],
+                                "personal_emails": [],
+                                "phones": [
+                                    "+14155550101"
+                                ]
+                            }
+                        },
+                        "https://www.linkedin.com/in/b": {
+                            "full_name": "B Person",
+                            "title": "VP Engineering",
+                            "contact_info": {}
+                        }
+                    }
+                }
+            }
+        }
+    ]
+}
