@@ -304,13 +304,10 @@ Deno.test("minimax#h3: the media-URL rule is a compiled pattern, not prose", asy
     // discarded, so the rule reaches the doc as a JSON Schema `pattern`
     // and the engine validates it before any request leaves.
     const unit = await unitFor("minimax#v1/video/minimax-h3");
-    const item = (unit.doc.input.schema.body as Record<
+    const item = (unit.doc.input.schema.body as Record<string, Record<
         string,
-        Record<
-            string,
-            Record<string, unknown>
-        >
-    >).properties.content.items as Record<string, unknown>;
+        Record<string, unknown>
+    >>).properties.content.items as Record<string, unknown>;
     const variants = item.oneOf as Record<string, Record<string, unknown>>[];
 
     const patterns = variants.flatMap((variant) => {

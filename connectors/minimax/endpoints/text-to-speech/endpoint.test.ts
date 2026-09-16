@@ -165,14 +165,10 @@ Deno.test("minimax#t2a_v2: EVERY accepted model routes to the right tier", async
     );
 
     for (const model of MINIMAX_T2A_MODELS) {
-        const expected =
-            (MINIMAX_HD_MODELS as readonly string[]).includes(model)
-                ? "hd_character"
-                : "turbo_character";
-        const { evidence } = await estimateFor({
-            model,
-            text: "x".repeat(100),
-        });
+        const expected = (MINIMAX_HD_MODELS as readonly string[]).includes(model)
+            ? "hd_character"
+            : "turbo_character";
+        const { evidence } = await estimateFor({ model, text: "x".repeat(100) });
         assertEquals(
             Object.keys(evidence),
             [expected],
