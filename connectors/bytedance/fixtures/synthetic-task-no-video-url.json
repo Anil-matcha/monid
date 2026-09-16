@@ -1,0 +1,45 @@
+{
+    "name": "synthetic-task-no-video-url",
+    "description": "SYNTHETIC (Ark does not hand out successful-but-empty tasks on request): the task reports `succeeded` but carries no content.video_url. The run must settle VISIBLY rather than hand back a success with nothing in it — OUR synthesized 502 with providerHttpStatus 200, zero-billed. The usage block is deliberately present to prove the zero-bill comes from the error path, not from a missing meter.",
+    "calls": [
+        {
+            "req": {
+                "method": "POST",
+                "url": "{{request.url}}"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "id": "cgt-20260916143414-nwjt4"
+                }
+            }
+        },
+        {
+            "req": {
+                "method": "GET",
+                "url": "{{request.origin}}/api/v3/contents/generations/tasks/cgt-20260916143414-nwjt4"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "id": "cgt-20260916143414-nwjt4",
+                    "model": "dreamina-seedance-2-0-mini-260615",
+                    "created_at": 1789540454,
+                    "updated_at": 1789540575,
+                    "service_tier": "default",
+                    "execution_expires_after": 172800,
+                    "generate_audio": true,
+                    "draft": false,
+                    "priority": 0,
+                    "output_format": "mp4",
+                    "status": "succeeded",
+                    "content": {},
+                    "usage": {
+                        "completion_tokens": 40594,
+                        "total_tokens": 40594
+                    }
+                }
+            }
+        }
+    ]
+}

@@ -1,0 +1,42 @@
+{
+    "seedance-2.0": {
+        "content": [
+            {
+                "type": "text",
+                "text": "a sea lion plays with a cat on a beach at sunset"
+            }
+        ],
+        "resolution": "480p",
+        "duration": 4
+    },
+    "seedance-2.0-fast": {
+        "content": [
+            {
+                "type": "text",
+                "text": "a sea lion plays with a cat on a beach at sunset"
+            }
+        ],
+        "resolution": "480p",
+        "duration": 4
+    },
+    "seedance-2.0-mini": {
+        "content": [
+            {
+                "type": "text",
+                "text": "a sea lion plays with a cat on a beach at sunset"
+            }
+        ],
+        "resolution": "480p",
+        "duration": 4
+    },
+    "seedance-2.5": {
+        "content": [
+            {
+                "type": "text",
+                "text": "a sea lion plays with a cat on a beach at sunset"
+            }
+        ],
+        "resolution": "480p",
+        "duration": 4
+    }
+}

@@ -18,7 +18,12 @@ schema:
     # "what is the OLDEST engine that understands X?" — a historical fact set
     # when a change ships (deriving from the current engine version would
     # over-pin every doc to the newest engine).
-    doc_format_since: "0.0.1" # oldest engine understanding the doc format (minEngineVersion floor)
+    # 0.0.3: `meta.notes` (add-meta-notes). The doc's `meta` is zEndpointMeta,
+    # a strictObject — an engine at 0.0.2 REJECTS a doc carrying the new key,
+    # so the floor moves even though the field is optional and additive.
+    # (0.0.2 itself bumped the ENGINE only: add-connector-pdl changed how
+    # `usage.credits` RESOLVES, not the shape of the doc it produces.)
+    doc_format_since: "0.0.3" # oldest engine understanding the doc format (minEngineVersion floor)
     # Pre-release: the whole contract (hook ctx {data, utils, logger},
     # structured run state, UPPERCASE run kinds, usage.model + usage.estimate,
     # zero-default utils.http / full-capability utils.request, the

@@ -1,0 +1,74 @@
+{
+    "name": "task-succeeded",
+    "description": "The canonical happy Seedance run, recorded live on bytedance#seedance-2.0-mini (480p, 4s): submit parks RUNNING, one still-running poll tick, then the terminal poll carrying content.video_url and the vendor's token meter. Settles 200 with 40594 completion tokens on the no-reference-video rate line. The two identical running ticks the recording captured are trimmed to one (minimal shared chain), and the signed result URL is redacted (it expires in 24h and carries a signature). {{request.url}} / {{request.origin}} bind per endpoint, so one chain serves all four models.",
+    "calls": [
+        {
+            "req": {
+                "method": "POST",
+                "url": "{{request.url}}"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "id": "cgt-20260916143414-nwjt4"
+                }
+            }
+        },
+        {
+            "req": {
+                "method": "GET",
+                "url": "{{request.origin}}/api/v3/contents/generations/tasks/cgt-20260916143414-nwjt4"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "id": "cgt-20260916143414-nwjt4",
+                    "model": "dreamina-seedance-2-0-mini-260615",
+                    "status": "running",
+                    "created_at": 1789540454,
+                    "updated_at": 1789540454,
+                    "service_tier": "default",
+                    "execution_expires_after": 172800,
+                    "generate_audio": true,
+                    "draft": false,
+                    "priority": 0,
+                    "output_format": "mp4"
+                }
+            }
+        },
+        {
+            "req": {
+                "method": "GET",
+                "url": "{{request.origin}}/api/v3/contents/generations/tasks/cgt-20260916143414-nwjt4"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "id": "cgt-20260916143414-nwjt4",
+                    "model": "dreamina-seedance-2-0-mini-260615",
+                    "status": "succeeded",
+                    "content": {
+                        "video_url": "https://ark-acg-ap-southeast-1.tos-ap-southeast-1.volces.com/dreamina-seedance-2-0-mini/redacted-signed-url.mp4?X-Tos-Expires=86400"
+                    },
+                    "usage": {
+                        "completion_tokens": 40594,
+                        "total_tokens": 40594
+                    },
+                    "created_at": 1789540454,
+                    "updated_at": 1789540575,
+                    "seed": 94197,
+                    "resolution": "480p",
+                    "ratio": "16:9",
+                    "duration": 4,
+                    "framespersecond": 24,
+                    "service_tier": "default",
+                    "execution_expires_after": 172800,
+                    "generate_audio": true,
+                    "draft": false,
+                    "priority": 0,
+                    "output_format": "mp4"
+                }
+            }
+        }
+    ]
+}

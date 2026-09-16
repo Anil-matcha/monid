@@ -1,0 +1,74 @@
+{
+    "name": "task-succeeded-ref-video",
+    "description": "A run whose content[] carried a reference_video, recorded live on bytedance#seedance-2.0-mini (480p, 4s). Proves the vendor's SECOND price column: the same request shape settles on the *_with_video rate line, and the token count is roughly double the plain run (80770 vs 40594) because Ark meters the INPUT video too. Billing only comes out right if both the line and the count follow the request — pricing the no-video column here would overcharge by 67% ($0.282695 against the vendor's $0.169617). Signed result URL redacted.",
+    "calls": [
+        {
+            "req": {
+                "method": "POST",
+                "url": "{{request.url}}"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "id": "cgt-20260916143736-xz2zz"
+                }
+            }
+        },
+        {
+            "req": {
+                "method": "GET",
+                "url": "{{request.origin}}/api/v3/contents/generations/tasks/cgt-20260916143736-xz2zz"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "id": "cgt-20260916143736-xz2zz",
+                    "model": "dreamina-seedance-2-0-mini-260615",
+                    "status": "running",
+                    "created_at": 1789540657,
+                    "updated_at": 1789540657,
+                    "service_tier": "default",
+                    "execution_expires_after": 172800,
+                    "generate_audio": true,
+                    "draft": false,
+                    "priority": 0,
+                    "output_format": "mp4"
+                }
+            }
+        },
+        {
+            "req": {
+                "method": "GET",
+                "url": "{{request.origin}}/api/v3/contents/generations/tasks/cgt-20260916143736-xz2zz"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "id": "cgt-20260916143736-xz2zz",
+                    "model": "dreamina-seedance-2-0-mini-260615",
+                    "status": "succeeded",
+                    "content": {
+                        "video_url": "https://ark-acg-ap-southeast-1.tos-ap-southeast-1.volces.com/dreamina-seedance-2-0-mini/redacted-signed-url.mp4?X-Tos-Expires=86400"
+                    },
+                    "usage": {
+                        "completion_tokens": 80770,
+                        "total_tokens": 80770
+                    },
+                    "created_at": 1789540657,
+                    "updated_at": 1789540758,
+                    "seed": 65583,
+                    "resolution": "480p",
+                    "ratio": "16:9",
+                    "duration": 4,
+                    "framespersecond": 24,
+                    "service_tier": "default",
+                    "execution_expires_after": 172800,
+                    "generate_audio": true,
+                    "draft": false,
+                    "priority": 0,
+                    "output_format": "mp4"
+                }
+            }
+        }
+    ]
+}

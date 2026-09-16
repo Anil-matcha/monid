@@ -244,9 +244,20 @@ export async function compileBundle(
             // ---- meta: leaf-wise fallback (docsUrl/categories) ------------
             const categories = def.meta.categories ?? provider.meta.categories;
             parseCategories(zCategories, categories, where);
+            // `notes` is the ONE ADDITIVE leaf (design add-meta-notes D1):
+            // provider-then-endpoint concatenation, not closest-wins. A
+            // provider caveat and an endpoint caveat are both true at once,
+            // so overriding would silently drop one. Empty ⇒ undefined, so
+            // pruneUndefined drops the key and note-less docs stay
+            // byte-identical.
+            const notes = [
+                ...provider.meta.notes ?? [],
+                ...def.meta.notes ?? [],
+            ];
             const meta = pruneUndefined({
                 ...def.meta,
                 docsUrl: def.meta.docsUrl ?? provider.meta.docsUrl,
+                notes: notes.length > 0 ? notes : undefined,
                 categories,
             } as unknown as Json);
 

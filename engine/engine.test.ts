@@ -2,6 +2,7 @@ import { assert, assertEquals, assertRejects, assertThrows } from "@std/assert";
 import { z } from "zod";
 import type { ConnectorSource, RunState, SealedUnit } from "@shared/core";
 import {
+    contractConfig,
     defineEndpoint,
     defineProvider,
     presets,
@@ -1048,11 +1049,18 @@ async function asyncUnit(
 
 const INSTANT_SLEEP = { sleep: () => Promise.resolve() };
 
-Deno.test("lifecycle: compiled doc carries lifecycle refs, pollMs, and the 0.0.1 floor", async () => {
+Deno.test("lifecycle: compiled doc carries lifecycle refs, pollMs, and the contract floor", async () => {
     const unit = await asyncUnit();
     assert(unit.doc.lifecycle);
     assertEquals(unit.doc.timeouts.pollMs, 5);
-    assertEquals(unit.doc.minEngineVersion, "0.0.1");
+    // semverMax(doc_format_since, every fn's api) — async_since is one of
+    // those apis, so an async doc can never floor BELOW a sync one. Asserted
+    // against the config constants, not a literal, so a format bump does not
+    // silently turn this into a test of nothing.
+    assertEquals(
+        unit.doc.minEngineVersion,
+        contractConfig.schema.docFormatSince,
+    );
     // the sealed unit closes over all three lifecycle fns
     assert(unit.fns[unit.doc.lifecycle.start.$fn.key]);
     assert(unit.fns[unit.doc.lifecycle.poll!.$fn.key]);
@@ -2004,14 +2012,18 @@ Deno.test("lifecycle compile checks: poll without start; endpoint pollMs dead co
     }
 });
 
-Deno.test("sync docs: no lifecycle/pollMs; floor = fn_abi_since (ctx ABI), not async machinery", async () => {
+Deno.test("sync docs: no lifecycle/pollMs; floor never includes async_since", async () => {
     const bundle = await compileBundle(demoConnector(), COMPILE_OPTS);
-    // 0.0.1 via fn_abi_since (the pre-release contract floor) — NOT
-    // because of anything async: sync docs carry no lifecycle surface
-    assertEquals(
-        bundle.endpoints["demo#search"].minEngineVersion,
-        "0.0.1",
-    );
+    // The floor is semverMax(doc_format_since, fn_abi_since) — NOT
+    // async_since: a sync doc carries no lifecycle surface, so the async
+    // hook family can never pull its floor up. (Today doc_format_since is
+    // the larger of the two; the point of the assertion is the ABSENCE of
+    // async_since from the max, which the lifecycle assertions below pin.)
+    const floor =
+        contractConfig.schema.docFormatSince >= contractConfig.schema.fnAbiSince
+            ? contractConfig.schema.docFormatSince
+            : contractConfig.schema.fnAbiSince;
+    assertEquals(bundle.endpoints["demo#search"].minEngineVersion, floor);
     assertEquals(bundle.endpoints["demo#search"].lifecycle, undefined);
     assertEquals(bundle.endpoints["demo#search"].timeouts.pollMs, undefined);
 });

@@ -132,4 +132,14 @@ export const LEAF_CATEGORIES = defineLeafCategories([
         description:
             "Hosted multi-step research agents that plan, search, and synthesize.",
     },
+    {
+        // The first GENERATIVE leaf: every other id above names data that
+        // already exists somewhere and is retrieved. This one names an
+        // artifact the call creates.
+        id: "video-generation",
+        displayName: "Video Generation",
+        description:
+            "Generate video from a text prompt, a still image, or reference " +
+            "clips.",
+    },
 ]);

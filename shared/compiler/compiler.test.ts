@@ -3,6 +3,7 @@ import { z } from "zod";
 import { fromFileUrl, join } from "@std/path";
 import {
     type ConnectorSource,
+    contractConfig,
     defineEndpoint,
     defineProvider,
     type EndpointDefSeed,
@@ -745,6 +746,104 @@ Deno.test("leaf-wise fallback: endpoint hook REPLACES provider's; baseUrl/meta f
     assertEquals(doc.meta.categories, ["demo-cat"]);
 });
 
+Deno.test("meta.notes CONCATENATE provider-then-endpoint (the one additive leaf)", async () => {
+    const bundle = await compileBundle(
+        source(
+            [{
+                name: "search",
+                def: makeEndpoint({
+                    meta: {
+                        displayName: "S",
+                        summary: "s.",
+                        notes: ["endpoint caveat"],
+                    },
+                }),
+            }, {
+                name: "other",
+                def: makeEndpoint({
+                    meta: { displayName: "O", summary: "o." }, // no notes
+                    request: { method: "POST", path: "/other" },
+                }),
+            }],
+            makeProvider({
+                meta: {
+                    displayName: "Demo",
+                    summary: "A demo provider.",
+                    notes: ["provider caveat 1", "provider caveat 2"],
+                },
+            }),
+        ),
+        OPTS,
+    );
+    // additive, NOT closest-wins: both levels survive, general before specific
+    assertEquals(bundle.endpoints["demo#search"].meta.notes, [
+        "provider caveat 1",
+        "provider caveat 2",
+        "endpoint caveat",
+    ]);
+    // provider notes reach an endpoint that declares none
+    assertEquals(bundle.endpoints["demo#other"].meta.notes, [
+        "provider caveat 1",
+        "provider caveat 2",
+    ]);
+    // the provider doc keeps its own
+    assertEquals(bundle.providers["demo"].meta.notes, [
+        "provider caveat 1",
+        "provider caveat 2",
+    ]);
+});
+
+Deno.test("meta.notes: endpoint-only, and absent everywhere leaves NO key", async () => {
+    const bundle = await compileBundle(
+        source(
+            [{
+                name: "search",
+                def: makeEndpoint({
+                    meta: {
+                        displayName: "S",
+                        summary: "s.",
+                        notes: ["only the endpoint speaks"],
+                    },
+                }),
+            }, {
+                name: "other",
+                def: makeEndpoint({
+                    meta: { displayName: "O", summary: "o." },
+                    request: { method: "POST", path: "/other" },
+                }),
+            }],
+            makeProvider(), // no provider notes
+        ),
+        OPTS,
+    );
+    assertEquals(bundle.endpoints["demo#search"].meta.notes, [
+        "only the endpoint speaks",
+    ]);
+    // empty concatenation ⇒ key OMITTED (determinism: note-less docs stay
+    // byte-identical to docs compiled before this capability existed)
+    assert(
+        !("notes" in bundle.endpoints["demo#other"].meta),
+        "no notes anywhere ⇒ no notes key",
+    );
+});
+
+Deno.test("meta.notes rejects empty entries and an empty array", () => {
+    let threw = 0;
+    try {
+        makeEndpoint({
+            meta: { displayName: "S", summary: "s.", notes: [""] },
+        });
+    } catch {
+        threw++;
+    }
+    try {
+        makeEndpoint({ meta: { displayName: "S", summary: "s.", notes: [] } });
+    } catch {
+        threw++;
+    }
+    assertEquals(threw, 2, "an empty note and an empty list both reject");
+});
+
 Deno.test("credentials fallback: endpoint overriding only inject inherits the PROVIDER's shape", async () => {
     // Pins the no-.default() rule (design D20): if zAuthSection.credentials
     // used .default(zDefaultCredentials), the endpoint's parsed auth would
@@ -1017,9 +1116,10 @@ Deno.test("golden: compiled exa#search doc shape (zBundle round-trip)", async ()
     const doc = bundle.endpoints["exa#search"];
     assert(doc, "exa#search compiled");
     assertEquals(doc.provider, "exa");
-    // fn_abi_since 0.0.1: the pre-release contract floor, so every doc
-    // floors here
-    assertEquals(doc.minEngineVersion, "0.0.1");
+    // semverMax(doc_format_since, every fn's api) — read from the config
+    // constants rather than a literal, so a format bump updates this test's
+    // expectation instead of its meaning
+    assertEquals(doc.minEngineVersion, contractConfig.schema.docFormatSince);
     assertEquals(doc.request, {
         method: "POST",
         url: "https://api.exa.ai/search",
