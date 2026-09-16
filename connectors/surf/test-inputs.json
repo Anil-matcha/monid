@@ -289,5 +289,157 @@
             "chain": "ethereum",
             "address": "0x6982508145454ce325ddbe47a25d4ec3d2311933"
         }
-    }
+    },
+    "prediction-market/analytics": {},
+    "prediction-market/correlations": {
+        "queryParams": {
+            "category": "crypto"
+        }
+    },
+    "prediction-market/kalshi/events": {},
+    "prediction-market/kalshi/markets": {},
+    "prediction-market/kalshi/open-interest": {
+        "queryParams": {
+            "ticker": "KXBTC2026250-27JAN01-250000"
+        }
+    },
+    "prediction-market/kalshi/orderbooks": {
+        "queryParams": {
+            "ticker": "KXCITRINI-28JUL01"
+        }
+    },
+    "prediction-market/kalshi/prices": {
+        "queryParams": {
+            "ticker": "KXBTC2026250-27JAN01-250000"
+        }
+    },
+    "prediction-market/kalshi/trades": {
+        "queryParams": {
+            "ticker": "KXBTC2026250-27JAN01-250000"
+        }
+    },
+    "prediction-market/kalshi/volumes": {
+        "queryParams": {
+            "ticker": "KXBTC2026250-27JAN01-250000"
+        }
+    },
+    "prediction-market/matching/daily": {
+        "queryParams": {
+            "polymarket_condition_id": "0x6fefc0438c7598b23531457c8c60541990d0786bd4bd9dfc3eabc8d95c291092",
+            "kalshi_market_ticker": "KXBTC2026250-27JAN01-250000"
+        }
+    },
+    "prediction-market/matching/pairs": {},
+    "prediction-market/polymarket/events": {
+        "queryParams": {
+            "event_slug": "what-price-will-bitcoin-hit-before-2027"
+        }
+    },
+    "prediction-market/polymarket/leaderboard": {},
+    "prediction-market/polymarket/markets": {
+        "queryParams": {
+            "market_slug": "will-bitcoin-dip-to-45000-by-december-31-2026-674-923-755-971-998-525-926-245-316-517-544-589-965-923-986-841-815-224"
+        }
+    },
+    "prediction-market/polymarket/open-interest": {
+        "queryParams": {
+            "condition_id": "0x6fefc0438c7598b23531457c8c60541990d0786bd4bd9dfc3eabc8d95c291092"
+        }
+    },
+    "prediction-market/polymarket/orderbooks": {
+        "queryParams": {
+            "token_id": "73662070458561467734997715458900555626841827840002814944742182699282770895284"
+        }
+    },
+    "prediction-market/polymarket/positions": {
+        "queryParams": {
+            "address": "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"
+        }
+    },
+    "prediction-market/polymarket/price-ohlcv": {
+        "pathParams": {
+            "condition_id": "0x6fefc0438c7598b23531457c8c60541990d0786bd4bd9dfc3eabc8d95c291092"
+        }
+    },
+    "prediction-market/polymarket/prices": {
+        "queryParams": {
+            "condition_id": "0x6fefc0438c7598b23531457c8c60541990d0786bd4bd9dfc3eabc8d95c291092"
+        }
+    },
+    "prediction-market/polymarket/smart-money": {},
+    "prediction-market/polymarket/trades": {
+        "queryParams": {
+            "condition_id": "0x6fefc0438c7598b23531457c8c60541990d0786bd4bd9dfc3eabc8d95c291092"
+        }
+    },
+    "prediction-market/polymarket/volume-split": {
+        "pathParams": {
+            "condition_id": "0x6fefc0438c7598b23531457c8c60541990d0786bd4bd9dfc3eabc8d95c291092"
+        }
+    },
+    "prediction-market/polymarket/volumes": {
+        "queryParams": {
+            "condition_id": "0x6fefc0438c7598b23531457c8c60541990d0786bd4bd9dfc3eabc8d95c291092"
+        }
+    },
+    "hyperliquid/account": {
+        "queryParams": {
+            "address": "test"
+        }
+    },
+    "hyperliquid/candles": {
+        "queryParams": {
+            "symbol": "SOL",
+            "from": "2026-05-16",
+            "to": "2026-05-19"
+        }
+    },
+    "hyperliquid/fills": {
+        "queryParams": {
+            "address": "test"
+        }
+    },
+    "hyperliquid/leaderboard": {},
+    "hyperliquid/orders": {
+        "queryParams": {
+            "address": "test"
+        }
+    },
+    "hyperliquid/performance": {
+        "queryParams": {
+            "address": "test"
+        }
+    },
+    "hyperliquid/positions": {
+        "queryParams": {
+            "address": "test"
+        }
+    },
+    "hyperliquid/trades": {
+        "queryParams": {
+            "address": "test"
+        }
+    },
+    "hyperliquid/trades/aggregate": {
+        "queryParams": {
+            "address": "test"
+        }
+    },
+    "hyperliquid/trades/context": {
+        "queryParams": {
+            "address": "test",
+            "symbol": "BTC",
+            "direction": "long",
+            "open_time": 1,
+            "close_time": 1
+        }
+    },
+    "heatscore/detail": {
+        "queryParams": {
+            "id": "25c6612a-395c-4974-94eb-3b5f9f4b2ed7"
+        }
+    },
+    "heatscore/projects": {},
+    "heatscore/token-of-the-day": {},
+    "heatscore/token-of-week": {}
 }
