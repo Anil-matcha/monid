@@ -1,0 +1,44 @@
+{
+    "name": "synthetic-task-failed",
+    "description": "SYNTHETIC (an Ark task failure cannot be provoked on demand): the task reaches a terminal `failed` status. Body fields are copied from a live recording; only `status` and `error` are authored. The poll GET itself returned 200, so the run settles with OUR synthesized 500 and providerHttpStatus 200 (design D12), zero-billed — a fn can never bill an error. `cancelled` and `expired` take the same branch.",
+    "calls": [
+        {
+            "req": {
+                "method": "POST",
+                "url": "{{request.url}}"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "id": "cgt-20260916143414-nwjt4"
+                }
+            }
+        },
+        {
+            "req": {
+                "method": "GET",
+                "url": "{{request.origin}}/api/v3/contents/generations/tasks/cgt-20260916143414-nwjt4"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "id": "cgt-20260916143414-nwjt4",
+                    "model": "dreamina-seedance-2-0-mini-260615",
+                    "created_at": 1789540454,
+                    "updated_at": 1789540575,
+                    "service_tier": "default",
+                    "execution_expires_after": 172800,
+                    "generate_audio": true,
+                    "draft": false,
+                    "priority": 0,
+                    "output_format": "mp4",
+                    "status": "failed",
+                    "error": {
+                        "code": "InternalServiceError",
+                        "message": "generation failed, please try again"
+                    }
+                }
+            }
+        }
+    ]
+}

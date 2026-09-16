@@ -1,0 +1,33 @@
+{
+    "name": "synthetic-poll-failed",
+    "description": "SYNTHETIC (Ark will not 5xx a poll on request): the submit succeeds and OUR task GET then fails. This must NOT settle. The task is very likely still generating — and BytePlus bills for that generation whether or not we keep asking — so returning the 5xx as data would hand the caller a provider error for a video we already paid for. The poll fn throws instead (design D7), which is retriable, unlike the apify connector's poll.",
+    "calls": [
+        {
+            "req": {
+                "method": "POST",
+                "url": "{{request.url}}"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "id": "cgt-20260916143414-nwjt4"
+                }
+            }
+        },
+        {
+            "req": {
+                "method": "GET",
+                "url": "{{request.origin}}/api/v3/contents/generations/tasks/cgt-20260916143414-nwjt4"
+            },
+            "res": {
+                "status": 503,
+                "body": {
+                    "error": {
+                        "code": "ServiceUnavailable",
+                        "message": "upstream temporarily unavailable"
+                    }
+                }
+            }
+        }
+    ]
+}

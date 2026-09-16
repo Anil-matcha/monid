@@ -1,0 +1,23 @@
+{
+    "name": "submit-rejected",
+    "description": "Ark rejects the create-task call, recorded live by pointing first_frame at a URL that 404s. The real Ark error envelope ({error: {code, message, param, type}}) — no task is created, so nothing will ever be billed and the run settles as zero-billed data with output.fromError lifting the message to the top level.",
+    "calls": [
+        {
+            "req": {
+                "method": "POST",
+                "url": "{{request.url}}"
+            },
+            "res": {
+                "status": 400,
+                "body": {
+                    "error": {
+                        "code": "InvalidParameter",
+                        "message": "The parameter `content[1].image_url` specified in the request is not valid: resource not found. Request id: 0217895404365185482bcf7e80bfa8bf500513aca3a704d5b3985",
+                        "param": "content[1].image_url",
+                        "type": "BadRequest"
+                    }
+                }
+            }
+        }
+    ]
+}

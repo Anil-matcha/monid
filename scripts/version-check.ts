@@ -22,6 +22,9 @@ const CONTRACT_PATHS = [
     //   minted with an id shape an older engine rejects is a format change)
     "shared/core/schema/endpoint/doc.ts", // structural doc format
     "shared/core/schema/provider/doc.ts", // provider doc format
+    "shared/core/schema/meta/base.ts", // meta shapes the docs COMPOSE — a field
+    "shared/core/schema/meta/endpoint.ts", //   added here changes the doc format
+    "shared/core/schema/meta/provider.ts", //   without touching doc.ts at all
     "shared/core/schema/bundle/sealed-unit.ts", // sealed unit shape
     "shared/core/schema/usage/unit.ts", // Unit enum
     "shared/core/schema/usage/usage.ts", // Usage shape
