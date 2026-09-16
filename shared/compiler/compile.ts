@@ -270,11 +270,17 @@ export async function compileBundle(
                         `fragment (got ${baseUrl})`,
                 );
             }
+            // The URL constructor percent-encodes `{` / `}`, which would
+            // turn a `{pathParam}` placeholder into `%7BpathParam%7D` — a
+            // literal the engine's substituteUrl can never match (fundable's
+            // `/deals/{id}` exposed this). Restore the placeholders AFTER
+            // normalization so every other url byte stays as before.
             const url = new URL(
                 baseUrl.replace(/[?#]*$/, "").replace(/\/+$/, "") +
                     def.request.path,
             )
-                .toString();
+                .toString()
+                .replace(/%7B([A-Za-z_][A-Za-z0-9_]*)%7D/g, "{$1}");
             const headers = {
                 ...provider.request?.headers,
                 ...def.request.headers,

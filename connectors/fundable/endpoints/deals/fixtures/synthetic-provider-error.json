@@ -1,0 +1,33 @@
+{
+    "name": "synthetic-provider-error",
+    "description": "SYNTHETIC chain for fundable#deals (shape from the 2026-09-01 OpenAPI capture: 200 requests/minute, 429 carries Retry-After; replace via `deno task record`): the vendor rate limit answers 429 \u2014 vendor non-2xx is DATA, zero usage.",
+    "calls": [
+        {
+            "req": {
+                "method": "POST",
+                "url": "https://www.tryfundable.ai/api/v1/deals",
+                "body": {
+                    "deal": {
+                        "financing_types": [
+                            {
+                                "type": "SEED"
+                            }
+                        ]
+                    },
+                    "page_size": 10
+                }
+            },
+            "res": {
+                "status": 429,
+                "body": {
+                    "success": false,
+                    "error": {
+                        "code": "RATE_LIMIT_EXCEEDED",
+                        "message": "Too many requests"
+                    },
+                    "statusCode": 429
+                }
+            }
+        }
+    ]
+}

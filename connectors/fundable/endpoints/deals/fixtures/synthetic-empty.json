@@ -1,0 +1,29 @@
+{
+    "name": "synthetic-empty",
+    "description": "SYNTHETIC chain for fundable#deals (shape from the v1 adaptor tests; replace via `deno task record`): an impossible size filter returns zero rows and the vendor reports credits_used 0 — a row-billed run with nothing delivered bills nothing.",
+    "calls": [
+        {
+            "req": {
+                "method": "POST",
+                "url": "https://www.tryfundable.ai/api/v1/deals",
+                "body": {
+                    "deal": { "size_min": 1000000000000000 },
+                    "page_size": 1
+                }
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "success": true,
+                    "data": { "deals": [] },
+                    "meta": {
+                        "total_count": 0,
+                        "page": 0,
+                        "page_size": 1,
+                        "credits_used": 0
+                    }
+                }
+            }
+        }
+    ]
+}

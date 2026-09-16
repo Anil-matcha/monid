@@ -1,0 +1,33 @@
+{
+    "name": "synthetic-happy",
+    "description": "SYNTHETIC chain for fundable#location/search (shape from the v1 adaptor tests; replace via `deno task record`): the free resolver returns permalinks and the vendor reports credits_used 0 — a present zero prunes to an empty claim on a FREE doc.",
+    "calls": [
+        {
+            "req": {
+                "method": "GET",
+                "url": "https://www.tryfundable.ai/api/v1/location/search?name=san+francisco"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "success": true,
+                    "data": {
+                        "locations": [
+                            {
+                                "permalink": "san-francisco-california",
+                                "name": "San Francisco",
+                                "location_type": "CITY"
+                            },
+                            {
+                                "permalink": "san-francisco-bay-area",
+                                "name": "San Francisco Bay Area",
+                                "location_type": "REGION"
+                            }
+                        ]
+                    },
+                    "meta": { "credits_used": 0 }
+                }
+            }
+        }
+    ]
+}

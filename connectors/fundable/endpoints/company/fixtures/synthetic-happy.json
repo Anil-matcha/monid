@@ -1,0 +1,28 @@
+{
+    "name": "synthetic-happy",
+    "description": "SYNTHETIC chain for fundable#company (shape from the v1 adaptor tests; replace via `deno task record`): GET /company?domain=stripe.com returns one company object under data.company, meta reports the flat 1 credit.",
+    "calls": [
+        {
+            "req": {
+                "method": "GET",
+                "url": "https://www.tryfundable.ai/api/v1/company?domain=stripe.com"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "success": true,
+                    "data": {
+                        "company": {
+                            "id": "cca72384-d735-42f8-99d6-b3e14179c4c1",
+                            "name": "Stripe",
+                            "domain": "stripe.com",
+                            "num_funding_rounds": 9,
+                            "total_raised": 6500000000
+                        }
+                    },
+                    "meta": { "credits_used": 1 }
+                }
+            }
+        }
+    ]
+}

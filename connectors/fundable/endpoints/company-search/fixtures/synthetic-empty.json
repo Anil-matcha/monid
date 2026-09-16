@@ -1,0 +1,20 @@
+{
+    "name": "synthetic-empty",
+    "description": "SYNTHETIC chain for fundable#company/search (v1 drill 2026-09-01: 'a zero-result search still costs the flat search fee'; replace via `deno task record`): no candidates, credits_used 0.1.",
+    "calls": [
+        {
+            "req": {
+                "method": "GET",
+                "url": "https://www.tryfundable.ai/api/v1/company/search?name=zzzz-no-such-company"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "success": true,
+                    "data": { "companies": [] },
+                    "meta": { "total_count": 0, "credits_used": 0.1 }
+                }
+            }
+        }
+    ]
+}

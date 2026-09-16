@@ -239,11 +239,16 @@ Why tag-triggered, why a GitHub Release:
 - **Meta roles**: `summary` = one line (list views); `description` = full
   capability text (inspect/agents). Categories: add the leaf to
   `connectors/categories.ts` in the same PR.
-- **Schemas**: endpoint-local zod at `endpoints/<name>/schema/inputs.ts`;
-  provider-shared at `connectors/<name>/schema/`; never imported across
-  providers. `.strict()` compiles to `additionalProperties: false` (unknown keys
-  → INVALID_INPUT); `.refine`/`.superRefine` do NOT survive compilation —
-  document such constraints in describes instead.
+- **Schemas**: endpoint-local zod at `endpoints/<name>/schema/inputs.ts` —
+  only what that endpoint uses; a fragment two endpoints share goes in
+  `connectors/<name>/schema/`, never imported or re-exported across endpoint
+  directories, and never across providers. `.strict()` compiles to
+  `additionalProperties: false` (unknown keys → INVALID_INPUT);
+  `.refine`/`.superRefine` do NOT survive compilation — document such
+  constraints in describes instead. Write `.describe()` BEFORE `.optional()`:
+  a binding that derives a field with `.unwrap()` keeps only the inner schema,
+  so a describe hung on the optional wrapper is silently dropped from the
+  compiled doc (the compiler does not check for it).
 - **Fixtures**: recorded via `deno task record` (headers never captured);
   synthetic fixtures carry a `synthetic-` prefix until real keys exist.
 

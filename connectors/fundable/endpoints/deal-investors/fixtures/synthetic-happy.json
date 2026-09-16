@@ -1,0 +1,34 @@
+{
+    "name": "synthetic-happy",
+    "description": "SYNTHETIC chain for fundable#deal/investors (shape from the v1 adaptor tests; replace via `deno task record`): GET /deals/{id}/investors — the {id} path param substituted into the url — returns one firm and four angels; the vendor bills the flat 1 credit regardless of lineup size.",
+    "calls": [
+        {
+            "req": {
+                "method": "GET",
+                "url": "https://www.tryfundable.ai/api/v1/deals/cca72384-d735-42f8-99d6-b3e14179c4c1/investors"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "success": true,
+                    "data": {
+                        "investors": [
+                            {
+                                "id": "f1a4d2e0-7b3c-4e5f-9a1b-2c3d4e5f6a70",
+                                "name": "NVIDIA",
+                                "lead_investor": true
+                            }
+                        ],
+                        "angel_investors": [
+                            { "id": "a1a4d2e0-7b3c-4e5f-9a1b-2c3d4e5f6a71" },
+                            { "id": "a2a4d2e0-7b3c-4e5f-9a1b-2c3d4e5f6a72" },
+                            { "id": "a3a4d2e0-7b3c-4e5f-9a1b-2c3d4e5f6a73" },
+                            { "id": "a4a4d2e0-7b3c-4e5f-9a1b-2c3d4e5f6a74" }
+                        ]
+                    },
+                    "meta": { "credits_used": 1 }
+                }
+            }
+        }
+    ]
+}

@@ -687,6 +687,29 @@ Deno.test("credentials fallback: endpoint overriding only inject inherits the PR
     );
 });
 
+Deno.test("{pathParam} placeholders survive url normalization (not percent-encoded)", async () => {
+    // new URL(...).toString() encodes braces to %7B/%7D — the engine's
+    // substituteUrl matches literal `{name}` (fundable's /deals/{id}
+    // exposed this)
+    const bundle = await compileBundle(
+        source(
+            [{
+                name: "deal",
+                def: makeEndpoint({
+                    endpoint: "/deal/investors",
+                    request: { method: "GET", path: "/deals/{id}/investors" },
+                }),
+            }],
+            makeProvider({ request: { baseUrl: "https://api.demo.test/v1" } }),
+        ),
+        OPTS,
+    );
+    assertEquals(
+        bundle.endpoints["demo#deal/investors"].request.url,
+        "https://api.demo.test/v1/deals/{id}/investors",
+    );
+});
+
 Deno.test("baseUrl path prefixes survive resolution (concatenation, not URL-resolve)", async () => {
     // new URL("/v1/x", "https://h/api") would DROP /api — the compiler must
     // concatenate (akta's baseUrl exposed this)

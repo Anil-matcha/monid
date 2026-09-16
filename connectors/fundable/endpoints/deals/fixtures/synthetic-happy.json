@@ -1,0 +1,56 @@
+{
+    "name": "synthetic-happy",
+    "description": "SYNTHETIC chain for fundable#deals (no FUNDABLE_API_KEY held; shape from the v1 adaptor tests and the 2026-09-01 OpenAPI capture — replace via `deno task record` when a key exists): POST /deals with page_size 3 returns 3 rows, meta reports credits_used 3 plus the non-API-tier account fields the provider strips.",
+    "calls": [
+        {
+            "req": {
+                "method": "POST",
+                "url": "https://www.tryfundable.ai/api/v1/deals",
+                "body": {
+                    "deal": { "financing_types": [{ "type": "SEED" }] },
+                    "page_size": 3
+                }
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "success": true,
+                    "data": {
+                        "deals": [
+                            {
+                                "id": "1f0a4d2e-7b3c-4e5f-9a1b-2c3d4e5f6a70",
+                                "round_type": "SEED",
+                                "date": "2026-09-01",
+                                "total_round_raised": 4000000,
+                                "company_id": "cca72384-d735-42f8-99d6-b3e14179c4c1"
+                            },
+                            {
+                                "id": "2f0a4d2e-7b3c-4e5f-9a1b-2c3d4e5f6a71",
+                                "round_type": "SEED",
+                                "date": "2026-08-30",
+                                "total_round_raised": 2500000,
+                                "company_id": "dca72384-d735-42f8-99d6-b3e14179c4c2"
+                            },
+                            {
+                                "id": "3f0a4d2e-7b3c-4e5f-9a1b-2c3d4e5f6a72",
+                                "round_type": "SEED",
+                                "date": "2026-08-29",
+                                "total_round_raised": 1200000,
+                                "company_id": "eca72384-d735-42f8-99d6-b3e14179c4c3"
+                            }
+                        ]
+                    },
+                    "meta": {
+                        "total_count": 42,
+                        "page": 0,
+                        "page_size": 3,
+                        "credits_used": 3,
+                        "credit_source": "purchased",
+                        "monthly_credits_remaining": 0,
+                        "purchased_credits_remaining": 198
+                    }
+                }
+            }
+        }
+    ]
+}

@@ -1,0 +1,23 @@
+{
+    "name": "synthetic-provider-error",
+    "description": "SYNTHETIC chain for fundable#company (shape from the v1 adaptor tests and the OpenAPI error envelope; replace via `deno task record`): an unknown domain answers 404 COMPANY_NOT_FOUND — vendor non-2xx is DATA, zero usage (a 404 lookup is free upstream too, v1 drill).",
+    "calls": [
+        {
+            "req": {
+                "method": "GET",
+                "url": "https://www.tryfundable.ai/api/v1/company?domain=nonexistent-xyz.com"
+            },
+            "res": {
+                "status": 404,
+                "body": {
+                    "success": false,
+                    "error": {
+                        "code": "COMPANY_NOT_FOUND",
+                        "message": "Company not found"
+                    },
+                    "statusCode": 404
+                }
+            }
+        }
+    ]
+}

@@ -1,0 +1,20 @@
+{
+    "name": "synthetic-empty",
+    "description": "SYNTHETIC chain for fundable#deal/investors (v1 drill 2026-09-01: 'an empty investor array still costs one credit upstream'; replace via `deno task record`): both arrays empty, credits_used 1.",
+    "calls": [
+        {
+            "req": {
+                "method": "GET",
+                "url": "https://www.tryfundable.ai/api/v1/deals/cca72384-d735-42f8-99d6-b3e14179c4c1/investors"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "success": true,
+                    "data": { "investors": [], "angel_investors": [] },
+                    "meta": { "credits_used": 1 }
+                }
+            }
+        }
+    ]
+}
