@@ -1,0 +1,18 @@
+{
+    "name": "synthetic-empty",
+    "description": "Synthetic (no AHREFS key held at port time, 2026-09-16): body shape from the v1 adaptor tests (`{ <collection>: [...] }` for rowed reports, `{ <name>: {...} }` for snapshots); field values are placeholders. Unverified against live traffic — replace via `deno task record`. Zero rows on a 2xx: the 50-unit request minimum is still drawn — the top-up line carries all of it.",
+    "calls": [
+        {
+            "req": {
+                "method": "GET",
+                "url": "https://api.ahrefs.com/v3/keywords-explorer/related-terms?country=us&keywords=seo+tools%2Cbacklink+checker&limit=3&select=keyword%2Cvolume%2Cdifficulty%2Ccpc"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "keywords": []
+                }
+            }
+        }
+    ]
+}

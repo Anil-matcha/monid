@@ -1,0 +1,18 @@
+{
+    "name": "synthetic-provider-error",
+    "description": "Synthetic (no AHREFS key held at port time, 2026-09-16): body shape from the v1 adaptor tests (`{ <collection>: [...] }` for rowed reports, `{ <name>: {...} }` for snapshots); field values are placeholders. Unverified against live traffic — replace via `deno task record`. Upstream 400 `{ error }` (the real Ahrefs error shape per v1 drills) — data, zero usage.",
+    "calls": [
+        {
+            "req": {
+                "method": "GET",
+                "url": "https://api.ahrefs.com/v3/site-explorer/keywords-history?target=ahrefs.com&date_from=2026-01-01&date_to=2026-03-31&history_grouping=monthly&mode=subdomains&protocol=both&select=date%2Ctop3%2Ctop4_10%2Ctop11_20%2Ctop21_50%2Ctop51_plus"
+            },
+            "res": {
+                "status": 400,
+                "body": {
+                    "error": "invalid filter"
+                }
+            }
+        }
+    ]
+}

@@ -1,0 +1,42 @@
+{
+    "name": "synthetic-provider-error",
+    "description": "Synthetic (no AHREFS key held at port time, 2026-09-16): body shape from the v1 adaptor tests (`{ <collection>: [...] }` for rowed reports, `{ <name>: {...} }` for snapshots); field values are placeholders. Unverified against live traffic — replace via `deno task record`. Upstream 400 `{ error }` (the real Ahrefs error shape per v1 drills) — data, zero usage.",
+    "calls": [
+        {
+            "req": {
+                "method": "POST",
+                "url": "https://api.ahrefs.com/v3/batch-analysis/batch-analysis",
+                "body": {
+                    "targets": [
+                        {
+                            "url": "ahrefs.com",
+                            "mode": "subdomains",
+                            "protocol": "both"
+                        },
+                        {
+                            "url": "example.com",
+                            "mode": "subdomains",
+                            "protocol": "both"
+                        }
+                    ],
+                    "select": [
+                        "url",
+                        "mode",
+                        "domain_rating",
+                        "ahrefs_rank",
+                        "backlinks",
+                        "org_keywords",
+                        "refdomains",
+                        "org_traffic"
+                    ]
+                }
+            },
+            "res": {
+                "status": 400,
+                "body": {
+                    "error": "invalid filter"
+                }
+            }
+        }
+    ]
+}

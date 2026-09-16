@@ -1,0 +1,27 @@
+{
+    "name": "synthetic-happy",
+    "description": "Synthetic (no AHREFS key held at port time, 2026-09-16): body shape from the v1 adaptor tests (`{ <collection>: [...] }` for rowed reports, `{ <name>: {...} }` for snapshots); field values are placeholders. Unverified against live traffic — replace via `deno task record`. 1 row(s) back — usage is max(50, 120 × 1) units, split into the rows line and the request-minimum top-up.",
+    "calls": [
+        {
+            "req": {
+                "method": "GET",
+                "url": "https://api.ahrefs.com/v3/site-explorer/ai-responses-count?target=ahrefs.com&mode=subdomains&protocol=both&select=chatgpt%2Ccopilot%2Cgemini%2Cgoogle_ai_mode%2Cgoogle_ai_overviews%2Cgoogle_ai_overviews_keywords%2Cgrok%2Cperplexity"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "ai_responses_count": {
+                        "chatgpt": 42,
+                        "copilot": 42,
+                        "gemini": 42,
+                        "google_ai_mode": 42,
+                        "google_ai_overviews": 42,
+                        "google_ai_overviews_keywords": 42,
+                        "grok": 42,
+                        "perplexity": 42
+                    }
+                }
+            }
+        }
+    ]
+}

@@ -1,0 +1,47 @@
+{
+    "name": "synthetic-happy",
+    "description": "Synthetic (no AHREFS key held at port time, 2026-09-16): body shape from the v1 adaptor tests (`{ <collection>: [...] }` for rowed reports, `{ <name>: {...} }` for snapshots); field values are placeholders. Unverified against live traffic — replace via `deno task record`. 4 row(s) back — usage is max(50, 23 × 4) units, split into the rows line and the request-minimum top-up.",
+    "calls": [
+        {
+            "req": {
+                "method": "GET",
+                "url": "https://api.ahrefs.com/v3/site-explorer/metrics-by-country?target=ahrefs.com&date=2026-09-01&mode=subdomains&protocol=both&select=country%2Corg_keywords%2Corg_traffic%2Cpaid_keywords%2Cpaid_traffic"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "metrics": [
+                        {
+                            "country": "us",
+                            "org_keywords": 10,
+                            "org_traffic": 10,
+                            "paid_keywords": 10,
+                            "paid_traffic": 10
+                        },
+                        {
+                            "country": "gb",
+                            "org_keywords": 20,
+                            "org_traffic": 20,
+                            "paid_keywords": 20,
+                            "paid_traffic": 20
+                        },
+                        {
+                            "country": "de",
+                            "org_keywords": 30,
+                            "org_traffic": 30,
+                            "paid_keywords": 30,
+                            "paid_traffic": 30
+                        },
+                        {
+                            "country": "fr",
+                            "org_keywords": 40,
+                            "org_traffic": 40,
+                            "paid_keywords": 40,
+                            "paid_traffic": 40
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}

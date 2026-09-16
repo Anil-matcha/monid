@@ -1,0 +1,39 @@
+{
+    "name": "synthetic-happy",
+    "description": "Synthetic (no AHREFS key held at port time, 2026-09-16): body shape from the v1 adaptor tests (`{ <collection>: [...] }` for rowed reports, `{ <name>: {...} }` for snapshots); field values are placeholders. Unverified against live traffic — replace via `deno task record`. 2 row(s) back — usage is max(50, 42 × 2) units, split into the rows line and the request-minimum top-up.",
+    "calls": [
+        {
+            "req": {
+                "method": "GET",
+                "url": "https://api.ahrefs.com/v3/keywords-explorer/overview?country=us&keywords=seo+tools%2Cbacklink+checker&select=keyword%2Cvolume%2Cdifficulty%2Ctraffic_potential%2Cintents%2Ccpc"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "keywords": [
+                        {
+                            "keyword": "keyword 0",
+                            "volume": 10,
+                            "difficulty": 10,
+                            "traffic_potential": 10,
+                            "intents": [
+                                "informational"
+                            ],
+                            "cpc": 10
+                        },
+                        {
+                            "keyword": "keyword 1",
+                            "volume": 20,
+                            "difficulty": 20,
+                            "traffic_potential": 20,
+                            "intents": [
+                                "informational"
+                            ],
+                            "cpc": 20
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}

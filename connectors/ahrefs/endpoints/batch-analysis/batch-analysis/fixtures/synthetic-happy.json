@@ -1,0 +1,63 @@
+{
+    "name": "synthetic-happy",
+    "description": "Synthetic (no AHREFS key held at port time, 2026-09-16): body shape from the v1 adaptor tests (`{ <collection>: [...] }` for rowed reports, `{ <name>: {...} }` for snapshots); field values are placeholders. Unverified against live traffic — replace via `deno task record`. 2 row(s) back — usage is max(50, 21 × 2) units, split into the rows line and the request-minimum top-up.",
+    "calls": [
+        {
+            "req": {
+                "method": "POST",
+                "url": "https://api.ahrefs.com/v3/batch-analysis/batch-analysis",
+                "body": {
+                    "targets": [
+                        {
+                            "url": "ahrefs.com",
+                            "mode": "subdomains",
+                            "protocol": "both"
+                        },
+                        {
+                            "url": "example.com",
+                            "mode": "subdomains",
+                            "protocol": "both"
+                        }
+                    ],
+                    "select": [
+                        "url",
+                        "mode",
+                        "domain_rating",
+                        "ahrefs_rank",
+                        "backlinks",
+                        "org_keywords",
+                        "refdomains",
+                        "org_traffic"
+                    ]
+                }
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "targets": [
+                        {
+                            "url": "https://example-0.test/",
+                            "mode": 10,
+                            "domain_rating": 10,
+                            "ahrefs_rank": 10,
+                            "backlinks": 10,
+                            "org_keywords": 10,
+                            "refdomains": 10,
+                            "org_traffic": 10
+                        },
+                        {
+                            "url": "https://example-1.test/",
+                            "mode": 20,
+                            "domain_rating": 20,
+                            "ahrefs_rank": 20,
+                            "backlinks": 20,
+                            "org_keywords": 20,
+                            "refdomains": 20,
+                            "org_traffic": 20
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}
