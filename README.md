@@ -163,7 +163,8 @@ connectors/<name>/
 5. Open a pull request.
 
 Tests replay from fixtures, so CI needs no vendor keys. Live tests run only when
-the matching `<PROVIDER>_API_KEY` is present, and skip otherwise.
+the matching `<PROVIDER>_API_KEY` (or `<PROVIDER>_CREDENTIALS`, for a provider
+with several keys) is present, and skip otherwise.
 
 ### Let an agent write it
 

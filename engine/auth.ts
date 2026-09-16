@@ -29,7 +29,9 @@ export async function applyAuth(
         throw new EngineError(
             EngineErrorCode.MISSING_CREDENTIAL,
             `provider ${req.provider}: credentials invalid: ${check.message}` +
-                ` (hint: set ${envVarFor(req.provider)})`,
+                ` (hint: set ${envVarFor(req.provider)}, or ${
+                    credentialsEnvVarFor(req.provider)
+                } as a JSON object for a non-{apiKey} shape)`,
         );
     }
     const raw = await resolveFn(
@@ -73,4 +75,15 @@ const SILENT_LOGGER: HookLogger = {
 /** Convention: EXA_API_KEY for provider "exa" (dashes → underscores). */
 export function envVarFor(provider: string): string {
     return `${provider.toUpperCase().replaceAll("-", "_")}_API_KEY`;
+}
+
+/**
+ * Convention for a provider whose `auth.credentials` is NOT the default
+ * `{apiKey}` (several keys, user + password): CONTACTOUT_CREDENTIALS holds
+ * the WHOLE params object as JSON — the same shape the doc declares, so
+ * the injector validates it against the same schema. Takes precedence over
+ * `<NAME>_API_KEY` when set.
+ */
+export function credentialsEnvVarFor(provider: string): string {
+    return `${provider.toUpperCase().replaceAll("-", "_")}_CREDENTIALS`;
 }

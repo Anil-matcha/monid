@@ -37,7 +37,7 @@ config.yml                    # schema.*/compiler.* = CONTRACT (no env overrides
 
 ```bash
 deno task check && deno task test    # types + replay tests (zero network)
-deno task test:live                  # live tests; auto-skip without <PROVIDER>_API_KEY
+deno task test:live                  # live tests; auto-skip without <PROVIDER>_API_KEY (or _CREDENTIALS)
 deno task engine:run 'exa#search' --body '{...}'   # JIT-compile + execute one endpoint
 deno task catalog providers|endpoints|inspect <id>
 deno task record <id> ...            # record real fixtures (headers dropped)
@@ -173,7 +173,8 @@ deno task apify:scaffold <actorId>   # authoring-time actor input-schema scaffol
   `fn_abi_since` facts in `config.yml`, guarded by `deno task version:check`.
 - **Tests run the artifact**: `testSealedUnit(id)` compiles the whole repo and
   tests the sealed unit (doc + its fn entries), replaying `fixtures/*.json`.
-  Live tests gate on `<PROVIDER>_API_KEY`; synthetic fixtures carry a
+  Live tests gate on `<PROVIDER>_API_KEY` (or `<PROVIDER>_CREDENTIALS`, a
+  JSON object for a multi-key provider); synthetic fixtures carry a
   `synthetic-` filename prefix until real recordings exist. Fixtures are MINIMAL
   SHARED CHAINS (fixture strategy v2): provider-level
   `connectors/<provider>/fixtures/<shape>.json` with a required `description`

@@ -16,6 +16,7 @@ import {
     ENGINE_VERSION,
     EngineError,
     EngineErrorCode,
+    envParamsResolver,
     type Transport,
 } from "@monid/connector-engine";
 
@@ -2379,5 +2380,48 @@ Deno.test("FREE discipline: FN_CONTRACT on counts or junk usage keys from a FREE
             loaded.run({ body: { q: "x" } }),
             EngineErrorCode.FN_CONTRACT,
         );
+    }
+});
+
+// ---------------------------------------------------------------------------
+// envParamsResolver: the two env conventions
+// ---------------------------------------------------------------------------
+
+Deno.test("envParamsResolver: <NAME>_CREDENTIALS (JSON object) wins over <NAME>_API_KEY; the v1 convention still maps to {apiKey}", async () => {
+    Deno.env.set("DEMO_RESOLVER_API_KEY", "single");
+    Deno.env.set(
+        "DEMO_RESOLVER_CREDENTIALS",
+        JSON.stringify({ workApiKey: "w", personalApiKey: "p" }),
+    );
+    try {
+        // the JSON object is handed over AS the params — the doc's own
+        // credentials schema decides which keys a run needs
+        assertEquals(await envParamsResolver("demo-resolver"), {
+            workApiKey: "w",
+            personalApiKey: "p",
+        });
+        Deno.env.delete("DEMO_RESOLVER_CREDENTIALS");
+        assertEquals(await envParamsResolver("demo-resolver"), {
+            apiKey: "single",
+        });
+        Deno.env.delete("DEMO_RESOLVER_API_KEY");
+        assertEquals(await envParamsResolver("demo-resolver"), {});
+    } finally {
+        Deno.env.delete("DEMO_RESOLVER_API_KEY");
+        Deno.env.delete("DEMO_RESOLVER_CREDENTIALS");
+    }
+});
+
+Deno.test("envParamsResolver: a malformed <NAME>_CREDENTIALS is MISSING_CREDENTIAL, not a silent {}", async () => {
+    for (const bad of ["not json", '["a"]', '{"k": 1}', '"str"']) {
+        Deno.env.set("DEMO_RESOLVER_CREDENTIALS", bad);
+        try {
+            await expectCode(
+                envParamsResolver("demo-resolver"),
+                EngineErrorCode.MISSING_CREDENTIAL,
+            );
+        } finally {
+            Deno.env.delete("DEMO_RESOLVER_CREDENTIALS");
+        }
     }
 });

@@ -8,10 +8,12 @@ import {
     sealUnit,
 } from "@shared/core";
 import {
+    credentialsEnvVarFor,
     directTransport,
     Engine,
     ENGINE_VERSION,
     envParamsResolver,
+    envVarFor,
     type RunCompleted,
 } from "@monid/connector-engine";
 import { compileBundle } from "@shared/compiler";
@@ -82,8 +84,17 @@ export async function runEndpoint(
             // carry {{request.url}}/{{request.origin}} placeholders, bound
             // from THIS endpoint's compiled request
             const requestUrl = opts.unit.doc.request.url;
+            // the test key satisfies whatever credential SHAPE the doc
+            // declares (default `{apiKey}`, or a provider's own — contactout
+            // names its two keys), so replay never depends on env
+            const required = (opts.unit.doc.auth.credentials as {
+                required?: string[];
+            }).required ?? ["apiKey"];
+            const testParams = Object.fromEntries(
+                required.map((field) => [field, "test-key"]),
+            );
             transport = directTransport({
-                params: () => Promise.resolve({ apiKey: "test-key" }),
+                params: () => Promise.resolve(testParams),
                 fetch: replayFetch(opts.fixture, {
                     "request.url": requestUrl,
                     "request.origin": new URL(requestUrl).origin,
@@ -112,8 +123,10 @@ export async function runEndpoint(
     return await loaded.run(opts.input);
 }
 
-/** Gate for live tests: `ignore: liveSkip("exa")`. */
+/** Gate for live tests: `ignore: liveSkip("exa")`. Either env convention
+ *  the engine's resolver reads opens the gate (`<NAME>_API_KEY`, or
+ *  `<NAME>_CREDENTIALS` for a non-`{apiKey}` shape). */
 export function liveSkip(providerSlug: string): boolean {
-    const envVar = `${providerSlug.toUpperCase().replaceAll("-", "_")}_API_KEY`;
-    return !Deno.env.get(envVar);
+    return !Deno.env.get(envVarFor(providerSlug)) &&
+        !Deno.env.get(credentialsEnvVarFor(providerSlug));
 }

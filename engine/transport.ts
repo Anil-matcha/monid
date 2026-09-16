@@ -1,5 +1,5 @@
 import type { Json } from "@shared/core";
-import { applyAuth, envVarFor } from "./auth.ts";
+import { applyAuth, credentialsEnvVarFor, envVarFor } from "./auth.ts";
 import { EngineError, EngineErrorCode } from "./errors.ts";
 import type {
     ParamsResolver,
@@ -24,13 +24,59 @@ export function sniffDecode(response: TransportResponse): Json {
     }
 }
 
-/** Default resolver: env `<NAME>_API_KEY` → { apiKey } (v1 convention). */
+/**
+ * Default resolver, two conventions:
+ *   - `<NAME>_CREDENTIALS` — a JSON object holding the doc's WHOLE
+ *     credential params (providers whose `auth.credentials` is not the
+ *     default `{apiKey}`: contactout's two keys). Wins when set.
+ *   - `<NAME>_API_KEY` → `{ apiKey }` (the v1 convention).
+ * The resolver only READS; the injector validates the result against the
+ * doc's credentials schema (MISSING_CREDENTIAL on a mismatch).
+ */
 export const envParamsResolver: ParamsResolver = (provider) => {
+    const json = Deno.env.get(credentialsEnvVarFor(provider));
+    if (json !== undefined && json.trim() !== "") {
+        // a rejected promise, never a synchronous throw — callers await
+        return Promise.resolve().then(() =>
+            parseCredentialsJson(provider, json)
+        );
+    }
     const value = Deno.env.get(envVarFor(provider));
     const params: Record<string, string> = {};
     if (value) params.apiKey = value;
     return Promise.resolve(params);
 };
+
+/** `<NAME>_CREDENTIALS` must be a JSON object of string values — anything
+ *  else is a configuration error, reported as MISSING_CREDENTIAL so it
+ *  lands in the same bucket as an absent key. */
+function parseCredentialsJson(
+    provider: string,
+    json: string,
+): Record<string, string> {
+    let parsed: unknown;
+    try {
+        parsed = JSON.parse(json);
+    } catch {
+        throw new EngineError(
+            EngineErrorCode.MISSING_CREDENTIAL,
+            `${credentialsEnvVarFor(provider)} is not valid JSON`,
+        );
+    }
+    if (
+        parsed === null || typeof parsed !== "object" ||
+        Array.isArray(parsed) ||
+        Object.values(parsed).some((value) => typeof value !== "string")
+    ) {
+        throw new EngineError(
+            EngineErrorCode.MISSING_CREDENTIAL,
+            `${
+                credentialsEnvVarFor(provider)
+            } must be a JSON object of string values`,
+        );
+    }
+    return parsed as Record<string, string>;
+}
 
 /**
  * OSS / local / tests: inject credentials HERE, then fetch.
