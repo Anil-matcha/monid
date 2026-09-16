@@ -197,9 +197,10 @@ would re-bill the entire job on every read.
 `zEndpointPath` and `zEndpointId` SHALL accept a `{param}` segment alongside
 lowercase literal segments, so a resource-style endpoint is identified by the
 vendor's actual path rather than an invented pin. The parameter name is part
-of the identity. This is a doc-format change: `ENGINE_VERSION` is 0.0.3 and
-`schema.doc_format_since` is 0.0.3, because an earlier engine rejects such an
-id at load.
+of the identity. An earlier engine rejects such an id at load, so it carries
+a floor — but a PER-DOC one: `schema.path_param_id_since` (0.0.4) floors only
+the docs whose identity uses a placeholder, leaving every other doc at
+`doc_format_since`. `ENGINE_VERSION` is 0.0.4.
 
 #### Scenario: The identity is the vendor's path
 - **WHEN** the compiled bundle is inspected
