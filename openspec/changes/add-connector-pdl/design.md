@@ -150,15 +150,21 @@ itself. Now `z.string().min(1)` with the names and the grammar in the
 describe: documentation that does not gate. The compiled body schema
 loses its `enum` for `dataset`; nothing else moves.
 
-**Multi-value parameters stay single.** PDL lets most enrichment
-parameters repeat on the query string (`location=A&location=B`, several
-`profile`s; `locality`/`region`/`country`/`street_address` may NOT
-repeat). The engine's `toScalarQuery` rejects arrays outright —
-"array/object encodings arrive at a later engine version" — so the
-capability is absent at the transport, not at the schema. Widening the
-mirror to string-or-array would compile a doc advertising input the
-engine refuses at dispatch: a worse contract than an honest narrow one.
-The fields stay single-valued (as v1's did), and repeated-param query
-encoding is recorded as what it is — an ENGINE change, with PDL as its
-first concrete need (the reserved-surface rule: return with a concrete
-need, as its own change).
+**Multi-value matching, now supported.** PDL widens a match when a
+parameter REPEATS (`location=A&location=B`, several `profile`s); only
+`locality`, `region`, `country` and `street_address` may not repeat
+("linearly related — multiple inputs would make it impossible to match";
+company enrichment adds `postal_code` to that list). This was originally
+recorded here as a limitation: `toScalarQuery` rejected every array, so
+the fields stayed single-valued and the mirror deliberately did NOT widen
+to string-or-array, because a doc advertising input the engine refuses at
+dispatch is worse than an honest narrow one.
+
+The engine change landed instead (openspec/changes/add-repeated-query-params):
+an array query value is sent as a repeated key, and every other spelling
+stays a vendor fact in `input.toRequest` (akta's comma join). So every
+matching field here is now `zPdlMatch` — a LIST, always, one element for
+one value. Not a comma-separated string: a comma is legal INSIDE a PDL
+value (its own example location is "1600 Amphitheatre Pkwy, Mountain
+View, CA 94043"), so splitting one would be guesswork — which is exactly
+why the vendor repeats the key.

@@ -91,22 +91,45 @@ export function substituteUrl(doc: EndpointDoc, input: RunInput): string {
     return url;
 }
 
-/** Map queryParams to wire strings — scalars only (shared by the
- *  declarative pipeline and utils.request). */
-export function toScalarQuery(
+/**
+ * Map queryParams to wire values — the MULTIMAP a query string really is
+ * (shared by the declarative pipeline and utils.request/utils.http).
+ *
+ * A scalar is one value (`["v"]`); an ARRAY of scalars is a REPEATED key
+ * (`?k=a&k=b`), which is the HTTP-native reading and the ONLY list
+ * spelling the engine knows. A vendor wanting commas, brackets or a
+ * JSON-encoded parameter joins/encodes in its own `input.toRequest` — the
+ * spelling is a vendor fact, not an engine one. Objects, and arrays
+ * holding anything but scalars, stay refused: a query string has no
+ * nesting to encode them into.
+ */
+export function toWireQuery(
     docId: string,
     queryParams: Record<string, unknown>,
-): Record<string, string> {
-    const query: Record<string, string> = {};
-    for (const [key, value] of Object.entries(queryParams)) {
-        if (value === null || value === undefined) continue;
-        if (Array.isArray(value) || typeof value === "object") {
+): Record<string, string[]> {
+    const query: Record<string, string[]> = {};
+    const scalar = (value: unknown, where: string): string => {
+        if (value === null || typeof value === "object") {
             throw new EngineError(
                 EngineErrorCode.INVALID_INPUT,
-                `${docId}: queryParams.${key} must be a scalar (array/object encodings arrive at a later engine version)`,
+                `${docId}: queryParams.${where} must be a scalar or an ` +
+                    `array of scalars (a query string cannot encode nesting)`,
             );
         }
-        query[key] = String(value);
+        return String(value);
+    };
+    for (const [key, value] of Object.entries(queryParams)) {
+        if (value === null || value === undefined) continue;
+        if (!Array.isArray(value)) {
+            query[key] = [scalar(value, key)]; // one value IS a one-list
+            continue;
+        }
+        // an EMPTY list is "no value for this key": emit nothing. `?k=` is
+        // a PRESENT, empty value to a vendor — not the same thing.
+        if (value.length === 0) continue;
+        query[key] = value.map((entry, index) =>
+            scalar(entry, `${key}[${index}]`)
+        );
     }
     return query;
 }
@@ -118,7 +141,7 @@ export function buildRequest(
     injectEntry: FnEntry,
 ): PreparedRequest {
     const url = substituteUrl(doc, input);
-    const query = toScalarQuery(doc.id, input.queryParams ?? {});
+    const query = toWireQuery(doc.id, input.queryParams ?? {});
 
     return {
         method: doc.request.method,

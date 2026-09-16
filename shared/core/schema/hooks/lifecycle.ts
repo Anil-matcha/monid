@@ -55,7 +55,18 @@ export const zHttpCall = z.strictObject({
     /** Resolved against the doc request URL's origin. */
     path: z.string().regex(/^\//, "path must start with /").optional(),
     headers: z.record(z.string(), z.string()).optional(),
-    queryParams: z.record(z.string(), z.string()).optional(),
+    /** Author-friendly: a scalar, or SEVERAL values under one key. The
+     *  engine normalizes both into the wire multimap — an array is sent
+     *  as a repeated key (`?k=a&k=b`). An EMPTY array is allowed and
+     *  means "no value for this key": the engine drops it, exactly as it
+     *  does on the declarative path, so a fn building params dynamically
+     *  (`{ids: someList}`) needs no length guard. The min-1 floor belongs
+     *  on the WIRE shape (`zHttpRequestParts.query`), which is what the
+     *  normalizer produces — never on the authoring input. */
+    queryParams: z.record(
+        z.string(),
+        z.union([z.string(), z.array(z.string())]),
+    ).optional(),
     body: zJson.optional(),
     requestMs: z.number().int().positive().optional(),
 }).refine(

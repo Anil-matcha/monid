@@ -29,8 +29,16 @@ schema:
     # zero-default utils.http / full-capability utils.request, the
     # same-origin credential rule) ships UNRELEASED as 0.0.1 — versions stay
     # at the pre-release floor until a first real release mints 0.1.0.
-    fn_abi_since: "0.0.1" # engine release of the current hook ABI; stamped as fn entries' `api`
-    async_since: "0.0.1" # engine release of the lifecycle (async) hook family; stamped as lifecycle fn entries' `api`
+    # 0.1.0: the wire query became a MULTIMAP (`Record<string, string[]>`)
+    # on zHttpRequestParts — a SHAPE change, not a widening, since a fn
+    # constructing `query: {k: "v"}` would now be wrong. Nothing in-tree
+    # does (auth fns spread data.request through), so no connector moved,
+    # but the stamp says what happened.
+    fn_abi_since: "0.1.0" # engine release of the current hook ABI; stamped as fn entries' `api`
+    # 0.1.0 with fn_abi_since: the lifecycle family's OWN surface moved too
+    # — zHttpCall.queryParams now takes a scalar or a list, normalized by
+    # the engine, so a lifecycle fn passing a list needs 0.1.0.
+    async_since: "0.1.0" # engine release of the lifecycle (async) hook family; stamped as lifecycle fn entries' `api`
     state_max_bytes: 65536 # hard engine cap on serialized lifecycle state (ids + billing signals, never payloads)
 
 compiler:

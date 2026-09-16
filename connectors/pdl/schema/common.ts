@@ -8,15 +8,15 @@ import { z } from "zod";
  * include_if_matched / titlecase / pretty false, size 1) are NOT
  * materialized: none feeds an estimate, so absent means PDL's own default.
  *
- * SINGLE-VALUE ONLY (design D7): PDL lets most enrichment parameters
- * repeat on the query string — `location=A&location=B`, several
- * `profile`s — and the engine's query serialization is scalar-only
- * (`toScalarQuery` rejects arrays: "array/object encodings arrive at a
- * later engine version"). Every field here is therefore a single value,
- * as v1's schemas were. This mirror does NOT widen to string-or-array:
- * a doc promising an array the engine refuses at dispatch is worse than
- * one that says what it supports. Raised on PR #7; the repeated-param
- * encoding is its own engine change.
+ * MULTI-VALUE MATCHING (design D7): PDL widens a match by REPEATING a
+ * parameter — "append the parameter with values as many times as needed".
+ * Every REPEATABLE matching field is therefore `zPdlMatch` below: a LIST,
+ * always, which the engine sends as `?k=a&k=b`. The exceptions stay plain
+ * scalars — `locality`, `region`, `country` and `street_address` (company
+ * enrichment adds `postal_code`), which the vendor caps at one value
+ * ("linearly related; multiple inputs would make it impossible to
+ * match"), as do the output-shaping knobs below. Raised on PR #7 and
+ * answered by the repeated-query-params engine change.
  *
  * PORT NOTE: v1 guarded the enrichment identifier combinations ("one of
  * pdl_id | profile | email | phone | email_hash | lid, OR a name plus one
@@ -27,6 +27,21 @@ import { z } from "zod";
  * survive: it is a union of two `.strict()` variants, so a body carrying
  * both fails every branch at input validation.
  */
+
+/**
+ * A PDL MATCHING parameter: a LIST, always — one element for one value.
+ *
+ * Not `string | string[]` (a caller should never pick between two shapes)
+ * and not a comma-separated string: a comma is legal INSIDE a PDL value —
+ * its own documented example location is "1600 Amphitheatre Pkwy,
+ * Mountain View, CA 94043" — so splitting one would be guesswork, which
+ * is exactly why PDL repeats the key instead. PDL's own JSON examples are
+ * written this way too (`"name": ["Sean Thorne"]`).
+ */
+export const zPdlMatch = (describe: string) =>
+    z.array(z.string().min(1)).min(1).optional().describe(
+        `${describe} A list — one value, or several to widen the match.`,
+    );
 
 /** Match-confidence floor, 1-10 (vendor default 2). */
 export const zLikelihood = z.number().int().min(1).max(10).describe(

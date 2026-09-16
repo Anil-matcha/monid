@@ -9,7 +9,7 @@ Deno.test("pdl#v5/company/enrich happy (synthetic): flat envelope (no data wrapp
     const fixture = await loadFixture(`${fixturesDir}synthetic-happy.json`);
     const result = await runEndpoint({
         unit,
-        input: { queryParams: { website: "stripe.com" } },
+        input: { queryParams: { website: ["stripe.com"] } },
         mode: "replay",
         fixture,
     });

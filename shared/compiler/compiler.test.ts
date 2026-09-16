@@ -1,6 +1,7 @@
 import { assert, assertEquals, assertRejects, assertThrows } from "@std/assert";
 import { z } from "zod";
 import { fromFileUrl, join } from "@std/path";
+import { greaterThan, parse } from "@std/semver";
 import {
     type ConnectorSource,
     contractConfig,
@@ -1117,9 +1118,16 @@ Deno.test("golden: compiled exa#search doc shape (zBundle round-trip)", async ()
     assert(doc, "exa#search compiled");
     assertEquals(doc.provider, "exa");
     // semverMax(doc_format_since, every fn's api) — read from the config
-    // constants rather than a literal, so a format bump updates this test's
-    // expectation instead of its meaning
-    assertEquals(doc.minEngineVersion, contractConfig.schema.docFormatSince);
+    // constants rather than a literal, so a format or ABI bump updates this
+    // test's expectation instead of its meaning. fn_abi_since leads today
+    // (the wire query became a multimap); doc_format_since led before it.
+    const { docFormatSince, fnAbiSince } = contractConfig.schema;
+    assertEquals(
+        doc.minEngineVersion,
+        greaterThan(parse(fnAbiSince), parse(docFormatSince))
+            ? fnAbiSince
+            : docFormatSince,
+    );
     assertEquals(doc.request, {
         method: "POST",
         url: "https://api.exa.ai/search",
@@ -1160,8 +1168,8 @@ Deno.test("golden: compiled exa#search doc shape (zBundle round-trip)", async ()
     assertEquals(authEntry.kind, "factory");
     assertEquals(authEntry.provenance, "presets#auth.header");
     assertEquals(bundle.fnTable[doc.usage.evidence.$fn.key].kind, "fn");
-    // every entry declares its ABI floor
-    assertEquals(authEntry.api, "0.0.1");
+    // every entry declares its ABI floor (schema.fn_abi_since)
+    assertEquals(authEntry.api, "0.1.0");
 
     // interning across endpoints: contents shares the provider auth fn
     // AND the provider's ONE vendor-meter consolidate (design D27); the
