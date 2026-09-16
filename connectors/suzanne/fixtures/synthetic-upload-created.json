@@ -1,0 +1,17 @@
+{
+    "name": "synthetic-upload-created",
+    "description": "The SYNC upload endpoint: one POST with no body, answered 201 with the presigned PUT URL. Proves the sync start override (no job_id is demanded) and the flat $0.01 draw.",
+    "calls": [
+        {
+            "req": { "method": "POST", "url": "{{request.url}}" },
+            "res": {
+                "status": 201,
+                "body": {
+                    "upload_id": "upl_01HZYXB4M2N7K9Q3R5T8V1WXYZ",
+                    "upload_url": "https://suzanne-uploads.s3.amazonaws.com/cus_01HZYX/upl_01HZYXB4M2N7K9Q3R5T8V1WXYZ?AWSAccessKeyId=EXAMPLE&Signature=EXAMPLE&Expires=1780000000",
+                    "expires_at": "2026-06-01T07:14:38.006300Z"
+                }
+            }
+        }
+    ]
+}

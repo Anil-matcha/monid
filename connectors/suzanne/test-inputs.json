@@ -1,0 +1,24 @@
+{
+    "v1/generations/text-to-3d": {
+        "body": {
+            "prompt": "a low-poly forest dragon, game-ready, mossy bark texture",
+            "params": { "faces": 500000, "pbr": true },
+            "outputs": ["glb"]
+        }
+    },
+    "v1/generations/photo-to-3d": {
+        "body": {
+            "model": "sculptor",
+            "images_upload_ids": {
+                "front": "upl_01HZYXB4M2N7K9Q3R5T8V1WXYZ"
+            },
+            "params": { "faces": 500000 },
+            "outputs": ["glb"]
+        }
+    },
+    "v1/uploads": {},
+    "v1/models/download": {
+        "pathParams": { "job_id": "job_01HZYX3QK5N8V2M4T6R9W1XC7B" },
+        "queryParams": { "format": "glb" }
+    }
+}

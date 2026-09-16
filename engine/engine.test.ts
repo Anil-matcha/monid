@@ -990,7 +990,9 @@ Deno.test("jsonUtil.pluck: one motion — {value, rest}; absent leaves the input
 
 /** Serve a scripted response sequence; capture what the engine sent. */
 function scriptTransport(
-    responses: Array<{ status: number; body: unknown }>,
+    responses: Array<
+        { status: number; body: unknown; headers?: Record<string, string> }
+    >,
     seen?: Array<{ method: string; url: string }>,
 ): Transport {
     let index = 0;
@@ -1011,6 +1013,7 @@ function scriptTransport(
             return Promise.resolve(
                 new Response(text, {
                     status: scripted.status,
+                    ...(scripted.headers ? { headers: scripted.headers } : {}),
                 }),
             );
         },
@@ -1232,6 +1235,115 @@ Deno.test("lifecycle: utils.http spells lists like the declarative path — repe
         seen[0].url,
         "https://api.asyncdemo.test/jobs?scalar=one&ids=a&ids=b",
     );
+});
+
+// ---------------------------------------------------------------------------
+// response headers are DATA — a 3xx's `location` IS the payload for an
+// endpoint whose answer is the redirect target (a presigned URL minted per
+// request), and redirects are never followed, so the header has to reach
+// the fn.
+// ---------------------------------------------------------------------------
+
+/** A start fn that projects a 3xx Location into the output — the
+ *  presigned-download shape, in miniature. */
+function redirectReadingStart(connectors: ConnectorSource[]): void {
+    connectors[0].provider.lifecycle!.start = async ({ utils }) => {
+        const res = await utils.request();
+        const location = res.headers.location;
+        const redirected = res.status >= 300 && res.status < 400 &&
+            location !== undefined;
+        // annotated: TS normalizes a union of object literals by adding
+        // `?: undefined` siblings, which are not assignable to Json
+        const output: Json = redirected
+            ? { download_url: location }
+            : { headerKeys: Object.keys(res.headers).sort() };
+        return {
+            kind: "COMPLETED",
+            // OURS 200 (the redirect IS the success) / THEIRS the 3xx
+            httpStatus: redirected ? 200 : res.status,
+            providerHttpStatus: res.status,
+            output,
+        };
+    };
+}
+
+Deno.test("response headers: a 302 Location reaches the lifecycle fn", async () => {
+    const seen: Array<{ method: string; url: string }> = [];
+    const engine = new Engine({
+        transport: scriptTransport([{
+            status: 302,
+            body: "",
+            headers: { location: "https://s3.test/mesh.glb?sig=abc" },
+        }], seen),
+        ...INSTANT_SLEEP,
+    });
+    const loaded = await engine.load(await asyncUnit(redirectReadingStart));
+    const result = await loaded.run({ body: { q: "hi" } });
+    assertEquals(result.kind, "COMPLETED");
+    // OURS 200 (the redirect IS the success) / THEIRS 302 — design D12
+    assertEquals(result.httpStatus, 200);
+    assertEquals(result.isProviderError, false);
+    assertEquals(result.output, {
+        download_url: "https://s3.test/mesh.glb?sig=abc",
+    });
+    // the redirect was NOT followed: exactly one exchange, at the doc's url
+    assertEquals(seen.length, 1);
+    assertEquals(seen[0].url, "https://api.asyncdemo.test/jobs");
+});
+
+Deno.test("response headers: a 3xx without Location falls through to the vendor status", async () => {
+    const engine = new Engine({
+        transport: scriptTransport([{ status: 303, body: "" }]),
+        ...INSTANT_SLEEP,
+    });
+    const loaded = await engine.load(await asyncUnit(redirectReadingStart));
+    const result = await loaded.run({ body: { q: "hi" } });
+    // no readable Location ⇒ the fn cannot claim success; the vendor status
+    // stands and the engine zero-bills it (a fn cannot bill an error)
+    assertEquals(result.httpStatus, 303);
+    assertEquals(result.isProviderError, true);
+    assertEquals(result.usage, { credits: {}, evidence: {} });
+});
+
+Deno.test("response headers: keys are lowercased and always present", async () => {
+    const engine = new Engine({
+        transport: scriptTransport([{
+            status: 200,
+            body: { ok: true },
+            headers: { "X-Request-Id": "r1", "Retry-After": "3" },
+        }]),
+        ...INSTANT_SLEEP,
+    });
+    const loaded = await engine.load(await asyncUnit(redirectReadingStart));
+    const result = await loaded.run({ body: { q: "hi" } });
+    const output = result.output as { headerKeys: string[] };
+    // content-type rides along from the scripted Response; the point is the
+    // CASING — a fn reads `res.headers["retry-after"]`, never a guess
+    assert(output.headerKeys.includes("retry-after"));
+    assert(output.headerKeys.includes("x-request-id"));
+    assertEquals(
+        output.headerKeys.filter((key) => key !== key.toLowerCase()),
+        [],
+    );
+});
+
+Deno.test("response headers: a transport that omits them yields {}", async () => {
+    // TransportResponse.headers is OPTIONAL — a host transport predating the
+    // capability stays source-compatible and fns still never branch.
+    const headerlessTransport: Transport = {
+        execute: () =>
+            Promise.resolve({
+                status: 200,
+                body: JSON.stringify({ ok: true }),
+            }),
+    };
+    const engine = new Engine({
+        transport: headerlessTransport,
+        ...INSTANT_SLEEP,
+    });
+    const loaded = await engine.load(await asyncUnit(redirectReadingStart));
+    const result = await loaded.run({ body: { q: "hi" } });
+    assertEquals(result.output, { headerKeys: [] });
 });
 
 Deno.test("lifecycle happy path: start → poll(running) → poll(done) → result fetch → settle", async () => {

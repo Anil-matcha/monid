@@ -1,0 +1,40 @@
+{
+    "name": "synthetic-job-failed",
+    "description": "The job FAILS after a clean submit: the poll exchange answers 200 but the job reports status failed with its own {code, message}. Proves the ours/theirs pair (synthesized 500 / provider 200) and that a failed job bills nothing — matching the vendor, which refunds vendor_model_error.",
+    "calls": [
+        {
+            "req": { "method": "POST", "url": "{{request.url}}" },
+            "res": {
+                "status": 202,
+                "body": {
+                    "job_id": "job_01HZYX9FAILEDM4T6R9W1XC7B",
+                    "status": "queued",
+                    "created_at": "2026-06-01T07:09:15.595749Z",
+                    "billable_amount_cents": 0
+                }
+            }
+        },
+        {
+            "req": {
+                "method": "GET",
+                "url": "{{request.origin}}/v1/jobs/job_01HZYX9FAILEDM4T6R9W1XC7B"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "job_id": "job_01HZYX9FAILEDM4T6R9W1XC7B",
+                    "status": "failed",
+                    "model": "sculptor",
+                    "created_at": "2026-06-01T07:09:15.595749Z",
+                    "updated_at": "2026-06-01T07:10:02.884301Z",
+                    "completed_at": null,
+                    "outputs": [],
+                    "error": {
+                        "code": "vendor_model_error",
+                        "message": "The upstream model produced no mesh for this prompt."
+                    }
+                }
+            }
+        }
+    ]
+}

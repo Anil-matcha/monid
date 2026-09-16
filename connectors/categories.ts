@@ -133,7 +133,7 @@ export const LEAF_CATEGORIES = defineLeafCategories([
             "Hosted multi-step research agents that plan, search, and synthesize.",
     },
     {
-        // The GENERATIVE leaves start here: every id above names data that
+        // The GENERATIVE leaves: every other id above names data that
         // already exists somewhere and is retrieved. These name an artifact
         // the call creates.
         id: "video-generation",
@@ -141,6 +141,13 @@ export const LEAF_CATEGORIES = defineLeafCategories([
         description:
             "Generate video from a text prompt, a still image, or reference " +
             "clips.",
+    },
+    {
+
+        id: "3d-generation",
+        displayName: "3D Generation",
+        description:
+            "Generate production 3D meshes from text prompts and photos.",
     },
     {
         id: "image-generation",

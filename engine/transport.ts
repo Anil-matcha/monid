@@ -91,6 +91,11 @@ export function directTransport(opts: {
                 return {
                     status: response.status,
                     body,
+                    // `redirect: "manual"` above means a 3xx arrives WITH its
+                    // Location intact and an empty body — the header IS the
+                    // payload for presigned-URL endpoints. Header keys are
+                    // lowercased by the Fetch spec's Headers iterator.
+                    headers: Object.fromEntries(response.headers),
                     contentType: response.headers.get("content-type") ??
                         undefined,
                 };

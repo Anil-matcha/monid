@@ -1,0 +1,19 @@
+{
+    "name": "synthetic-download-redirect",
+    "description": "The 302 whose Location IS the payload: an empty body plus a fresh 15-minute presigned S3 URL. THE fixture for the engine's response-header capability (add-connector-suzanne D1) — the run must settle 200 with {download_url} while the redirect itself is never followed.",
+    "calls": [
+        {
+            "req": {
+                "method": "GET",
+                "url": "{{request.origin}}/v1/models/job_01HZYX3QK5N8V2M4T6R9W1XC7B/download?format=glb"
+            },
+            "res": {
+                "status": 302,
+                "headers": {
+                    "location": "https://suzanne-meshes.s3.amazonaws.com/cus_01HZYX/job_01HZYX3QK5N8V2M4T6R9W1XC7B/mesh.glb?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Expires=900&X-Amz-Signature=EXAMPLE"
+                },
+                "body": null
+            }
+        }
+    ]
+}

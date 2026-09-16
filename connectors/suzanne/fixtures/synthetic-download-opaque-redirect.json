@@ -1,0 +1,13 @@
+{
+    "name": "synthetic-download-opaque-redirect",
+    "description": "A 3xx arrives with NO readable Location (proxy stripped it, or an opaque redirect). The download start must surface the vendor's status as a visible provider error rather than settle a success with a missing URL — silent corruption is the failure this guards.",
+    "calls": [
+        {
+            "req": {
+                "method": "GET",
+                "url": "{{request.origin}}/v1/models/job_01HZYX3QK5N8V2M4T6R9W1XC7B/download?format=glb"
+            },
+            "res": { "status": 302, "body": null }
+        }
+    ]
+}

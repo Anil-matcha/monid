@@ -243,10 +243,12 @@ export const fnUtils = Object.freeze({ json: jsonUtil, money: moneyUtil });
  * cross-origin calls (both capabilities) go out BARE. Fns never see
  * credentials either way.
  *
- * Responses come back sniff-decoded `{status, body}`; vendor non-2xx is
- * DATA (returned); transport failures throw EXECUTION_FAILED (retriable)
- * through the fn unless it catches. A malformed call/override shape is a
- * fn bug → FN_CONTRACT, fail-closed.
+ * Responses come back sniff-decoded `{status, headers, body}` — the vendor's
+ * RESPONSE headers ride along (lowercased) because a 3xx's `location` IS the
+ * payload for presigned-URL endpoints and redirects are never followed;
+ * vendor non-2xx is DATA (returned); transport failures throw
+ * EXECUTION_FAILED (retriable) through the fn unless it catches. A malformed
+ * call/override shape is a fn bug → FN_CONTRACT, fail-closed.
  */
 export function makeLifecycleUtils(opts: {
     doc: EndpointDoc;
@@ -293,7 +295,13 @@ export function makeLifecycleUtils(opts: {
             },
         };
         const response = await transport.execute(prepared);
-        return { status: response.status, body: sniffDecode(response) };
+        return {
+            status: response.status,
+            // a transport that does not surface headers presents `{}` — fns
+            // never branch on presence (the HttpResult contract)
+            headers: response.headers ?? {},
+            body: sniffDecode(response),
+        };
     };
 
     const utils: LifecycleUtils = {

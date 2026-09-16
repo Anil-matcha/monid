@@ -38,7 +38,11 @@ schema:
     # 0.1.0 with fn_abi_since: the lifecycle family's OWN surface moved too
     # — zHttpCall.queryParams now takes a scalar or a list, normalized by
     # the engine, so a lifecycle fn passing a list needs 0.1.0.
-    async_since: "0.1.0" # engine release of the lifecycle (async) hook family; stamped as lifecycle fn entries' `api`
+    # 0.2.0 adds RESPONSE HEADERS to HttpResult — the return of utils.http /
+    # utils.request, which only the LIFECYCLE family holds. So this bump is
+    # alone here, NOT on fn_abi_since: a pure-hook doc gained no capability
+    # and must not be floored at a newer engine.
+    async_since: "0.2.0" # engine release of the lifecycle (async) hook family; stamped as lifecycle fn entries' `api`
     state_max_bytes: 65536 # hard engine cap on serialized lifecycle state (ids + billing signals, never payloads)
 
 compiler:

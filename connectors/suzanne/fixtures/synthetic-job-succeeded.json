@@ -1,0 +1,65 @@
+{
+    "name": "synthetic-job-succeeded",
+    "description": "The happy ASYNC chain, shared by both generation endpoints: submit 202 with a job_id -> poll reports running -> poll reports done with outputs[]. Proves the park/poll/settle loop and the flat $0.65 draw. {{request.url}} binds the submit to whichever generation endpoint is under test.",
+    "calls": [
+        {
+            "req": { "method": "POST", "url": "{{request.url}}" },
+            "res": {
+                "status": 202,
+                "body": {
+                    "job_id": "job_01HZYX3QK5N8V2M4T6R9W1XC7B",
+                    "status": "queued",
+                    "created_at": "2026-06-01T07:09:15.595749Z",
+                    "billable_amount_cents": 0
+                }
+            }
+        },
+        {
+            "req": {
+                "method": "GET",
+                "url": "{{request.origin}}/v1/jobs/job_01HZYX3QK5N8V2M4T6R9W1XC7B"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "job_id": "job_01HZYX3QK5N8V2M4T6R9W1XC7B",
+                    "status": "running",
+                    "model": "sculptor",
+                    "created_at": "2026-06-01T07:09:15.595749Z",
+                    "updated_at": "2026-06-01T07:09:41.220118Z",
+                    "completed_at": null,
+                    "outputs": [],
+                    "error": null
+                }
+            }
+        },
+        {
+            "req": {
+                "method": "GET",
+                "url": "{{request.origin}}/v1/jobs/job_01HZYX3QK5N8V2M4T6R9W1XC7B"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "job_id": "job_01HZYX3QK5N8V2M4T6R9W1XC7B",
+                    "status": "done",
+                    "model": "sculptor",
+                    "created_at": "2026-06-01T07:09:15.595749Z",
+                    "updated_at": "2026-06-01T07:11:30.111073Z",
+                    "completed_at": "2026-06-01T07:11:30.111073Z",
+                    "outputs": [
+                        {
+                            "format": "glb",
+                            "download_url": "https://api.suzanne3d.com/v1/models/job_01HZYX3QK5N8V2M4T6R9W1XC7B/download?format=glb"
+                        },
+                        {
+                            "format": "fbx",
+                            "download_url": "https://api.suzanne3d.com/v1/models/job_01HZYX3QK5N8V2M4T6R9W1XC7B/download?format=fbx"
+                        }
+                    ],
+                    "error": null
+                }
+            }
+        }
+    ]
+}
