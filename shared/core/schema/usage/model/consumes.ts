@@ -1,12 +1,15 @@
 import { z } from "zod";
 
 /**
- * The credit-system DECLARATION (design D26): `usage.credits` sits BESIDE
- * `usage.model` (resolving provider ?? endpoint, so a provider declares
- * its pool once). A single-pool provider names its one system `default`;
- * named ids exist only for vendors draining ≥2 genuinely independent
- * pools. The broker's card is keyed by (provider, creditId) — credit →
- * money is the ONE per-provider fact left outside the doc.
+ * The credit-system DECLARATION (design D26, revised D6): `usage.credits`
+ * sits BESIDE `usage.model`, resolved KEY-WISE endpoint over provider —
+ * a provider declares its pool SET once (each pool drained by at least
+ * one endpoint) and an endpoint adds or restates only what diverges. A
+ * single-pool provider names its one system `default`; named ids exist
+ * for vendors metering ≥2 genuinely independent pools (pdl's four
+ * `x-call-credits-type` balances). The broker's card is keyed by
+ * (provider, creditId) — credit → money is the ONE per-provider fact
+ * left outside the doc.
  */
 export const zCreditSystem = z.strictObject({
     /** Short display name for billing surfaces ("Akta credits",

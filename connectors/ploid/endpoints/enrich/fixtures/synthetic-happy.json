@@ -1,0 +1,44 @@
+{
+    "name": "synthetic-happy",
+    "description": "SYNTHETIC — shaped from the v1 adaptor tests (drill 2026-09-05) and the Ploid OpenAPI 2.0.0; not verified against real traffic (no PLOID_API_KEY held). profile + email resolved, phone null: two found-only lines, meter 2 ACU.",
+    "calls": [
+        {
+            "req": {
+                "method": "POST",
+                "url": "https://api.ploid.com/v1/enrich",
+                "body": {
+                    "linkedin_url": "https://www.linkedin.com/in/example",
+                    "enrichments": [
+                        "profile",
+                        "email",
+                        "phone"
+                    ]
+                }
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "data": {
+                        "linkedin_profile": {
+                            "linkedin_url": "https://li.example/p",
+                            "name": "P"
+                        },
+                        "email": {
+                            "value": "p@x.co",
+                            "confidence": "strong",
+                            "verification_status": "matched"
+                        },
+                        "phone": null
+                    },
+                    "meta": {
+                        "request_id": "req_4",
+                        "acu_used": 2,
+                        "acu_remaining": 986.84,
+                        "acu_value_usd": 0.1,
+                        "warnings": []
+                    }
+                }
+            }
+        }
+    ]
+}

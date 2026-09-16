@@ -15,11 +15,14 @@ import { zCredits, zUsageModel } from "../usage/model/mod.ts";
  *     without executing anything. Must RESOLVE for every endpoint
  *     (endpoint ?? provider — compile error if neither): every doc
  *     declares what is chargeable.
- *   - `credits`: the credit systems this endpoint drains (design D26) —
- *     declared INDEPENDENTLY of the rate card, resolving provider ??
- *     endpoint (a provider declares its pool ONCE; single-pool providers
- *     name it `default`). Every billable line's `consumes.credit` must
- *     reference a resolved id (compile-checked). FREE docs need none.
+ *   - `credits`: the credit systems the doc's lines drain (design D26,
+ *     revised D6) — declared INDEPENDENTLY of the rate card, resolving
+ *     KEY-WISE endpoint over provider (the D20 rule: a provider declares
+ *     its pool SET once — single-pool providers name it `default` — and
+ *     an endpoint adds or restates only what diverges). Every billable
+ *     line's `consumes.credit` must reference a resolved id; a PROVIDER
+ *     pool must be drained by at least ONE endpoint, an ENDPOINT pool by
+ *     that endpoint (compile-checked). FREE docs need none.
  *   - `estimate`: the PRE-RUN quantities promise (hooks/estimate.ts) —
  *     validated input → `{counts}` with the model's metered keys.
  *   - `evidence`: the POST-RUN quantities settle (hooks/usage-evidence.ts)

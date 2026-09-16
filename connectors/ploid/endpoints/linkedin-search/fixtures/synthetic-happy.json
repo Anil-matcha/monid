@@ -1,0 +1,110 @@
+{
+    "name": "synthetic-happy",
+    "description": "SYNTHETIC — shaped from the v1 adaptor tests (drill 2026-09-05) and the Ploid OpenAPI 2.0.0; not verified against real traffic (no PLOID_API_KEY held). 15 matches = 2 started blocks, meter 0.2 ACU; meta.cursor stays.",
+    "calls": [
+        {
+            "req": {
+                "method": "POST",
+                "url": "https://api.ploid.com/v1/linkedin/search",
+                "body": {
+                    "filters": {
+                        "keywords": "engineer"
+                    },
+                    "limit": 15
+                }
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "data": {
+                        "items": [
+                            {
+                                "socialId": "id-0",
+                                "fullName": "Person 0",
+                                "profileUrl": "https://li.example/0"
+                            },
+                            {
+                                "socialId": "id-1",
+                                "fullName": "Person 1",
+                                "profileUrl": "https://li.example/1"
+                            },
+                            {
+                                "socialId": "id-2",
+                                "fullName": "Person 2",
+                                "profileUrl": "https://li.example/2"
+                            },
+                            {
+                                "socialId": "id-3",
+                                "fullName": "Person 3",
+                                "profileUrl": "https://li.example/3"
+                            },
+                            {
+                                "socialId": "id-4",
+                                "fullName": "Person 4",
+                                "profileUrl": "https://li.example/4"
+                            },
+                            {
+                                "socialId": "id-5",
+                                "fullName": "Person 5",
+                                "profileUrl": "https://li.example/5"
+                            },
+                            {
+                                "socialId": "id-6",
+                                "fullName": "Person 6",
+                                "profileUrl": "https://li.example/6"
+                            },
+                            {
+                                "socialId": "id-7",
+                                "fullName": "Person 7",
+                                "profileUrl": "https://li.example/7"
+                            },
+                            {
+                                "socialId": "id-8",
+                                "fullName": "Person 8",
+                                "profileUrl": "https://li.example/8"
+                            },
+                            {
+                                "socialId": "id-9",
+                                "fullName": "Person 9",
+                                "profileUrl": "https://li.example/9"
+                            },
+                            {
+                                "socialId": "id-10",
+                                "fullName": "Person 10",
+                                "profileUrl": "https://li.example/10"
+                            },
+                            {
+                                "socialId": "id-11",
+                                "fullName": "Person 11",
+                                "profileUrl": "https://li.example/11"
+                            },
+                            {
+                                "socialId": "id-12",
+                                "fullName": "Person 12",
+                                "profileUrl": "https://li.example/12"
+                            },
+                            {
+                                "socialId": "id-13",
+                                "fullName": "Person 13",
+                                "profileUrl": "https://li.example/13"
+                            },
+                            {
+                                "socialId": "id-14",
+                                "fullName": "Person 14",
+                                "profileUrl": "https://li.example/14"
+                            }
+                        ],
+                        "cursor": null,
+                        "total": 15
+                    },
+                    "meta": {
+                        "request_id": "req_li",
+                        "cursor": null,
+                        "credits_charged": 0.2,
+                        "remaining_credits": 991
+                    }
+                }
+            }
+        }
+    ]
+}

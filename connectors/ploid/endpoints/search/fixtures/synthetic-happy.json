@@ -1,0 +1,95 @@
+{
+    "name": "synthetic-happy",
+    "description": "SYNTHETIC — shaped from the v1 adaptor tests (drill 2026-09-05) and the Ploid OpenAPI 2.0.0; not verified against real traffic (no PLOID_API_KEY held). 7 results = 1 started block, meter 0.1 ACU; meta.warning (partial results) must survive the strip.",
+    "calls": [
+        {
+            "req": {
+                "method": "POST",
+                "url": "https://api.ploid.com/v1/search",
+                "body": {
+                    "query": "fintech engineers",
+                    "num_results": 7
+                }
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "data": {
+                        "results": [
+                            {
+                                "url": "https://li.example/0",
+                                "title": "Person 0",
+                                "score": 0.9,
+                                "person": {
+                                    "name": "Person 0"
+                                }
+                            },
+                            {
+                                "url": "https://li.example/1",
+                                "title": "Person 1",
+                                "score": 0.9,
+                                "person": {
+                                    "name": "Person 1"
+                                }
+                            },
+                            {
+                                "url": "https://li.example/2",
+                                "title": "Person 2",
+                                "score": 0.9,
+                                "person": {
+                                    "name": "Person 2"
+                                }
+                            },
+                            {
+                                "url": "https://li.example/3",
+                                "title": "Person 3",
+                                "score": 0.9,
+                                "person": {
+                                    "name": "Person 3"
+                                }
+                            },
+                            {
+                                "url": "https://li.example/4",
+                                "title": "Person 4",
+                                "score": 0.9,
+                                "person": {
+                                    "name": "Person 4"
+                                }
+                            },
+                            {
+                                "url": "https://li.example/5",
+                                "title": "Person 5",
+                                "score": 0.9,
+                                "person": {
+                                    "name": "Person 5"
+                                }
+                            },
+                            {
+                                "url": "https://li.example/6",
+                                "title": "Person 6",
+                                "score": 0.9,
+                                "person": {
+                                    "name": "Person 6"
+                                }
+                            }
+                        ],
+                        "search_time_ms": 120,
+                        "rows_indexed": 3000000000,
+                        "request": {
+                            "query": "fintech engineers",
+                            "type": "auto",
+                            "category": "people",
+                            "num_results": 7
+                        }
+                    },
+                    "meta": {
+                        "request_id": "req_1",
+                        "credits_charged": 0.1,
+                        "remaining_credits": 990.84,
+                        "warning": "search_timeout"
+                    }
+                }
+            }
+        }
+    ]
+}

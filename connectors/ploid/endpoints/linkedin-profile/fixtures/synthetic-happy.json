@@ -1,0 +1,25 @@
+{
+    "name": "synthetic-happy",
+    "description": "SYNTHETIC — shaped from the v1 adaptor tests (drill 2026-09-05) and the Ploid OpenAPI 2.0.0; not verified against real traffic (no PLOID_API_KEY held). One read, meter 0.06 ACU; meta is emptied by the strip and dropped.",
+    "calls": [
+        {
+            "req": {
+                "method": "GET",
+                "url": "https://api.ploid.com/v1/linkedin/profile?url=https%3A%2F%2Fwww.linkedin.com%2Fin%2Fexample"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "data": {
+                        "fullName": "A Person",
+                        "headline": "Engineer"
+                    },
+                    "meta": {
+                        "request_id": "req_li",
+                        "credits_charged": 0.06
+                    }
+                }
+            }
+        }
+    ]
+}

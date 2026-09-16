@@ -1,0 +1,26 @@
+{
+    "name": "synthetic-happy",
+    "description": "SYNTHETIC chain for pdl#v5/person/enrich (no PDL_API_KEY held; shape from the v1 adaptor tests and the PDL Person Enrichment reference — replace via `deno task record` when a key exists): GET with the identifier on the query string returns {status, likelihood, data}; one match = one person credit.",
+    "calls": [
+        {
+            "req": {
+                "method": "GET",
+                "url": "https://api.peopledatalabs.com/v5/person/enrich?email=user%40example.com"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "status": 200,
+                    "likelihood": 8,
+                    "data": {
+                        "id": "qEnOZ5Oh0poWnQ1luFBfVw_0000",
+                        "full_name": "jane doe",
+                        "job_title": "data scientist",
+                        "job_company_name": "example corp",
+                        "linkedin_url": "linkedin.com/in/janedoe"
+                    }
+                }
+            }
+        }
+    ]
+}

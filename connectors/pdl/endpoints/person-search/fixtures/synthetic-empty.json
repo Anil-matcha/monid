@@ -1,0 +1,20 @@
+{
+    "name": "synthetic-empty",
+    "description": "SYNTHETIC chain for pdl#v5/person/search (PDL docs: 'We will return an HTTP response code of 200 for any valid request, regardless of whether records were found'; replace via `deno task record`): zero records, zero credits.",
+    "calls": [
+        {
+            "req": {
+                "method": "POST",
+                "url": "https://api.peopledatalabs.com/v5/person/search",
+                "body": {
+                    "sql": "SELECT * FROM person WHERE job_title='zzzz-no-such-title'",
+                    "size": 1
+                }
+            },
+            "res": {
+                "status": 200,
+                "body": { "status": 200, "data": [], "total": 0 }
+            }
+        }
+    ]
+}

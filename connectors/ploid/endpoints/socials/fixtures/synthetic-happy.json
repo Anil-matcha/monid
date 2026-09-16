@@ -1,0 +1,33 @@
+{
+    "name": "synthetic-happy",
+    "description": "SYNTHETIC — shaped from the v1 adaptor tests (drill 2026-09-05) and the Ploid OpenAPI 2.0.0; not verified against real traffic (no PLOID_API_KEY held). One profile hit, meter 1 ACU.",
+    "calls": [
+        {
+            "req": {
+                "method": "POST",
+                "url": "https://api.ploid.com/v1/socials",
+                "body": {
+                    "platform": "github",
+                    "identifier": "octocat"
+                }
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "data": {
+                        "platform": "github",
+                        "profile": {
+                            "login": "octocat",
+                            "followers": 1234
+                        }
+                    },
+                    "meta": {
+                        "request_id": "req_2",
+                        "credits_charged": 1,
+                        "remaining_credits": 39
+                    }
+                }
+            }
+        }
+    ]
+}

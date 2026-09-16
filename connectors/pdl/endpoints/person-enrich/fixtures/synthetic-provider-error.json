@@ -1,0 +1,22 @@
+{
+    "name": "synthetic-provider-error",
+    "description": "SYNTHETIC chain for pdl#v5/person/enrich (error envelope verbatim from docs.peopledatalabs.com/docs/errors; replace via `deno task record`): no match is a 404 not_found — vendor non-2xx is DATA, zero usage (PDL charges per match, never per miss).",
+    "calls": [
+        {
+            "req": {
+                "method": "GET",
+                "url": "https://api.peopledatalabs.com/v5/person/enrich?email=nobody%40example.com"
+            },
+            "res": {
+                "status": 404,
+                "body": {
+                    "status": 404,
+                    "error": {
+                        "type": "not_found",
+                        "message": "No records were found matching your request"
+                    }
+                }
+            }
+        }
+    ]
+}

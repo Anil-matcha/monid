@@ -126,4 +126,10 @@ export const LEAF_CATEGORIES = defineLeafCategories([
         description:
             "TikTok data: videos, profiles, comments, and search results.",
     },
+    {
+        id: "agents",
+        displayName: "Agents",
+        description:
+            "Hosted multi-step research agents that plan, search, and synthesize.",
+    },
 ]);

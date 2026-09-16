@@ -1,0 +1,22 @@
+{
+    "name": "provider-error",
+    "description": "recorded chain for ploid#linkedin-posts, scenario 'provider-error' (per-endpoint recording; real traffic, headers dropped, request_id replaced by a placeholder)",
+    "calls": [
+        {
+            "req": {
+                "method": "GET",
+                "url": "https://api.ploid.com/v1/linkedin/posts?identifier=example&limit=5"
+            },
+            "res": {
+                "status": 401,
+                "body": {
+                    "error": {
+                        "code": "invalid_api_key",
+                        "message": "Invalid API key.",
+                        "request_id": "req_recorded_401_06"
+                    }
+                }
+            }
+        }
+    ]
+}

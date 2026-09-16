@@ -1,0 +1,54 @@
+{
+    "name": "synthetic-run-failed",
+    "description": "SYNTHETIC — shaped from the v1 adaptor tests (drill 2026-09-05) and the Ploid OpenAPI 2.0.0; not verified against real traffic (no PLOID_API_KEY held). The poll answers 503: terminal error-as-data, zero usage.",
+    "calls": [
+        {
+            "req": {
+                "method": "POST",
+                "url": "https://api.ploid.com/v1/agent",
+                "body": {
+                    "prompt": "Research Retool's current stage.",
+                    "max_acu": 12,
+                    "operation": "ask",
+                    "memory": "none",
+                    "sources": [
+                        "people",
+                        "public_web"
+                    ]
+                }
+            },
+            "res": {
+                "status": 202,
+                "body": {
+                    "data": {
+                        "run_id": "f55b4637-7cb5-4b41-9755-e50f47e688dd",
+                        "status": "queued",
+                        "poll_url": "/v1/agent/runs/f55b4637-7cb5-4b41-9755-e50f47e688dd"
+                    },
+                    "meta": {
+                        "request_id": "req_5",
+                        "acu_limit": 12,
+                        "acu_used": 0,
+                        "acu_value_usd": 0.1
+                    }
+                }
+            }
+        },
+        {
+            "req": {
+                "method": "GET",
+                "url": "https://api.ploid.com/v1/agent/runs/f55b4637-7cb5-4b41-9755-e50f47e688dd"
+            },
+            "res": {
+                "status": 503,
+                "body": {
+                    "error": {
+                        "code": "agent_run_failed",
+                        "message": "Agent run failed or produced no valid result.",
+                        "request_id": "req_5c"
+                    }
+                }
+            }
+        }
+    ]
+}
