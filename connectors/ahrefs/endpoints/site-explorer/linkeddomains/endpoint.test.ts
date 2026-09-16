@@ -23,7 +23,7 @@ Deno.test(`${ID} happy (synthetic): 3 row(s) ⇒ max(50, 4 × 3) = 50 units`, as
     });
     assertEquals(result.httpStatus, 200);
     assertEquals(result.isProviderError, false);
-    // no vendor claim ⇒ the derived fold IS usage; zUsage is strict, so
+    // no fixture meter ⇒ the derived fold IS usage; zUsage is strict, so
     // deep equality proves there is no `mismatch` key
     assertEquals(result.usage, {
         "credits": { "default": 50 },
@@ -99,7 +99,7 @@ Deno.test(`${ID} schema gate: bad inputs are rejected before the wire`, async ()
 });
 
 Deno.test({
-    name: `${ID} live (gated on AHREFS_API_KEY; draws at least 50 units)`,
+    name: `${ID} live (gated on AHREFS_API_KEY; may consume API units)`,
     ignore: liveSkip("ahrefs"),
     fn: async () => {
         const unit = await testSealedUnit(ID);

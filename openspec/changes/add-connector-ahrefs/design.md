@@ -162,8 +162,8 @@ No Ahrefs key is held. Bodies follow the v1 adaptor tests; each fixture's
 URL was produced by running the doc through the engine with a stub fetch,
 so `select` injection, the keyword join and the binding defaults are
 recorded exactly as issued. Every file is `synthetic-` prefixed and says
-so. Live tests are written and gated on `AHREFS_API_KEY`; each live run
-draws at least 50 units.
+so. Direct live tests are gated on `AHREFS_API_KEY` and may consume
+API units; cache hits and free queries settle zero under D2.
 
 ## D9 — Provider error handling and the synchronous meter relay
 
