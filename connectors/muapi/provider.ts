@@ -155,6 +155,7 @@ export default defineProvider({
                 data.output,
                 "$.error.message",
             );
+            const direct = utils.json.optionalGet(data.output, "$.error");
             const flat = utils.json.optionalGet(data.output, "$.message");
             const code = utils.json.optionalGet(
                 data.output,
@@ -162,6 +163,8 @@ export default defineProvider({
             );
             const message = typeof nested === "string" && nested !== ""
                 ? nested
+                : typeof direct === "string" && direct !== ""
+                ? direct
                 : typeof flat === "string" && flat !== ""
                 ? flat
                 : "MuAPI API error";

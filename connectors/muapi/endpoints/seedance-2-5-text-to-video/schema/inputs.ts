@@ -8,8 +8,8 @@ import { z } from "zod";
 export const zMuapiSeedance25VideoBody = z.strictObject({
     prompt: z
         .string()
-        .min(1)
-        .describe("Text prompt describing the scene and motion."),
+        .describe("Text prompt describing the scene and motion.")
+        .optional(),
     resolution: z
         .enum(["480p", "720p", "1080p", "4k"])
         .describe(
@@ -19,10 +19,7 @@ export const zMuapiSeedance25VideoBody = z.strictObject({
         .optional(),
     duration: z
         .number()
-        .int()
-        .min(4)
-        .max(30)
-        .describe("Output duration in seconds (4-30).")
+        .describe("Output duration in seconds.")
         .optional(),
     aspect_ratio: z
         .enum([
@@ -39,9 +36,6 @@ export const zMuapiSeedance25VideoBody = z.strictObject({
         .optional(),
     seed: z
         .number()
-        .int()
-        .min(-1)
-        .max(4294967295)
         .describe("Random seed; use -1 for a random seed.")
         .optional(),
     high_bitrate: z

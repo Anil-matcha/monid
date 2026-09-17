@@ -68,6 +68,21 @@ Deno.test("muapi: a failed prediction is synthesized as zero-usage error", async
     assert("raw" in output);
 });
 
+Deno.test("muapi: a string task error is preserved", async () => {
+    const result = await runEndpoint({
+        unit: await testSealedUnit(ID),
+        input: INPUT,
+        mode: "replay",
+        fixture: await loadFixture(
+            `${FIXTURES}synthetic-task-failed-string.json`,
+        ),
+    });
+    assertEquals(result.httpStatus, 500);
+    assertEquals(result.isProviderError, true);
+    const output = result.output as Record<string, Json>;
+    assertEquals(output.message, "the prompt was rejected as unsafe");
+});
+
 Deno.test("muapi: a rejected submit is relayed as zero-usage error-as-data", async () => {
     const result = await runEndpoint({
         unit: await testSealedUnit(ID),
@@ -118,7 +133,12 @@ Deno.test("muapi: estimates follow the resolution-per-second card", async () => 
     );
 });
 
-Deno.test("muapi: schema rejects invalid duration before the wire", async () => {
+Deno.test("muapi: endpoint binding rejects invalid inputs before the wire", async () => {
+    await assertRejects(
+        () => estimate({}),
+        Error,
+        "INVALID_INPUT",
+    );
     await assertRejects(
         () => estimate({ prompt: "x", duration: 31 }),
         Error,

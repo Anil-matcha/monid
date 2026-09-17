@@ -1,0 +1,32 @@
+{
+    "name": "synthetic-task-failed-string",
+    "description": "A MuAPI prediction whose terminal failure reports error as a plain string. Synthetic because provider task failures are not safe to provoke on demand.",
+    "calls": [
+        {
+            "req": {
+                "method": "POST",
+                "url": "{{request.url}}"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "request_id": "MUAPI_TASK_3"
+                }
+            }
+        },
+        {
+            "req": {
+                "method": "GET",
+                "url": "{{request.origin}}/predictions/MUAPI_TASK_3/result"
+            },
+            "res": {
+                "status": 200,
+                "body": {
+                    "request_id": "MUAPI_TASK_3",
+                    "status": "failed",
+                    "error": "the prompt was rejected as unsafe"
+                }
+            }
+        }
+    ]
+}

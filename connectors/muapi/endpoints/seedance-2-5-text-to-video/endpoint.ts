@@ -34,12 +34,16 @@ export default defineEndpoint({
     input: {
         schema: {
             body: zMuapiSeedance25VideoBody.extend({
+                prompt: zMuapiSeedance25VideoBody.shape.prompt.unwrap()
+                    .min(1),
                 resolution: zMuapiSeedance25VideoBody.shape.resolution.unwrap()
                     .default("720p"),
                 duration: zMuapiSeedance25VideoBody.shape.duration.unwrap()
-                    .default(5),
+                    .int().min(4).max(30).default(5),
                 aspect_ratio: zMuapiSeedance25VideoBody.shape.aspect_ratio
                     .unwrap().default("16:9"),
+                seed: zMuapiSeedance25VideoBody.shape.seed.unwrap()
+                    .int().min(-1).max(4294967295).optional(),
                 high_bitrate: zMuapiSeedance25VideoBody.shape.high_bitrate
                     .unwrap().default(false),
             }),
